@@ -31,6 +31,8 @@ public class Weapon : MonoBehaviour
 
     public Vector3 crosshairs;
 
+    private Vector3 aimRot;
+
     //public Transform gunRotation;
 
     private GameObject bulletInstance;
@@ -49,9 +51,8 @@ public class Weapon : MonoBehaviour
         climbing = FindObjectOfType<Climbing>();
 
     }
-    void Update()
+    void LateUpdate()
     {
-        //aimWeapon();
         checkWeaponType();
 
         if (pistolEquip)
@@ -64,6 +65,7 @@ public class Weapon : MonoBehaviour
             FireShotgun();
         }
     }
+
 
     private void FirePistol()
     {
@@ -82,8 +84,10 @@ public class Weapon : MonoBehaviour
                     bulletInstance.transform.LookAt(hit.point);
                     bulletInstance.GetComponent<Rigidbody>().velocity = bulletInstance.transform.forward * bulletspeed;
                     ammoRemaining -= 1;
+
                 }
                 crosshairs = hit.point;
+                isShooting = false;
             }
             else
             {
@@ -96,9 +100,11 @@ public class Weapon : MonoBehaviour
                     bulletInstance.transform.LookAt(ray.GetPoint(100000));
                     bulletInstance.GetComponent<Rigidbody>().velocity = bulletInstance.transform.forward * bulletspeed;
                     ammoRemaining -= 1;
+
                 }
-                Destroy(bulletInstance, 0.1f);
+                //Destroy(bulletInstance, 0.1f);
                 crosshairs = ray.GetPoint(100000);
+                isShooting = false;
             }
         }
     }
@@ -113,16 +119,16 @@ public class Weapon : MonoBehaviour
             {
                 if (Input.GetMouseButtonDown(0) && ammoRemaining > 0)
                 {
+                    isShooting = true;
                     for (var i = 0; i < bulletCount; i++)
                     {
-                        var bulletRot = crossfire.transform.rotation;
-                        bulletRot.x += Random.Range(-0.03f, 0.03f);
-                        bulletRot.y += Random.Range(-0.03f, 0.03f);
-                        //bulletRot.z += Random.Range(-0.03f, 0.03f);
+                        Transform forwardLook = crossfire.transform;
+                        aimRot = forwardLook.eulerAngles + new Vector3(Random.Range(-3f, 3f), Random.Range(-3f, 3f), 0f);
+                        var bulletRot = Quaternion.Euler(aimRot);
+
                         bulletInstance = Instantiate(bullet, guntip.position + (new Vector3(Random.Range(-0.05f, 0.05f), Random.Range(-0.05f, 0.05f), Random.Range(-0.05f, 0.05f))), bulletRot);
                         bulletInstance.GetComponent<Rigidbody>().velocity = bulletInstance.transform.forward * bulletspeed;
-                        //bulletInstance.GetComponent<Rigidbody>().velocity = bulletInstance.transfrom.localEulerAngles(Vector3.forward) * bulletspeed;
-                        //bulletInstance.GetComponent<Rigidbody>().velocity = Vector3.forward * bulletspeed;
+
                         Debug.Log("FIRE SHOTGUN!");
                     }
                     ammoRemaining -= 1;
@@ -131,22 +137,20 @@ public class Weapon : MonoBehaviour
                     Debug.DrawLine(guntip.transform.position, hit.point, Color.red, 2f);
                 }
                 crosshairs = hit.point;
+                isShooting = false;
             }
             else
             {
                 if (Input.GetMouseButtonDown(0) && ammoRemaining > 0)
                 {
-
+                    isShooting = true;
                     for (var i = 0; i < bulletCount; i++)
                     {
-                        var bulletRot = guntip.transform.rotation;
-                        bulletRot.x += Random.Range(-0.03f, 0.03f);
-                        bulletRot.y += Random.Range(-0.03f, 0.03f);
-                        //bulletRot.z += Random.Range(-0.03f, 0.03f);
+                        aimRot = guntip.eulerAngles + new Vector3(Random.Range(-3f, 3f), Random.Range(-3f, 3f), 0f);
+                        var bulletRot = Quaternion.Euler(aimRot);
+
                         bulletInstance = Instantiate(bullet, guntip.position + (new Vector3(Random.Range(-0.05f, 0.05f), Random.Range(-0.05f, 0.05f), Random.Range(-0.05f, 0.05f))), bulletRot);
                         bulletInstance.GetComponent<Rigidbody>().velocity = bulletInstance.transform.forward * bulletspeed;
-                        //bulletInstance.GetComponent<Rigidbody>().velocity = bulletInstance.transfrom.localEulerAngles(Vector3.forward) * bulletspeed;
-                        //bulletInstance.GetComponent<Rigidbody>().velocity = Vector3.forward * bulletspeed;
                         Debug.Log("FIRE SHOTGUN!");
                     }
                     ammoRemaining -= 1;
@@ -154,7 +158,6 @@ public class Weapon : MonoBehaviour
                     muzzleEffect.Play();
                     Debug.DrawLine(guntip.transform.position, ray.GetPoint(100000), Color.red, 2f);
                 }
-                //Destroy(bulletInstance, 0.1f);
                 crosshairs = ray.GetPoint(100000);
             }
         }
@@ -169,14 +172,6 @@ public class Weapon : MonoBehaviour
             ammoRemaining = maxAmmo;
         }
     }
-
-    //public void aimWeapon()
-    //{
-    //    var aimDir = this.transform.position - crosshairs;
-    //    Quaternion targetDir = Quaternion.LookRotation(-aimDir);
-    //    transform.LookAt(crosshairs);
-
-    //}
 
     public void checkWeaponType()
     {

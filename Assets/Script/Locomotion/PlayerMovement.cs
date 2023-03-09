@@ -37,7 +37,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] public bool backMove;
     [SerializeField] public bool rightMove;
     [SerializeField] public bool playerOnGround; // for jumping
-    [SerializeField] private bool isRunning;
+    [SerializeField] public bool isRunning;
     [SerializeField] public bool sliding;
     [SerializeField] public bool crouching;
     [SerializeField] public bool groundSlide;
@@ -69,10 +69,10 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] public float currentStaminaValue;
     [SerializeField] public float maxStamina = 10f;
 
-    [SerializeField] float walkSpeed = 9f;
-    [SerializeField] float runSpeed = 14f;
-    [SerializeField] float crouchSpeed = 4f;
-    [SerializeField] float swimSpeed = 4f;
+    [SerializeField] float walkSpeed = 5f;
+    [SerializeField] float runSpeed = 10f;
+    [SerializeField] float crouchSpeed = 2f;
+    [SerializeField] float swimSpeed = 2f;
     [SerializeField] float wallRunSpeed = 1f;
     [SerializeField] float airSpeed = 50f;
 

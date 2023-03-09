@@ -23,6 +23,11 @@ public class Bullet : MonoBehaviour
         playerHealth = FindObjectOfType<PlayerHealth>();
     }
 
+    void Update()
+    {
+       StartCoroutine(DestroyBullet());
+    }
+
     void OnCollisionEnter(Collision collision)
     {
         // Spawns Bullet decal and effect at the point of collision makes decal child of object it collides with. 
@@ -62,7 +67,12 @@ public class Bullet : MonoBehaviour
         decal.transform.forward = hitInfo.normal * -1f;
         decal.transform.parent = colParent.transform;
         Destroy(decal, 5f);
+    }
 
+    IEnumerator DestroyBullet()
+    {
+        yield return new WaitForSeconds(3);
+        Destroy(gameObject);
     }
 
 }
