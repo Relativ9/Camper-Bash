@@ -7,11 +7,6 @@ using UnityEngine.Audio;
 
 public class PlayerMovement : MonoBehaviour
 {
-    // public MouseData mouseItem = new MouseData();
-
-    //TODO Fix Weapon clipping in walls 
-    // TODO should 'walk' be done only when player is on ground? how about when player is in the air? currently we can move in the air :-/
-
     [SerializeField] public Rigidbody playerRigidbody;
     [SerializeField] public Camera fpsCam;
     [SerializeField] public Transform cameraFollowTrans;
@@ -25,10 +20,6 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private BreathingCheck breathCheck;
     [SerializeField] private WallRun wallRun;
     [SerializeField] private Climbing climbing;
-    //[SerializeField] private NpcInteractionVisuals npcInteractionVisuals;
-    //[SerializeField] public Npc npc;
-    //[SerializeField] public MissionObjective missionObjective;
-    //[SerializeField] public ToggleInventoryUI toggleInventoryUI;
     [SerializeField] public CapsuleCollider playerCol;
 
     [SerializeField] public bool isMoving;
@@ -47,8 +38,6 @@ public class PlayerMovement : MonoBehaviour
 
     [SerializeField] public bool onStairs;
 
-    //[SerializeField] public bool almostLanded;
-
     [SerializeField] public float horizontal;
     [SerializeField] public float vertical;
     public float groundSlopeDetected;
@@ -64,7 +53,6 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] public bool backGrounded;
 
     public bool canJump;
-    //public bool inChatwithNpc;
     private float moveSpeed;
     [SerializeField] public float currentStaminaValue;
     [SerializeField] public float maxStamina = 10f;
@@ -119,8 +107,6 @@ public class PlayerMovement : MonoBehaviour
 
     [SerializeField] public float secondsSinceWallRun;
     [SerializeField] public bool recentlyWallRan;
-
-    //RaycastHit landHit;
     RaycastHit rightHit;
     RaycastHit leftHit;
     RaycastHit groundRay;
@@ -131,83 +117,22 @@ public class PlayerMovement : MonoBehaviour
     public float multiplier = 4.5f;
     public float jumpMultiplier = 4.5f;
 
-
-
-    ////public AudioManager audioManager;
-
     [SerializeField] public Animator animator;
 
-    //public string npcSelectedName;
-
-    // The components below will be set at the front end
-    //[SerializeField] public InventoryObject materialsInventoryObject;
-    //[SerializeField] public InventoryObject craftingInventoryObject;
-    //[SerializeField] public InventoryObject cardInventoryObject;
-    //[SerializeField] public InventoryObject potionsAndAmmoInventoryObject;
-    //[SerializeField] public InventoryObject deckHandInventoryObject;
-    //[SerializeField] public InventoryObject playerInventoryObject;
-
-
-    //[SerializeField] private bool movingOnGround; // //  was trying to limit speed based on this
-
-    //code below for saving game
-    private PlayerMovement playerMovement;
-    private PlayerHealth playerHealth;
-    private Weapon weapon;
-    //public Scene currentPlayerScene;
-    //public int currentPlayerSceneNumber;
-
-    //public PauseMenuController pauseMenuController;
-
     public GameObject playerHead;
-    //float spherecastRadius1 = 0.5f;
-    //float spherecastMaxDistance1 = 10f;
-    //public bool canPlaceCampFire;
-    //public Vector3 campFirePosition;
     public LayerMask layerMask;
-
-    //GroundItem item;
-    private Vector3 cardHitPoint;
-
-    //public DeckHandDatabaseForStartOfGame DeckHandDatabaseForStartOfGame;
-
-    //public CardBattleResults cardBattleResults;
 
     void Start()
     {
         playerRigidbody = FindObjectOfType<PlayerMovement>().GetComponent<Rigidbody>();
         playerHead = GameObject.Find("Head");
-        //playerRigidbody.useGravity = true;
         wallRun = GetComponent<WallRun>();
-        //playerFeet = GameObject.Find("Feet");
         climbing = GetComponentInChildren<Climbing>();
-        //npcInteractionVisuals = GameObject.Find("NPC Convo / Inventory UI Toggle").GetComponent<NpcInteractionVisuals>();
-        //animator = FindObjectOfType<PlayerMovement>().transform.Find("Freyja_Prefab").GetComponent<Animator>();
         this.gameObject.GetComponent<Collider>().material.staticFriction = 100f;
 
         currentStaminaValue = 10f;
         playerOnGround = false;
         recentlyWallRan = false;
-
-        //cardBattleResults = FindObjectOfType<CardBattleResults>();
-
-        ////For saving game
-        //playerMovement = FindObjectOfType<PlayerMovement>();
-        //playerHealth = FindObjectOfType<PlayerHealth>();
-        //weapon = FindObjectOfType<Weapon>();
-
-        //// for unpausing game after load
-        //pauseMenuController = FindObjectOfType<PauseMenuController>();
-        //playerRigidbody.transform.position = playerRigidbody.transform.position + new Vector3(0, 2, 0);
-        //item = null;
-
-        //audioManager = FindObjectOfType<AudioManager>();
-
-
-        //if (cardBattleResults.cardBattleFinished == true)
-        //{
-        //    LoadGame();
-        //}
     }
 
 
@@ -217,67 +142,32 @@ public class PlayerMovement : MonoBehaviour
         inputMethod();
 
         CheckGround();
-        //CalculateGroundAngle(); //used for debugging
         CalculateForward();
         CalculateRight();
         DrawDebugLines();
-        //WhereToStartCampFire();
         Crouch();
         didWallRun();
         isKinematic();
-        //PickupCards();
-        //soundEffects();
-        //checkJump();
 
         animator.SetBool("animGrounded", playerOnGround);
         animator.SetBool("animFalling", !playerOnGround);
         animator.SetBool("animClimbing", climbing.isClimbing);
-        animator.SetBool("animSurfaceSwimming", volTrig.surfaceSwimming);
-        animator.SetBool("animUnderwaterSwimming", volTrig.underwaterSwimming);
+        //animator.SetBool("animSurfaceSwimming", volTrig.surfaceSwimming);
+        //animator.SetBool("animUnderwaterSwimming", volTrig.underwaterSwimming);
         animator.SetBool("animClimbUp", climbing.climbingUp);
         animator.SetBool("canJump", canJump);
-        //animator.SetBool("almostLanded", almostLanded);
 
         Debug.DrawRay(transform.position, currentVel * 20f, Color.red);
         Debug.DrawRay(transform.position, moveDirection * 20f, Color.yellow);
     }
     private void FixedUpdate()
     {
-        //distanceToGround = landHit.distance;
         viewVel = playerRigidbody.velocity;
         viewVelfloat = playerRigidbody.velocity.magnitude;
         Walk();
         ApplyGravity();
         Jump();
         //stepForce();
-
-        //if (Input.GetKeyDown(KeyCode.I)) // consider changing this later so its triggered by UI (eg a button) than keyboard keys
-        //{
-
-        //    materialsInventoryObject.Save();
-        //    craftingInventoryObject.Save();
-        //    cardInventoryObject.Save();
-        //    potionsAndAmmoInventoryObject.Save();
-        //    deckHandInventoryObject.Save();
-        //}
-
-        //if (Input.GetKeyDown(KeyCode.L)) // consider changing this later so its triggered by UI (eg a button) than keyboard keys
-        //{
-        //    materialsInventoryObject.Load();
-        //    craftingInventoryObject.Load();
-        //    cardInventoryObject.Load();
-        //    potionsAndAmmoInventoryObject.Load();
-        //    deckHandInventoryObject.Load();
-        //}
-
-        //if (Input.GetKey(KeyCode.LeftAlt) && Input.GetKeyDown(KeyCode.F4)) // consider changing this later so its triggered by UI (eg a button) than keyboard keys
-        //{
-        //    QuitGame();
-        //}
-
-        //currentPlayerScene = SceneManager.GetActiveScene();
-        //currentPlayerSceneNumber = currentPlayerScene.buildIndex;
-
     }
 
     private void LateUpdate()
@@ -376,34 +266,6 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    //public void WhereToStartCampFire()
-    //{
-
-    //    RaycastHit campHit;
-    //    if (Input.GetKeyDown(KeyCode.Q))
-    //    {
-    //        if (Physics.SphereCast(playerHead.transform.position, spherecastRadius1, playerHead.transform.forward + new Vector3(0, -0.15f, 0), out campHit, spherecastMaxDistance1, layerMask, QueryTriggerInteraction.UseGlobal))
-    //        {
-    //            print(campHit.collider.name);
-    //            print("can place campfire here");
-    //        }
-
-    //        canPlaceCampFire = true;
-    //        campFirePosition = campHit.point;
-
-    //    }
-
-    //    else
-    //    {
-    //        if (Input.GetKeyDown(KeyCode.Q))
-    //        {
-    //            print("CANNOT place campfire here");
-    //        }
-    //        canPlaceCampFire = false;
-    //    }
-    //}
-
-
     private void ApplyGravity()
     {
 
@@ -462,13 +324,10 @@ public class PlayerMovement : MonoBehaviour
             gravityStrength = noGravityStrength;
             currentGravity = new Vector3(0f, gravityStrength * multiplier, 0f);
             playerRigidbody.drag = 1f;
-            //playerRigidbody.isKinematic = true;
-
         }
         else if (!climbing.isClimbing)
         {
             playerRigidbody.drag = 0.25f;
-            //playerRigidbody.isKinematic = false;
         }
 
         if (volTrig.inGas)
@@ -497,9 +356,8 @@ public class PlayerMovement : MonoBehaviour
     private void Walk() //countains all the grounded movement code
     {
 
-        if (/*!inChatwithNpc &&*/ !climbing.isClimbing || grapplingGun.isGrappling || wallRun.isWallRunning || recentlyWallRan || volTrig.surfaceSwimming || volTrig.underwaterSwimming)
+        if (!climbing.isClimbing || grapplingGun.isGrappling || wallRun.isWallRunning || recentlyWallRan || volTrig.surfaceSwimming || volTrig.underwaterSwimming)
         {
-            //isMoving = true;
             if (!playerOnGround && !volTrig.surfaceSwimming && !volTrig.underwaterSwimming)
             {
                 playerRigidbody.AddForce(moveDirection * moveSpeed * airSpeed * Time.fixedDeltaTime, ForceMode.Acceleration);
@@ -530,10 +388,7 @@ public class PlayerMovement : MonoBehaviour
                 {
                     Vector3 moveLine = Vector3.Lerp(playerRigidbody.velocity, moveDirection * moveSpeed, Time.fixedDeltaTime * 10f);
                     moveLine.y = playerRigidbody.velocity.y;
-                    //if (horizontal == 0)
-                    //{
-                    //    moveLine.z = directionParent.rotation.z;
-                    //}
+
                     currentVel = new Vector3(moveLine.x, moveLine.y, moveLine.z);
                     playerRigidbody.velocity = currentVel;
                 }
@@ -560,7 +415,12 @@ public class PlayerMovement : MonoBehaviour
             this.gameObject.GetComponent<Collider>().material.staticFriction = 0.1f;
         }
 
-        animator.SetFloat("ForwardVel", vertical);
+        var vel = playerRigidbody.velocity;
+
+        var localVel = directionParent.transform.InverseTransformDirection(vel);
+
+        animator.SetFloat("VerticalVel", localVel.z);
+        animator.SetFloat("HorizontalVel", localVel.x);
     }
 
     private void Crouch()
@@ -813,12 +673,6 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    //IEnumerator unGroundedDelay()
-    //{
-    //    yield return new WaitForSeconds(0.2f);
-    //    playerOnGround = false;
-    //}
-
     IEnumerator vaultUp()
     {
 
@@ -826,271 +680,4 @@ public class PlayerMovement : MonoBehaviour
         yield return new WaitForSeconds(0.1f);
         playerRigidbody.AddRelativeForce(Vector3.forward * 600f * Time.fixedDeltaTime);
     }
-
-
-    //private void OnApplicationQuit()
-    //{
-    //    materialsInventoryObject.container.Clear();
-    //    craftingInventoryObject.container.Clear();
-    //    cardInventoryObject.container.Clear();
-    //    potionsAndAmmoInventoryObject.container.Clear();
-    //    deckHandInventoryObject.container.Clear();
-    //}
-    //private void OnTriggerEnter(Collider other)
-    //{
-    //    //Picking up Items for Inventory
-
-
-    //    if (other.GetComponent<Npc>() != null)
-    //    {
-    //        npc = other.GetComponent<Npc>();
-    //        npc.inRange = true;
-    //        npc.interactionBillboard.SetActive(true);
-
-
-    //        npcInteractionVisuals.selectedNpc = npc;
-    //    }
-
-
-    //    //Picking up Items for Inventory
-    //    if (other.GetComponent<GroundItem>() != null)
-    //    {
-    //        item = other.GetComponent<GroundItem>();
-    //        Item _item = new Item(item.item);
-
-    //        if (item.GetComponent<GroundItem>().item.type == ItemType.CraftingItem)
-    //        {
-    //            if (materialsInventoryObject.AddItem(_item, item.pickupAmount)) // if we can add this item to the inventory then destroy object. If we cant, then we cant pick up this item because the inventory is full. Also we can add amout to groundItem script and pass it to the amount bit instead of writing (3)
-    //            {
-    //                Destroy(other.gameObject);
-    //            }
-    //        }
-
-    //        if (item.GetComponent<GroundItem>().item.type == ItemType.Ammunition || item.GetComponent<GroundItem>().item.type == ItemType.Health || item.GetComponent<GroundItem>().item.type == ItemType.Stamina)
-    //        {
-    //            if (potionsAndAmmoInventoryObject.AddItem(_item, item.pickupAmount)) // if we can add this item to the inventory then destroy object. If we cant, then we cant pick up this item because the inventory is full. Also we can add amout to groundItem script and pass it to the amount bit instead of writing (3)
-    //            {
-    //                Destroy(other.gameObject);
-    //            }
-    //        }
-    //    }
-    //}
-
-    //private void OnTriggerStay(Collider other)
-    //{
-    //    npcSelectedName = other.gameObject.name;
-    //    npcInteractionVisuals.selectedNpc = npc;
-
-    //    //  print("PLayer talking to npcSelectedName NPC: " + npcSelectedName);
-
-    //    if (other.GetComponent<Npc>() != null)
-    //    {
-    //        npc = other.GetComponent<Npc>();
-    //        npc.inRange = true;
-    //        npc.interactionBillboard.SetActive(true);
-
-
-    //        npcInteractionVisuals.selectedNpc = npc;
-    //    }
-
-    //    //The code below is for completing quests given by npc
-
-    //    if (other.gameObject.tag == "Red Car" && Input.GetKeyDown(KeyCode.E))
-    //    {
-    //        print("You have found the red car");
-    //        missionObjective.missionTracker.MissionNone();
-    //        missionObjective.missionTracker.isCompleted = true;
-    //        print("Completed? :" + missionObjective.missionTracker.isCompleted);
-    //        TargetIndicator targetIndicator = GameObject.Find("Red Car(Clone)").GetComponent<TargetIndicator>();// will be using this for referencing all UI. will replace all current empty reference scripts 
-    //        targetIndicator.enabled = false;
-    //        //npcInteractionVisuals.targetIndicator = GameObject.Find("UI").transform.Find("Target Indicator Canvas").gameObject;// will be using this for referencing all UI. will replace all current empty reference scripts 
-    //        //npcInteractionVisuals.targetIndicator.SetActive(false);
-    //        Destroy(other.gameObject);
-
-
-
-
-    //        npc.missionObjective.isActive = false;
-
-    //    }
-
-    //    if (other.gameObject.tag == "Blue Car" && Input.GetKeyDown(KeyCode.E))
-    //    {
-    //        print("You have found the Blue car");
-    //        missionObjective.missionTracker.MissionNone();
-    //        missionObjective.missionTracker.isCompleted = true;
-    //        print("Completed? :" + missionObjective.missionTracker.isCompleted);
-    //        TargetIndicator targetIndicator = GameObject.Find("Blue Car(Clone)").GetComponent<TargetIndicator>();// will be using this for referencing all UI. will replace all current empty reference scripts 
-    //        targetIndicator.enabled = false;
-    //        //npcInteractionVisuals.targetIndicator = GameObject.Find("UI").transform.Find("Target Indicator Canvas").gameObject;// will be using this for referencing all UI. will replace all current empty reference scripts 
-    //        //npcInteractionVisuals.targetIndicator.SetActive(false);
-    //        Destroy(other.gameObject);
-
-
-
-    //        npc.missionObjective.isActive = false;
-    //    }
-
-
-
-
-
-
-    //    // Load Saved Game
-
-    //    if (other.gameObject.name == "LoadCube")
-    //    {
-    //        print("Press E to Load Saved Game");
-
-    //        if (Input.GetKeyDown(KeyCode.E))
-    //        {
-    //            LoadGame();
-    //        }
-
-    //    }
-
-    //    // Save Game
-    //    if (other.gameObject.tag == "Camp Fire")
-    //    {
-    //        print("Press E to Save Game");
-
-    //        if (Input.GetKeyDown(KeyCode.E))
-    //        {
-    //            SaveGame();
-    //        }
-
-    //    }
-
-
-
-
-    //    //// Save Game
-    //    if (other.gameObject.tag == "Camp Fire")
-    //    {
-    //        print("Press E to Save Game");
-
-    //        if (Input.GetKeyDown(KeyCode.E))
-    //        {
-    //            SaveGame();
-    //        }
-
-    //    }
-    //}
-
-
-    //public void OnTriggerExit(Collider other)
-    //{
-    //    npcInteractionVisuals.selectedNpc = null;
-
-    //    if (other.GetComponent<Npc>() != null)
-    //    {
-    //        npcInteractionVisuals.selectedNpc = null;
-    //        npc.inRange = false;
-    //        npc.interactionBillboard.SetActive(false);
-    //    }
-
-    //}
-
-    //public void PickupCards()
-    //{
-    //    RaycastHit hit;
-
-    //    if (Physics.Raycast(fpsCam.transform.position, fpsCam.transform.forward, out hit, 4f))
-    //    {
-    //        Debug.DrawLine(fpsCam.transform.position, fpsCam.transform.forward * 7f, Color.red);
-    //        cardHitPoint = hit.point;
-
-    //        // CARDS PICK UP
-    //        if (Input.GetKeyDown(KeyCode.E))
-    //        {
-    //            //print("Helloooo");
-
-    //            // print("hit " + hit.transform.name);
-
-    //            item = hit.transform.GetComponent<GroundItem>();
-
-    //            if (item != null)
-    //            {
-    //                Item _item = new Item(item.item);
-
-    //                if (item.GetComponent<GroundItem>().item.type == ItemType.CardPickup)
-    //                {
-    //                    print("item name " + item.name);
-    //                    if (cardInventoryObject.AddItem(_item, item.pickupAmount)) // if we can add this item to the inventory then destroy object. If we cant, then we cant pick up this item because the inventory is full. Also we can add amout to groundItem script and pass it to the amount bit instead of writing (3)
-    //                    {
-    //                        Destroy(hit.transform.gameObject);
-    //                    }
-    //                }
-    //            }
-    //        }
-    //    }
-    //}
-
-    //public void SaveGame()
-    //{
-    //    print("YOU SAVED THE GAME");
-    //    playerMovement.materialsInventoryObject.Save();
-    //    playerMovement.craftingInventoryObject.Save();
-    //    playerMovement.cardInventoryObject.Save();
-    //    playerMovement.potionsAndAmmoInventoryObject.Save();
-    //    playerMovement.deckHandInventoryObject.Save();
-
-    //    global::SaveGame.savePlayer(currentPlayerSceneNumber, playerMovement, playerHealth, weapon);
-    //}
-
-    //public void LoadGame()
-    //{
-    //    //load inventory
-    //    playerMovement.materialsInventoryObject.Load();
-    //    playerMovement.craftingInventoryObject.Load();
-    //    playerMovement.cardInventoryObject.Load();
-    //    playerMovement.potionsAndAmmoInventoryObject.Load();
-    //    playerMovement.deckHandInventoryObject.Load();
-
-
-    //    global::SaveGame.LoadPlayer();
-
-    //    //load saved health, stamina, ammo , player position and rotation. 
-    //    //TODO add more elements to be saved
-
-    //    PlayerData data = global::SaveGame.LoadPlayer();
-    //    playerHealth.currentHealth = data.health;
-    //    playerMovement.currentStaminaValue = data.stamina;
-    //    weapon.ammoRemaining = data.ammo;
-
-    //    Vector3 playerPosition;
-
-    //    playerPosition.x = data.position[0];
-    //    playerPosition.y = data.position[1];
-    //    playerPosition.z = data.position[2];
-
-    //    playerMovement.transform.position = playerPosition;
-
-    //    Vector3 playerRotation;
-
-    //    playerRotation.x = data.rotation[0];
-    //    playerRotation.y = data.rotation[1];
-    //    playerRotation.z = data.rotation[2];
-
-    //    playerMovement.transform.rotation = Quaternion.Euler(playerRotation);
-
-    //    pauseMenuController.UnpauseGame();
-
-    //}
-
-    //public void QuitGame()
-    //{
-    //    print("You quit the game");
-    //    materialsInventoryObject.container.Clear();
-    //    craftingInventoryObject.container.Clear();
-    //    cardInventoryObject.container.Clear();
-    //    potionsAndAmmoInventoryObject.container.Clear();
-    //    deckHandInventoryObject.container.Clear();
-    //    Application.Quit();
-    //}
-
-    //public void LoadMainMenu()
-    //{
-    //    SceneManager.LoadScene(0);
-    //}
 }

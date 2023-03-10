@@ -115,7 +115,7 @@ AnimatorStateTransition:
   m_Name: 
   m_Conditions:
   - m_ConditionMode: 4
-    m_ConditionEvent: ForwardVel
+    m_ConditionEvent: VerticalVel
     m_EventTreshold: 0.1
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 5575323775131409562}
@@ -233,7 +233,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: a254eb893653e3c48824d37c1f403f7b, type: 2}
+  m_Motion: {fileID: -203655887218126122, guid: ea625932970b16f4580ad33d112bdbd9, type: 3}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
@@ -380,7 +380,7 @@ AnimatorStateTransition:
     m_ConditionEvent: animUnderwaterSwimming
     m_EventTreshold: 0
   - m_ConditionMode: 4
-    m_ConditionEvent: ForwardVel
+    m_ConditionEvent: VerticalVel
     m_EventTreshold: 0.1
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: -3272639149714211380}
@@ -458,7 +458,7 @@ AnimatorStateTransition:
   m_Name: 
   m_Conditions:
   - m_ConditionMode: 3
-    m_ConditionEvent: ForwardVel
+    m_ConditionEvent: VerticalVel
     m_EventTreshold: 0.1
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 2725600606358262617}
@@ -495,7 +495,7 @@ AnimatorStateTransition:
   m_TransitionOffset: 0
   m_ExitTime: 0.60526323
   m_HasExitTime: 0
-  m_HasFixedDuration: 0
+  m_HasFixedDuration: 1
   m_InterruptionSource: 0
   m_OrderedInterruption: 1
   m_CanTransitionToSelf: 1
@@ -508,7 +508,7 @@ AnimatorStateTransition:
   m_Name: 
   m_Conditions:
   - m_ConditionMode: 4
-    m_ConditionEvent: ForwardVel
+    m_ConditionEvent: VerticalVel
     m_EventTreshold: 0.1
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 5575323775131409562}
@@ -586,7 +586,13 @@ AnimatorController:
   m_Name: PlayerAnimator
   serializedVersion: 5
   m_AnimatorParameters:
-  - m_Name: ForwardVel
+  - m_Name: VerticalVel
+    m_Type: 1
+    m_DefaultFloat: 0
+    m_DefaultInt: 0
+    m_DefaultBool: 0
+    m_Controller: {fileID: 0}
+  - m_Name: HorizontalVel
     m_Type: 1
     m_DefaultFloat: 0
     m_DefaultInt: 0
@@ -733,7 +739,7 @@ AnimatorStateTransition:
   m_Name: 
   m_Conditions:
   - m_ConditionMode: 3
-    m_ConditionEvent: ForwardVel
+    m_ConditionEvent: VerticalVel
     m_EventTreshold: 0.1
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 2725600606358262617}
@@ -771,7 +777,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: 37b5190331503444b8b82edbca6a94e8, type: 2}
+  m_Motion: {fileID: -203655887218126122, guid: dcf990f895eab274fb61cce3d27c56fe, type: 3}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
@@ -786,7 +792,7 @@ AnimatorStateTransition:
   m_Name: 
   m_Conditions:
   - m_ConditionMode: 3
-    m_ConditionEvent: ForwardVel
+    m_ConditionEvent: VerticalVel
     m_EventTreshold: 0.1
   - m_ConditionMode: 1
     m_ConditionEvent: animUnderwaterSwimming
@@ -843,25 +849,25 @@ BlendTree:
   m_Name: Blend Tree
   m_Childs:
   - serializedVersion: 2
-    m_Motion: {fileID: 7400000, guid: eff7407b534bb904fab94392ce2d6468, type: 2}
+    m_Motion: {fileID: -203655887218126122, guid: 42c11b07bffd17d46b2b78be49fbce45, type: 3}
     m_Threshold: 0
-    m_Position: {x: 0, y: 0}
-    m_TimeScale: 1
+    m_Position: {x: 0, y: 1}
+    m_TimeScale: 0.7
     m_CycleOffset: 0
     m_DirectBlendParameter: ForwardVel
     m_Mirror: 0
   - serializedVersion: 2
-    m_Motion: {fileID: 7400000, guid: ab4e239f8e2a904409d88f2390f84e94, type: 2}
-    m_Threshold: 1
+    m_Motion: {fileID: -203655887218126122, guid: aa7acc2b6a31afb4783d66310819e4bb, type: 3}
+    m_Threshold: 9
     m_Position: {x: 0, y: 0}
     m_TimeScale: 0.8
     m_CycleOffset: 0
     m_DirectBlendParameter: ForwardVel
     m_Mirror: 0
-  m_BlendParameter: ForwardVel
-  m_BlendParameterY: ForwardVel
+  m_BlendParameter: VerticalVel
+  m_BlendParameterY: HorizontalVel
   m_MinThreshold: 0
-  m_MaxThreshold: 1
+  m_MaxThreshold: 9
   m_UseAutomaticThresholds: 0
   m_NormalizedBlendValues: 0
   m_BlendType: 0
@@ -877,7 +883,7 @@ AnimatorStateTransition:
     m_ConditionEvent: animUnderwaterSwimming
     m_EventTreshold: 0
   - m_ConditionMode: 3
-    m_ConditionEvent: ForwardVel
+    m_ConditionEvent: VerticalVel
     m_EventTreshold: 0.1
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: -7142784301269124879}
@@ -955,7 +961,7 @@ AnimatorStateTransition:
   m_Name: 
   m_Conditions:
   - m_ConditionMode: 4
-    m_ConditionEvent: ForwardVel
+    m_ConditionEvent: VerticalVel
     m_EventTreshold: 0.1
   - m_ConditionMode: 1
     m_ConditionEvent: animUnderwaterSwimming
@@ -1022,7 +1028,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: a5f87fe59b9d0a744a5fac568de6074f, type: 2}
+  m_Motion: {fileID: -203655887218126122, guid: c4e5475e594e0b3498f0a78c85c25985, type: 3}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
@@ -1076,7 +1082,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: 738fec3e94d8b0242a0e489cb44b0658, type: 2}
+  m_Motion: {fileID: -203655887218126122, guid: a983f8f42a09e2a4fb7431b3f21cac06, type: 3}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 

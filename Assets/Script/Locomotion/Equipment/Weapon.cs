@@ -126,7 +126,7 @@ public class Weapon : MonoBehaviour
                         aimRot = forwardLook.eulerAngles + new Vector3(Random.Range(-3f, 3f), Random.Range(-3f, 3f), 0f);
                         var bulletRot = Quaternion.Euler(aimRot);
 
-                        bulletInstance = Instantiate(bullet, guntip.position + (new Vector3(Random.Range(-0.05f, 0.05f), Random.Range(-0.05f, 0.05f), Random.Range(-0.05f, 0.05f))), bulletRot);
+                        bulletInstance = Instantiate(bullet, guntip.position/* + (new Vector3(Random.Range(-0.05f, 0.05f), Random.Range(-0.05f, 0.05f), Random.Range(-0.05f, 0.05f)))*/, bulletRot);
                         bulletInstance.GetComponent<Rigidbody>().velocity = bulletInstance.transform.forward * bulletspeed;
 
                         Debug.Log("FIRE SHOTGUN!");
@@ -149,7 +149,7 @@ public class Weapon : MonoBehaviour
                         aimRot = guntip.eulerAngles + new Vector3(Random.Range(-3f, 3f), Random.Range(-3f, 3f), 0f);
                         var bulletRot = Quaternion.Euler(aimRot);
 
-                        bulletInstance = Instantiate(bullet, guntip.position + (new Vector3(Random.Range(-0.05f, 0.05f), Random.Range(-0.05f, 0.05f), Random.Range(-0.05f, 0.05f))), bulletRot);
+                        bulletInstance = Instantiate(bullet, guntip.position/* + (new Vector3(Random.Range(-0.05f, 0.05f), Random.Range(-0.05f, 0.05f), Random.Range(-0.05f, 0.05f)))*/, bulletRot);
                         bulletInstance.GetComponent<Rigidbody>().velocity = bulletInstance.transform.forward * bulletspeed;
                         Debug.Log("FIRE SHOTGUN!");
                     }
