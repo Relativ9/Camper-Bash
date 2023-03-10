@@ -21,6 +21,8 @@ public class disableOnClimbAndWallrun : MonoBehaviour
     public Rig ClimbingIK;
     public float multiplier = 10;
 
+    public Animator animator;
+
     public void Start()
     {
         rigLayers = this.gameObject.GetComponent<RigBuilder>();
@@ -32,18 +34,20 @@ public class disableOnClimbAndWallrun : MonoBehaviour
         GrappleRifleIK = rigLayers.layers[6].rig;
         ClimbingIK = rigLayers.layers[5].rig;
     }
-    // Update is called once per frame
+
     public void Update()
     {
+        if (climbing.isClimbing)
+        {
+            animator.updateMode = AnimatorUpdateMode.AnimatePhysics;
+        }
+        else
+        {
+            StartCoroutine(setAnimatorNormal());
+        }
+
         if (climbing.isClimbing || wallrun.isWallRunning)
         {
-
-            //rig.layers[0].active = false;
-            //rig.layers[1].active = false;
-            //rig.layers[2].active = false;
-            //rig.layers[3].active = true;
-            //rig.layers[4].active = false;
-
             BodyHead.weight = 0f;
             WeaponRest.weight = 0f * Time.deltaTime * multiplier;
             ShootPose.weight = 0f * Time.deltaTime * multiplier;
@@ -52,9 +56,10 @@ public class disableOnClimbAndWallrun : MonoBehaviour
             ClimbingIK.weight = 1f;
             GrappleRifleIK.weight = 0f;
 
-        } else if (!weapon.slotFull)
+        }
+        else if (!weapon.slotFull)
         {
-            BodyHead.weight = 0f;
+            BodyHead.weight = 1f;
             WeaponRest.weight = 0f * Time.deltaTime * multiplier;
             ShootPose.weight = 0f * Time.deltaTime * multiplier;
             WeaponOnBack.weight = 1f;
@@ -62,14 +67,9 @@ public class disableOnClimbAndWallrun : MonoBehaviour
             ClimbingIK.weight = 0f;
             GrappleRifleIK.weight = 0f;
 
-        } else if (playerMove.isRunning)
+        }
+        else if (playerMove.isRunning)
         {
-
-            //rig.layers[0].active = true;
-            //rig.layers[1].active = true;
-            //rig.layers[2].active = false;
-            //rig.layers[3].active = false;
-
             BodyHead.weight = 1f;
             WeaponRest.weight = 1f * Time.deltaTime * multiplier;
             ShootPose.weight = 0f * Time.deltaTime * multiplier;
@@ -78,14 +78,9 @@ public class disableOnClimbAndWallrun : MonoBehaviour
             ClimbingIK.weight = 0f;
             GrappleRifleIK.weight = 1f;
 
-        } else
+        }
+        else
         {
-            //rig.layers[0].active = true;
-            //rig.layers[1].active = false;
-            //rig.layers[2].active = true;
-            //rig.layers[3].active = false;
-            //rig.layers[4].active = true;
-
             BodyHead.weight = 1f;
             WeaponRest.weight = 0f * Time.deltaTime * multiplier;
             ShootPose.weight = 1f * Time.deltaTime * multiplier;
@@ -96,4 +91,9 @@ public class disableOnClimbAndWallrun : MonoBehaviour
         }
     }
 
+    IEnumerator setAnimatorNormal()
+    {
+        yield return new WaitForSeconds(0.5f);
+        animator.updateMode = AnimatorUpdateMode.Normal;
+    }
 }

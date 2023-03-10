@@ -8,6 +8,8 @@ public class ClimbingIK : MonoBehaviour
     public Climbing climbing;
     public GameObject rightHand;
     public GameObject leftHand;
+
+    public Transform rightHandTarget;
     // Start is called before the first frame update
     void Start()
     {
@@ -17,7 +19,7 @@ public class ClimbingIK : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        rightHand.transform.position = climbing.standingPoint + new Vector3(-0.2f, 0.1f, 0.2f);
-        leftHand.transform.position = climbing.standingPoint + new Vector3(-0.2f, 0.1f, -0.2f);
+        rightHand.transform.position = climbing.standingPoint + transform.right * 0.3f + transform.up * 0.1f + transform.forward * 0.3f;
+        leftHand.transform.position = climbing.standingPoint + -transform.right * 0.3f + transform.up * 0.1f + transform.forward * 0.3f;
     }
 }

@@ -140,7 +140,7 @@ public class PlayerMovement : MonoBehaviour
     void Update()
     {
         inputMethod();
-
+        checkJump();
         CheckGround();
         CalculateForward();
         CalculateRight();
@@ -156,6 +156,7 @@ public class PlayerMovement : MonoBehaviour
         //animator.SetBool("animUnderwaterSwimming", volTrig.underwaterSwimming);
         animator.SetBool("animClimbUp", climbing.climbingUp);
         animator.SetBool("canJump", canJump);
+        animator.SetBool("animMoving", isMoving);
 
         Debug.DrawRay(transform.position, currentVel * 20f, Color.red);
         Debug.DrawRay(transform.position, moveDirection * 20f, Color.yellow);
@@ -172,7 +173,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void LateUpdate()
     {
-        checkJump();
+
     }
 
     public void inputMethod()
@@ -446,9 +447,9 @@ public class PlayerMovement : MonoBehaviour
         {
             if (climbing.canVault == false)
             {
-                animator.SetBool("jumpPressed", true);
                 playerOnGround = false; //needs to be triggered here instantly as well because we have a Ienumerator giving a slight delay when just moving off the ground without jumping (too stop jitter when moving over surfaces with holes in them (plank bridges ect).
                 canJump = true;
+                animator.SetBool("jumpPressed", true);
             }
             if (climbing.canVault == true)
             {

@@ -40,15 +40,7 @@ public class CameraFollow : MonoBehaviour
     void Update()
     {
         transform.position = Vector3.Slerp(transform.position, cameraFollowPos.position, multiplier);
-        //velSpeed = new Vector3(playerRB.velocity.x, 0, playerRB.velocity.z).magnitude;
-
         restartPos();
-
-        //if (enableBob)
-        //{
-        //    checkMotion();
-        //    actualCamera.LookAt(bobStable());
-        //}
 
     }
     private void restartPos()
@@ -56,17 +48,6 @@ public class CameraFollow : MonoBehaviour
         if (actualCamera.localPosition == startPos) return;
         actualCamera.localPosition = Vector3.Lerp(actualCamera.localPosition, startPos, resetSpeed * Time.deltaTime);
     }
-
-    //private void checkMotion()
-    //{
-
-    //    if (velSpeed < toggleSpeed) return;
-    //    if (!playerMovement.playerOnGround) return;
-    //    if (playerMovement.isMoving)
-    //    {
-    //        playMotion(footStepMotion());
-    //    }
-    //}
 
     private Vector3 footStepMotion()
     {
