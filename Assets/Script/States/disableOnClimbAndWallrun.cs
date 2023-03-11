@@ -46,7 +46,7 @@ public class disableOnClimbAndWallrun : MonoBehaviour
             StartCoroutine(setAnimatorNormal());
         }
 
-        if (climbing.isClimbing || wallrun.isWallRunning)
+        if (climbing.isClimbing)
         {
             BodyHead.weight = 0f;
             WeaponRest.weight = 0f * Time.deltaTime * multiplier;
@@ -56,6 +56,15 @@ public class disableOnClimbAndWallrun : MonoBehaviour
             ClimbingIK.weight = 1f;
             GrappleRifleIK.weight = 0f;
 
+        } else if (wallrun.isWallRunning)
+        {
+            BodyHead.weight = 1f;
+            WeaponRest.weight = 1f * Time.deltaTime * multiplier;
+            ShootPose.weight = 0f * Time.deltaTime * multiplier;
+            WeaponOnBack.weight = 0f;
+            WeaponAiming.weight = 0f;
+            ClimbingIK.weight = 0f;
+            GrappleRifleIK.weight = 1f;
         }
         else if (!weapon.slotFull)
         {
@@ -93,7 +102,7 @@ public class disableOnClimbAndWallrun : MonoBehaviour
 
     IEnumerator setAnimatorNormal()
     {
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.25f);
         animator.updateMode = AnimatorUpdateMode.Normal;
     }
 }
