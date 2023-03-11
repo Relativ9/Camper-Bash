@@ -11,6 +11,7 @@ public class WallRun : MonoBehaviour
     [SerializeField] public bool isWallRunning = false;
     [SerializeField] private PlayerMovement playerMovement;
     [SerializeField] private float wallJumpForce = 120f;
+    private Climbing climbing;
 
     [Header("Camera Rotation for WallRun")]
     private Quaternion currentCameraAngle;
@@ -59,6 +60,7 @@ public class WallRun : MonoBehaviour
     void Start()
     {
         playerMovement = GetComponent<PlayerMovement>();
+        climbing = GetComponent<Climbing>();
     }
 
     void Update()
@@ -233,85 +235,6 @@ public class WallRun : MonoBehaviour
     }
 
 
-
-    //private void OnCollisionEnter(Collision whatWeCollidedWith)
-    //{
-
-    //    if (playerMovement.playerOnGround && whatWeCollidedWith.gameObject.tag != "RunnableWall") // Prevents player from doing double or jumping in the air
-    //    {
-    //       currentWallJumpNo = 0;
-    //        isWallRunning = false;
-    //    }
-    //    //else if (playerMovement.playerOnGround && whatWeCollidedWith.gameObject.tag == "RunnableWall") // Prevents player from doing double or jumping in the air
-    //    //{
-    //    //   currentWallJumpNo = 0;
-    //    //    isWallRunning = false;
-    //    //}
-
-    //    if (playerMovement.playerOnGround || whatWeCollidedWith.gameObject.tag == "RunnableWall")
-    //    {
-    //        currentWallJumpNo = 0;
-    //        isWallRunning = false;
-    //    }
-
-    //}
-
-
-
-    //private void OnCollisionStay(Collision whatWeCollidedWith)
-    //{
-
-    //    if (whatWeCollidedWith.transform.CompareTag("RunnableWall") && playerMovement.playerOnGround == false)
-    //    {
-    //        isWallRunning = true;
-    //        TiltCameraStart();
-
-    //        if (isRight == true)
-    //        {
-    //            rightSideForceActive = true;
-    //        }
-
-    //        if (isLeft == true)
-    //        {
-    //            leftSideForceActive = true;
-    //        }
-
-    //        if (isFront == true)
-    //        {
-    //            frontForceActive = true;
-    //        }
-
-    //    } else
-    //    {
-    //        leftSideForceActive = false;
-    //        rightSideForceActive = false;
-    //        frontForceActive = false;
-    //    }
-
-
-    //    if (whatWeCollidedWith.transform.CompareTag("RunnableWall") && playerMovement.playerOnGround == true)
-    //    {
-    //        isWallRunning = false;
-    //        currentWallJumpNo = 0;
-    //    }
-
-    //}
-
-
-
-    //private void OnCollisionExit(Collision whatWeCollidedWith)
-    //{
-
-    //    if (whatWeCollidedWith.transform.CompareTag("RunnableWall"))
-    //    {
-    //        timeCount = 0f;
-    //        currentWallJumpNo = 0;
-    //        isWallRunning = false; 
-    //    }
-
-    //}
-
-
     private void TiltCameraStart()
     {
         if (isRight == true) // this is set in our raycast
@@ -353,7 +276,7 @@ public class WallRun : MonoBehaviour
 
     void WallJumpCheck()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && currentWallJumpNo < maxWallJumps)
+        if (Input.GetKeyDown(KeyCode.Space) && currentWallJumpNo < maxWallJumps && !climbing.isClimbing)
         {
             canWallJump = true;
 

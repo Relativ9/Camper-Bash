@@ -198,7 +198,6 @@ public class Climbing : MonoBehaviour
             if (standingPoint != Vector3.zero)
             {
                 isClimbing = true;
-                //playerRB.isKinematic = true;
             }
         }
     }

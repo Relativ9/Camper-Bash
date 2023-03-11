@@ -56,7 +56,7 @@ public class disableOnClimbAndWallrun : MonoBehaviour
             ClimbingIK.weight = 1f;
             GrappleRifleIK.weight = 0f;
 
-        } else if (wallrun.isWallRunning)
+        } else if (wallrun.isWallRunning && weapon.slotFull)
         {
             BodyHead.weight = 1f;
             WeaponRest.weight = 1f * Time.deltaTime * multiplier;

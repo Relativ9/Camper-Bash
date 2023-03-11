@@ -538,7 +538,6 @@ public class PlayerMovement : MonoBehaviour
 
         if (rightGrounded && leftGrounded)
         {
-            //groundSlopeDetected = (rightFootSlope + leftFootSlope) / 2f;
             if (frontGrounded || backGrounded)
             {
                 groundSlopeDetected = Mathf.Min(rightFootSlope, leftFootSlope);
@@ -551,7 +550,6 @@ public class PlayerMovement : MonoBehaviour
         else if (frontGrounded && backGrounded)
         {
             groundSlopeDetected = (frontFootSlope + backFootSlope) / 2f;
-            //groundSlopeDetected = Mathf.Min(frontFootSlope, backFootSlope);
         }
 
         else
