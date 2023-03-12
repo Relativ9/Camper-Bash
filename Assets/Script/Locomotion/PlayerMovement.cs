@@ -86,8 +86,10 @@ public class PlayerMovement : MonoBehaviour
     public Vector3 moveDirectionSlope;
     public Vector3 moveDirectionSliding;
     public Vector3 moveDirectionSwimming;
+    [Header("Debug Velocity")]
     public Vector3 currentVel;
     public Vector3 stopVel;
+    [Header("Stop")]
 
     public Vector3 stepDirection;
 
@@ -313,8 +315,6 @@ public class PlayerMovement : MonoBehaviour
         if (playerOnGround)
         {
             gravityStrength = normalGravityStrength;
-            //gravityStrength = noGravityStrength;
-            //currentGravity = -groundRay.normal;
             currentGravity = new Vector3(0f, gravityStrength * multiplier, 0f);
             Vector3 gravityDirection = Vector3.Slerp(currentGravity, -groundRay.normal, 0.6f);
             playerRigidbody.AddForce(gravityDirection, ForceMode.Acceleration);
@@ -363,9 +363,6 @@ public class PlayerMovement : MonoBehaviour
             {
                 playerRigidbody.AddForce(moveDirection * moveSpeed * airSpeed * Time.fixedDeltaTime, ForceMode.Acceleration);
             }
-
-            float velocityZ = Vector3.Dot(moveDirection.normalized, currentVel);
-            float velocityX = Vector3.Dot(moveDirection.normalized, currentVel);
 
             if (volTrig.surfaceSwimming || volTrig.underwaterSwimming)
             {
@@ -581,6 +578,7 @@ public class PlayerMovement : MonoBehaviour
                 //StartCoroutine("unGroundedDelay");
                 airTime += Time.deltaTime;
                 groundTime = 0f;
+                currentVel = playerRigidbody.velocity;
             }
         }
         else
@@ -589,6 +587,7 @@ public class PlayerMovement : MonoBehaviour
             //StartCoroutine("unGroundedDelay");
             airTime += Time.deltaTime;
             groundTime = 0f;
+            currentVel = playerRigidbody.velocity;
         }
     }
 

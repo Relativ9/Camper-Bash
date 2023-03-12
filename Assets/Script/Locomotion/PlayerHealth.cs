@@ -22,6 +22,8 @@ public class PlayerHealth : MonoBehaviour
 
     [SerializeField] public BreathingCheck holdBreath;
 
+    public float airTimeOnLanding;
+
     private void Start()
     {
         currentHealth = MaxPlayerHealth;
@@ -29,8 +31,10 @@ public class PlayerHealth : MonoBehaviour
     }
 
 
-    private void Update()
+    private void FixedUpdate()
     {
+        fallDamage();
+        noBreathDamage();
         currentHealthPercent = (currentHealth * 100) / MaxPlayerHealth;
 
         if (currentHealth > MaxPlayerHealth)
@@ -38,9 +42,14 @@ public class PlayerHealth : MonoBehaviour
             currentHealth = MaxPlayerHealth;
         }
 
-        fallDamage();
-        noBreathDamage();
+        if (takeDamageOnLanding)
+        {
+            currentHealth = currentHealth - fallDamageVal;
+            takeDamageOnLanding = false;
+            Debug.Log("Take Damage");
+        }
     }
+
     public void playerDamage(float hit)
     {
         if (currentHealth > 0)
@@ -53,7 +62,6 @@ public class PlayerHealth : MonoBehaviour
             Debug.Log("player is dead");
             currentHealth = 0;
             StartCoroutine(restartLevel());
-            // Destroy(gameObject);
         }
 
 
@@ -71,21 +79,20 @@ public class PlayerHealth : MonoBehaviour
 
     public void fallDamage()
     {
-        if (playerMovement.currentVel.y <= -20)
+        if (playerMovement.currentVel.y <= -25f)
         {
-            fallDamageVal = 50f;
+            fallDamageVal = 10f;
         }
 
-        //if (playerMovement.currentVel.y <= -25)
-        //{
-        //    fallDamageVal = 15f;
-        //}
+        if (playerMovement.currentVel.y <= -30f)
+        {
+            fallDamageVal = 15f;
+        }
 
-        //if (playerMovement.currentVel.y <= -30)
-        //{
-        //    fallDamageVal = 50f;
-        //}
-
+        if (playerMovement.currentVel.y <= -40f)
+        {
+            fallDamageVal = 20f;
+        }
     }
 
     public void noBreathDamage()
@@ -98,18 +105,13 @@ public class PlayerHealth : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (playerMovement.airTime >= 1.5f && playerMovement.currentVel.y <= -20 && !hasTakenFallDamage)
+        
+        if (/*playerMovement.airTime >= 0.1f &&*/playerMovement.currentVel.y <= -20 && !hasTakenFallDamage)
         {
+            Debug.Log("Is Colliding!");
             StartCoroutine("damageTakenImmunity");
+            airTimeOnLanding = playerMovement.airTime;
         }
-
-        if (takeDamageOnLanding)
-        {
-            currentHealth = currentHealth - fallDamageVal;
-            takeDamageOnLanding = false;
-            Debug.Log("Take Damage");
-        }
-
     }
 
     private void OnTriggerEnter(Collider other)
@@ -133,7 +135,9 @@ public class PlayerHealth : MonoBehaviour
         hasTakenFallDamage = true;
         takeDamageOnLanding = true;
         yield return new WaitForSeconds(2f);
+        fallDamageVal = 0f;
         hasTakenFallDamage = false;
+        takeDamageOnLanding = false;
     }
 
     IEnumerator restartLevel()

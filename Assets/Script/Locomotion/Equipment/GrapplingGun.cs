@@ -14,7 +14,6 @@ public class GrapplingGun : MonoBehaviour
     public Transform player; // For Joint/ Rope - on Raycastm add a joint to the player objects components (through inspector)
     [SerializeField] public Transform directionParent;
     public Rigidbody PlayerRigidbody; // TODO - seems it's never used. Delete?
-    public GameObject rightHand;
     public Vector3 grappleDirection;
     public float playerDistanceFromGrappleToPoint;
 
@@ -122,7 +121,7 @@ public class GrapplingGun : MonoBehaviour
 
             // SPRING JOINT SETTINGS
 
-            joint = rightHand.gameObject.AddComponent<SpringJoint>(); // add joint component to player in unity inspector
+            joint = player.gameObject.AddComponent<SpringJoint>(); // add joint component to player in unity inspector
             joint.autoConfigureConnectedAnchor = false; // some joint settings visible at front-end
             joint.connectedAnchor = grappleToPoint; // same as above
 

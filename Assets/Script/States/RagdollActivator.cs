@@ -11,6 +11,7 @@ public class RagdollActivator : MonoBehaviour
     public GrapplingGun grapple;
     public Animator playerAnim;
 
+    public PlayerHealth playerHealth;
 
     private Collider[] rigCols;
     private Rigidbody[] rigRBs;
@@ -25,7 +26,7 @@ public class RagdollActivator : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(grapple.isGrappling)
+        if (playerHealth.currentHealth <= 0)
         {
             ragdollOn();
         } else
@@ -54,7 +55,7 @@ public class RagdollActivator : MonoBehaviour
         }
 
         playerCol.enabled = false;
-        //player.GetComponent<Rigidbody>().isKinematic = true;
+        player.GetComponent<Rigidbody>().isKinematic = true;
 
     }
 
