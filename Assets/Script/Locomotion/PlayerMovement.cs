@@ -11,7 +11,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] public Camera fpsCam;
     [SerializeField] public Transform cameraFollowTrans;
     [SerializeField] public Transform directionParent;
-    [SerializeField] public GrapplingGun grapplingGun;
+    [SerializeField] public GrappleHook grapHook;
     [SerializeField] public GameObject leftFoot;
     [SerializeField] public GameObject rightFoot;
     [SerializeField] public GameObject frontFoot;
@@ -170,7 +170,6 @@ public class PlayerMovement : MonoBehaviour
         Walk();
         ApplyGravity();
         Jump();
-        //stepForce();
     }
 
     private void LateUpdate()
@@ -193,7 +192,7 @@ public class PlayerMovement : MonoBehaviour
         {
             moveDirection = Vector3.Slerp(moveDirection, moveDirectionFlat, 10f);
         }
-        else if (playerOnGround || grapplingGun.isGrappling && !volTrig.surfaceSwimming && !volTrig.underwaterSwimming)
+        else if (playerOnGround || grapHook.isGrappling && !volTrig.surfaceSwimming && !volTrig.underwaterSwimming)
         {
             moveDirection = Vector3.Slerp(moveDirection, moveDirectionSlope, 10f);
         }
@@ -223,12 +222,12 @@ public class PlayerMovement : MonoBehaviour
             moveSpeed = swimSpeed;
             isRunning = false;
         }
-        else if (wallRun.isWallRunning && !grapplingGun.isGrappling)
+        else if (wallRun.isWallRunning && !grapHook.isGrappling)
         {
             moveSpeed = wallRunSpeed;
             isRunning = false;
         }
-        else if (wallRun.isWallRunning && grapplingGun.isGrappling)
+        else if (wallRun.isWallRunning && grapHook.isGrappling)
         {
             moveSpeed = walkSpeed;
             isRunning = false;
@@ -276,7 +275,7 @@ public class PlayerMovement : MonoBehaviour
         playerRigidbody.useGravity = false;
 
 
-        if (!playerOnGround && !wallRun.isWallRunning && !grapplingGun.isGrappling && !climbing.isClimbing && !volTrig.surfaceSwimming && !volTrig.underwaterSwimming)
+        if (!playerOnGround && !wallRun.isWallRunning && !grapHook.isGrappling && !climbing.isClimbing && !volTrig.surfaceSwimming && !volTrig.underwaterSwimming)
         {
             gravityStrength = normalGravityStrength;
             currentGravity = new Vector3(0f, gravityStrength * multiplier, 0f);
@@ -292,7 +291,7 @@ public class PlayerMovement : MonoBehaviour
         }
 
 
-        if (grapplingGun.isGrappling)
+        if (grapHook.isGrappling)
         {
             gravityStrength = noGravityStrength;
             currentGravity = new Vector3(0f, gravityStrength * multiplier, 0f);
@@ -357,7 +356,7 @@ public class PlayerMovement : MonoBehaviour
     private void Walk() //countains all the grounded movement code
     {
 
-        if (!climbing.isClimbing || grapplingGun.isGrappling || wallRun.isWallRunning || recentlyWallRan || volTrig.surfaceSwimming || volTrig.underwaterSwimming)
+        if (!climbing.isClimbing || grapHook.isGrappling || wallRun.isWallRunning || recentlyWallRan || volTrig.surfaceSwimming || volTrig.underwaterSwimming)
         {
             if (!playerOnGround && !volTrig.surfaceSwimming && !volTrig.underwaterSwimming)
             {

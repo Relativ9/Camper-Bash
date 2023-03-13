@@ -26,7 +26,7 @@ public class RagdollActivator : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (playerHealth.currentHealth <= 0)
+        if (!playerHealth.isAlive)
         {
             ragdollOn();
         } else

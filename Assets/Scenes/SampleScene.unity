@@ -265,7 +265,7 @@ MonoBehaviour:
   playerCol: {fileID: 1922009492}
   playerRig: {fileID: 1774810898}
   player: {fileID: 1922009490}
-  grapple: {fileID: 1185740485}
+  grapple: {fileID: 0}
   playerAnim: {fileID: 17480493}
   playerHealth: {fileID: 1922009500}
 --- !u!1 &42164558
@@ -532,8 +532,10 @@ GameObject:
   - component: {fileID: 163771987}
   - component: {fileID: 163771988}
   - component: {fileID: 163771989}
+  - component: {fileID: 163771992}
+  - component: {fileID: 163771990}
   m_Layer: 0
-  m_Name: WeaponPivot
+  m_Name: RightHandWeaponSpot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -580,24 +582,153 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7acaae232e07c294d8f3475092afbcb1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bullet: {fileID: 1987897347142000076, guid: 27143bd3b210045438e60d85b05b2b6b, type: 3}
-  guntip: {fileID: 6786078849138973143}
-  crossfire: {fileID: 963194227}
+  gunTip: {fileID: 6786078849138973143}
+  projectilePrefab: {fileID: 1987897347142000076, guid: 27143bd3b210045438e60d85b05b2b6b, type: 3}
+  fpCam: {fileID: 963194227}
   muzzleEffect: {fileID: 2093355438}
-  ammoRemaining: 0
   maxAmmo: 20
+  pelletCount: 5
+  bulletspeed: 100
+  ammoRemaining: 0
+  slotFull: 0
   isShooting: 0
-  playerMovement: {fileID: 1922009491}
-  climbing: {fileID: 1922009498}
   shotGunEquip: 0
   pistolEquip: 0
   rifleEquip: 0
   cannonEquip: 0
-  bulletCount: 5
-  slotFull: 0
-  weaponChild: {fileID: 0}
-  crosshairs: {x: 0, y: 0, z: 0}
-  bulletspeed: 100
+--- !u!120 &163771990
+LineRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 163771986}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 0
+  m_LightProbeUsage: 0
+  m_ReflectionProbeUsage: 0
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 4a7608207d3880547a926b90685b4d83, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_Positions:
+  - {x: 0, y: 0, z: 0}
+  m_Parameters:
+    serializedVersion: 3
+    widthMultiplier: 1
+    widthCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0.10608205
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 0.4669876
+        value: 0.29985857
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    colorGradient:
+      serializedVersion: 2
+      key0: {r: 1, g: 1, b: 1, a: 1}
+      key1: {r: 1, g: 1, b: 1, a: 1}
+      key2: {r: 0, g: 0, b: 0, a: 0}
+      key3: {r: 0, g: 0, b: 0, a: 0}
+      key4: {r: 0, g: 0, b: 0, a: 0}
+      key5: {r: 0, g: 0, b: 0, a: 0}
+      key6: {r: 0, g: 0, b: 0, a: 0}
+      key7: {r: 0, g: 0, b: 0, a: 0}
+      ctime0: 0
+      ctime1: 65535
+      ctime2: 0
+      ctime3: 0
+      ctime4: 0
+      ctime5: 0
+      ctime6: 0
+      ctime7: 0
+      atime0: 0
+      atime1: 65535
+      atime2: 0
+      atime3: 0
+      atime4: 0
+      atime5: 0
+      atime6: 0
+      atime7: 0
+      m_Mode: 0
+      m_NumColorKeys: 2
+      m_NumAlphaKeys: 2
+    numCornerVertices: 10
+    numCapVertices: 10
+    alignment: 0
+    textureMode: 0
+    shadowBias: 0.5
+    generateLightingData: 0
+  m_UseWorldSpace: 1
+  m_Loop: 0
+--- !u!114 &163771992
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 163771986}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f4e6e957c68c0740a1ccaf34dcd8202, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  grappleTip: {fileID: 819426059}
+  dirParent: {fileID: 313479595}
+  playerTrans: {fileID: 1922009495}
+  fpCamTrans: {fileID: 963194228}
+  grappleLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  hookPrefab: {fileID: 8958374703977672843, guid: 6e9e27dda56e31e4dada0188cbf592be, type: 3}
+  maxGrappleDist: 50
+  distFromGrapplePoint: 0
+  timeToHit: 0
+  hasSpear: 0
+  hasThrown: 0
+  isGrappling: 0
 --- !u!1 &180434973
 GameObject:
   m_ObjectHideFlags: 0
@@ -921,52 +1052,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 13
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &260395419
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 260395420}
-  - component: {fileID: 260395421}
-  m_Layer: 2
-  m_Name: GrappleHolder
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &260395420
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 260395419}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.48, y: 0.983, z: -1.31}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 1185740484}
-  m_Father: {fileID: 313479595}
-  m_RootOrder: 12
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &260395421
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 260395419}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 894a48a5e794a4641bd2fe2666792507, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  grappling: {fileID: 1185740485}
 --- !u!1 &299511288
 GameObject:
   m_ObjectHideFlags: 0
@@ -1039,11 +1124,41 @@ Transform:
   - {fileID: 1360716003}
   - {fileID: 1069914074}
   - {fileID: 1671701462}
-  - {fileID: 260395420}
   - {fileID: 816762352}
   - {fileID: 1454399958}
   m_Father: {fileID: 1922009495}
   m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &372665199
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 372665200}
+  m_Layer: 2
+  m_Name: DeathCameraPos
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &372665200
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 372665199}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 3.093, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1922009495}
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &409809362
 GameObject:
@@ -2043,7 +2158,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 313479595}
-  m_RootOrder: 13
+  m_RootOrder: 12
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &816762353
 BoxCollider:
@@ -2481,7 +2596,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea4e3259c3ad2694984d300413fbe301, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cameraItself: {fileID: 963194227}
+  fpCam: {fileID: 963194227}
 --- !u!4 &1075533953 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7078722787440015773, guid: e83e1fa05442c5e4299c991d76472fc9, type: 3}
@@ -2581,204 +2696,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e83e1fa05442c5e4299c991d76472fc9, type: 3}
---- !u!1 &1156577220
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1156577221}
-  m_Layer: 2
-  m_Name: GunTip
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1156577221
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1156577220}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1185740484}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1185740483
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1185740484}
-  - component: {fileID: 1185740485}
-  - component: {fileID: 1185740486}
-  m_Layer: 2
-  m_Name: GrappleGun
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1185740484
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1185740483}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 1156577221}
-  m_Father: {fileID: 260395420}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1185740485
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1185740483}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 478d850166b76f74ba0b87d58aafa59f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  grappleToPoint: {x: 0, y: 0, z: 0}
-  whatIsGrappleable:
-    serializedVersion: 2
-    m_Bits: 64
-  gunTip: {fileID: 1156577221}
-  playerCamera: {fileID: 963194228}
-  player: {fileID: 1922009495}
-  directionParent: {fileID: 313479595}
-  PlayerRigidbody: {fileID: 1922009496}
-  grappleDirection: {x: 0, y: 0, z: 0}
-  playerDistanceFromGrappleToPoint: 0
-  climbingCheck: {fileID: 1922009498}
-  maxDistanceRC: 65
-  joint: {fileID: 0}
-  returnSpearInstance: {fileID: 0}
-  spearThrow: {fileID: 6501910149370547622, guid: 206ca75fea109a94eb5a707d8e90c0c2, type: 3}
-  spearImpale: {fileID: 8101727045003353453, guid: d8d03a5dc6ee5d84aa4ef61970e02fe8, type: 3}
-  throwForce: 1000
-  hasSpear: 0
-  lookingAtSpear: 0
-  isGrappling: 0
-  hitEnemy: 0
---- !u!120 &1185740486
-LineRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1185740483}
-  m_Enabled: 1
-  m_CastShadows: 1
-  m_ReceiveShadows: 1
-  m_DynamicOccludee: 1
-  m_StaticShadowCaster: 0
-  m_MotionVectors: 0
-  m_LightProbeUsage: 0
-  m_ReflectionProbeUsage: 0
-  m_RayTracingMode: 0
-  m_RayTraceProcedural: 0
-  m_RenderingLayerMask: 1
-  m_RendererPriority: 0
-  m_Materials:
-  - {fileID: 0}
-  m_StaticBatchInfo:
-    firstSubMesh: 0
-    subMeshCount: 0
-  m_StaticBatchRoot: {fileID: 0}
-  m_ProbeAnchor: {fileID: 0}
-  m_LightProbeVolumeOverride: {fileID: 0}
-  m_ScaleInLightmap: 1
-  m_ReceiveGI: 1
-  m_PreserveUVs: 0
-  m_IgnoreNormalsForChartDetection: 0
-  m_ImportantGI: 0
-  m_StitchLightmapSeams: 1
-  m_SelectedEditorRenderState: 3
-  m_MinimumChartSize: 4
-  m_AutoUVMaxDistance: 0.5
-  m_AutoUVMaxAngle: 89
-  m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_Positions:
-  - {x: 0, y: 0, z: 0}
-  - {x: 0, y: 0, z: 1}
-  m_Parameters:
-    serializedVersion: 3
-    widthMultiplier: 1
-    widthCurve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0.33333334
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    colorGradient:
-      serializedVersion: 2
-      key0: {r: 1, g: 1, b: 1, a: 1}
-      key1: {r: 1, g: 1, b: 1, a: 1}
-      key2: {r: 0, g: 0, b: 0, a: 0}
-      key3: {r: 0, g: 0, b: 0, a: 0}
-      key4: {r: 0, g: 0, b: 0, a: 0}
-      key5: {r: 0, g: 0, b: 0, a: 0}
-      key6: {r: 0, g: 0, b: 0, a: 0}
-      key7: {r: 0, g: 0, b: 0, a: 0}
-      ctime0: 0
-      ctime1: 65535
-      ctime2: 0
-      ctime3: 0
-      ctime4: 0
-      ctime5: 0
-      ctime6: 0
-      ctime7: 0
-      atime0: 0
-      atime1: 65535
-      atime2: 0
-      atime3: 0
-      atime4: 0
-      atime5: 0
-      atime6: 0
-      atime7: 0
-      m_Mode: 0
-      m_NumColorKeys: 2
-      m_NumAlphaKeys: 2
-    numCornerVertices: 10
-    numCapVertices: 10
-    alignment: 0
-    textureMode: 0
-    shadowBias: 0.5
-    generateLightingData: 0
-  m_UseWorldSpace: 1
-  m_Loop: 0
 --- !u!1 &1203561776 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -3086436065929644917, guid: e83e1fa05442c5e4299c991d76472fc9, type: 3}
@@ -3285,7 +3202,7 @@ Transform:
   - {fileID: 119594}
   - {fileID: 829170599}
   m_Father: {fileID: 313479595}
-  m_RootOrder: 14
+  m_RootOrder: 13
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1454399959
 MonoBehaviour:
@@ -4863,7 +4780,7 @@ MonoBehaviour:
   fpsCam: {fileID: 963194227}
   cameraFollowTrans: {fileID: 1667500771}
   directionParent: {fileID: 313479595}
-  grapplingGun: {fileID: 1185740485}
+  grapHook: {fileID: 163771992}
   leftFoot: {fileID: 184882777}
   rightFoot: {fileID: 228522539}
   frontFoot: {fileID: 409809362}
@@ -5019,6 +4936,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 313479595}
+  - {fileID: 372665200}
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -5050,26 +4968,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 285d894748f1af54e9ae09c9be995ed0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  fpCamTrans: {fileID: 963194228}
+  dirParent: {fileID: 313479595}
   upforce: 14
   sideforce: 20
-  isWallRunning: 0
-  playerMovement: {fileID: 1922009491}
   wallJumpForce: 120
-  directionParent: {fileID: 313479595}
-  fpsCamera: {fileID: 963194228}
+  maxWallJumps: 2
+  currentWallJumpNo: 0
+  multiplier: 2
   isLeft: 0
   isRight: 0
   isFront: 0
   distanceFromLeftWall: 0
   distanceFromRightWall: 0
   distanceFromFrontWall: 0
-  multiplier: 2
-  maxWallJumps: 2
-  currentWallJumpNo: 0
-  jumpBoostRight: 0
-  jumpBoostLeft: 0
-  jumpBoostBack: 0
-  hasPressedWallJump: 0
+  isWallRunning: 0
 --- !u!114 &1922009498
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5086,7 +4999,7 @@ MonoBehaviour:
   climbableLayer:
     serializedVersion: 2
     m_Bits: 8
-  grapplingGun: {fileID: 1185740485}
+  grapHook: {fileID: 163771992}
   directionParent: {fileID: 313479595}
   actualCam: {fileID: 963194228}
   playerCol: {fileID: 1922009492}
@@ -5134,17 +5047,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 911b653b6d07f954a8103432e3a70e35, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  camParent: {fileID: 1991222651}
+  fpCamTrans: {fileID: 963194228}
+  camFollowTrans: {fileID: 1667500771}
+  dirParent: {fileID: 313479595}
   mouseSens: 100
-  cameraHolder: {fileID: 1991222651}
-  cameraItself: {fileID: 963194228}
-  cameraFollowTrans: {fileID: 1667500771}
-  directionParent: {fileID: 313479595}
+  mouseX: 0
+  mouseY: 0
   xRotation: 0
   yRotation: 0
-  unlockCursor: 0
-  playerMovement: {fileID: 1922009491}
-  climbing: {fileID: 1922009498}
-  wallrun: {fileID: 1922009497}
 --- !u!114 &1922009500
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5164,9 +5075,11 @@ MonoBehaviour:
   hasTakenFallDamage: 0
   takeDamageOnLanding: 0
   isBurning: 0
+  isAlive: 0
   playerMovement: {fileID: 1922009491}
   currentLevel: 0
   holdBreath: {fileID: 1460967128}
+  airTimeOnLanding: 0
 --- !u!1 &1943049088
 GameObject:
   m_ObjectHideFlags: 0
@@ -5243,15 +5156,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52437e5e1de611146b29ba4fc9b4590f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cameraFollowPos: {fileID: 1667500771}
-  actualCamera: {fileID: 963194228}
-  enableBob: 0
-  bobSize: 0.005
-  bobSpeed: 15
+  camFollowTrans: {fileID: 1667500771}
+  deathCamPos: {fileID: 372665200}
+  fpCamTrans: {fileID: 963194228}
   resetSpeed: 15
-  multiplier: 1
-  toggleSpeed: 0.1
-  tpsCamOn: 0
+  multiplier: 100
+  deathCamSmooth: 0.1
 --- !u!1 &2014351338
 GameObject:
   m_ObjectHideFlags: 0

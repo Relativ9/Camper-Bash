@@ -5,49 +5,38 @@ using UnityEngine.VFX;
 
 public class Weapon : MonoBehaviour
 {
-    [SerializeField] private GameObject bullet;
-    [SerializeField] public Transform guntip; // depending on weapong guntip might defer right?
-    [SerializeField] public Camera crossfire;
+    [Header("Manually assigned variables")]
+    [SerializeField] public Transform gunTip;
+    [SerializeField] private GameObject projectilePrefab;
+    [SerializeField] private Camera fpCam;
     [SerializeField] public VisualEffect muzzleEffect;
-    [SerializeField] public int ammoRemaining;
-    [SerializeField] public int maxAmmo = 20;
-    [SerializeField] public bool isShooting;
-    //[SerializeField] public NpcInteractionVisuals npcInteractionVisuals;
-    //[SerializeField] public Npc npc;
-    [SerializeField] public PlayerMovement playerMovement;
-    //[SerializeField] public PauseMenuController pauseMenuController;
-    [SerializeField] public Climbing climbing;
 
-    public bool shotGunEquip;
-    public bool pistolEquip;
-    public bool rifleEquip;
-    public bool cannonEquip;
+    [Header("Editable in inspector")]
+    [SerializeField] private int maxAmmo = 20;
+    [SerializeField] private int pelletCount = 5;
+    [SerializeField] public float bulletspeed = 200f; // TODO: set this based on vector3.disctance .. close = lower value, far higher value
 
-    public int bulletCount = 5;
+    [Header("Visible for debugging")]
+    [SerializeField] private int ammoRemaining;
+    [SerializeField] public bool slotFull;
+    [SerializeField] private bool isShooting;
+    [SerializeField] private bool shotGunEquip;
+    [SerializeField] private bool pistolEquip;
+    [SerializeField] private bool rifleEquip;
+    [SerializeField] private bool cannonEquip;
 
-    public bool slotFull = false;
-
-    public Transform weaponChild;
-
-    public Vector3 crosshairs;
-
-    private Vector3 aimRot;
-
-    //public Transform gunRotation;
-
+    private PlayerMovement playerMovement;
+    private Climbing climbing;
+    private Transform weaponChild;
     private GameObject bulletInstance;
-    public float bulletspeed = 200f; // TODO: set this based on vector3.disctance .. close = lower value, far higher value
-
+    private Vector3 aimRot;
 
 
     void Start()
     {
         muzzleEffect = GetComponentInChildren<VisualEffect>();
         ammoRemaining = maxAmmo;
-        //npcInteractionVisuals = FindObjectOfType<NpcInteractionVisuals>();
-        //npc = FindObjectOfType<Npc>();
         playerMovement = FindObjectOfType<PlayerMovement>();
-        //pauseMenuController = FindObjectOfType<PauseMenuController>();
         climbing = FindObjectOfType<Climbing>();
 
     }
@@ -69,41 +58,38 @@ public class Weapon : MonoBehaviour
 
     private void FirePistol()
     {
-        if (/*playerMovement.inChatwithNpc == false  && */Time.timeScale == 1 && (climbing.isPeaking || !climbing.isClimbing)) // TimeScale added so that we automatically know that the game is paused
+        if (Time.timeScale >= 0 && (climbing.isPeaking || !climbing.isClimbing)) // TimeScale added so that we automatically know that the game is paused or not
         {
-            Ray ray = crossfire.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+            Ray ray = fpCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
             RaycastHit hit;
-            if (Physics.Raycast(crossfire.transform.position, crossfire.transform.forward, out hit))
+            if (Physics.Raycast(fpCam.transform.position, fpCam.transform.forward, out hit))
             {
-                if (Input.GetMouseButtonDown(0) && ammoRemaining > 0)
+                if (Input.GetMouseButtonDown(0) && ammoRemaining > 0 && !playerMovement.isRunning)
                 {
                     Debug.Log("FIRE!");
                     muzzleEffect.Play();
-                    Debug.DrawLine(guntip.transform.position, hit.point, Color.red, 2f);
-                    bulletInstance = Instantiate(bullet, guntip.position, crossfire.transform.rotation);
+                    Debug.DrawLine(gunTip.transform.position, hit.point, Color.red, 2f);
+                    bulletInstance = Instantiate(projectilePrefab, gunTip.position, fpCam.transform.rotation);
                     bulletInstance.transform.LookAt(hit.point);
                     bulletInstance.GetComponent<Rigidbody>().velocity = bulletInstance.transform.forward * bulletspeed;
                     ammoRemaining -= 1;
 
                 }
-                crosshairs = hit.point;
                 isShooting = false;
             }
             else
             {
-                if (Input.GetMouseButtonDown(0) && ammoRemaining > 0)
+                if (Input.GetMouseButtonDown(0) && ammoRemaining > 0 && !playerMovement.isRunning)
                 {
                     Debug.Log("FIRE!");
                     muzzleEffect.Play();
-                    Debug.DrawLine(guntip.transform.position, ray.GetPoint(100000), Color.red, 2f);
-                    bulletInstance = Instantiate(bullet, guntip.position, guntip.rotation);
+                    Debug.DrawLine(gunTip.transform.position, ray.GetPoint(100000), Color.red, 2f);
+                    bulletInstance = Instantiate(projectilePrefab, gunTip.position, gunTip.rotation);
                     bulletInstance.transform.LookAt(ray.GetPoint(100000));
                     bulletInstance.GetComponent<Rigidbody>().velocity = bulletInstance.transform.forward * bulletspeed;
                     ammoRemaining -= 1;
 
                 }
-                //Destroy(bulletInstance, 0.1f);
-                crosshairs = ray.GetPoint(100000);
                 isShooting = false;
             }
         }
@@ -113,20 +99,20 @@ public class Weapon : MonoBehaviour
     {
         if (Time.timeScale != 0 && (climbing.isPeaking || !climbing.isClimbing)) // TimeScale added so that we automatically know that the game is paused
         {
-            Ray ray = crossfire.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+            Ray ray = fpCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
             RaycastHit hit;
-            if (Physics.Raycast(crossfire.transform.position, crossfire.transform.forward, out hit))
+            if (Physics.Raycast(fpCam.transform.position, fpCam.transform.forward, out hit))
             {
-                if (Input.GetMouseButtonDown(0) && ammoRemaining > 0)
+                if (Input.GetMouseButtonDown(0) && ammoRemaining > 0 && !playerMovement.isRunning)
                 {
                     isShooting = true;
-                    for (var i = 0; i < bulletCount; i++)
+                    for (var i = 0; i < pelletCount; i++)
                     {
-                        Transform forwardLook = crossfire.transform;
+                        Transform forwardLook = fpCam.transform;
                         aimRot = forwardLook.eulerAngles + new Vector3(Random.Range(-3f, 3f), Random.Range(-3f, 3f), 0f);
                         var bulletRot = Quaternion.Euler(aimRot);
 
-                        bulletInstance = Instantiate(bullet, guntip.position/* + (new Vector3(Random.Range(-0.05f, 0.05f), Random.Range(-0.05f, 0.05f), Random.Range(-0.05f, 0.05f)))*/, bulletRot);
+                        bulletInstance = Instantiate(projectilePrefab, gunTip.position, bulletRot);
                         bulletInstance.GetComponent<Rigidbody>().velocity = bulletInstance.transform.forward * bulletspeed;
 
                         Debug.Log("FIRE SHOTGUN!");
@@ -134,31 +120,29 @@ public class Weapon : MonoBehaviour
                     ammoRemaining -= 1;
 
                     muzzleEffect.Play();
-                    Debug.DrawLine(guntip.transform.position, hit.point, Color.red, 2f);
+                    Debug.DrawLine(gunTip.transform.position, hit.point, Color.red, 2f);
                 }
-                crosshairs = hit.point;
                 isShooting = false;
             }
             else
             {
-                if (Input.GetMouseButtonDown(0) && ammoRemaining > 0)
+                if (Input.GetMouseButtonDown(0) && ammoRemaining > 0 && !playerMovement.isRunning)
                 {
                     isShooting = true;
-                    for (var i = 0; i < bulletCount; i++)
+                    for (var i = 0; i < pelletCount; i++)
                     {
-                        aimRot = guntip.eulerAngles + new Vector3(Random.Range(-3f, 3f), Random.Range(-3f, 3f), 0f);
+                        aimRot = gunTip.eulerAngles + new Vector3(Random.Range(-3f, 3f), Random.Range(-3f, 3f), 0f);
                         var bulletRot = Quaternion.Euler(aimRot);
 
-                        bulletInstance = Instantiate(bullet, guntip.position/* + (new Vector3(Random.Range(-0.05f, 0.05f), Random.Range(-0.05f, 0.05f), Random.Range(-0.05f, 0.05f)))*/, bulletRot);
+                        bulletInstance = Instantiate(projectilePrefab, gunTip.position/* + (new Vector3(Random.Range(-0.05f, 0.05f), Random.Range(-0.05f, 0.05f), Random.Range(-0.05f, 0.05f)))*/, bulletRot);
                         bulletInstance.GetComponent<Rigidbody>().velocity = bulletInstance.transform.forward * bulletspeed;
                         Debug.Log("FIRE SHOTGUN!");
                     }
                     ammoRemaining -= 1;
 
                     muzzleEffect.Play();
-                    Debug.DrawLine(guntip.transform.position, ray.GetPoint(100000), Color.red, 2f);
+                    Debug.DrawLine(gunTip.transform.position, ray.GetPoint(100000), Color.red, 2f);
                 }
-                crosshairs = ray.GetPoint(100000);
             }
         }
     }

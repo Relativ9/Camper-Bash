@@ -7,7 +7,7 @@ public class Climbing : MonoBehaviour
 
     [SerializeField] private PlayerMovement playerMovement;
     [SerializeField] private LayerMask climbableLayer;
-    [SerializeField] private GrapplingGun grapplingGun;
+    [SerializeField] private GrappleHook grapHook;
     [SerializeField] private Transform directionParent;
     [SerializeField] private Transform actualCam;
     [SerializeField] private CapsuleCollider playerCol;
@@ -58,7 +58,7 @@ public class Climbing : MonoBehaviour
     void Start()
     {
         playerMovement = FindObjectOfType<PlayerMovement>();
-        grapplingGun = FindObjectOfType<GrapplingGun>();
+        grapHook = FindObjectOfType<GrappleHook>();
         playerLook = FindObjectOfType<PlayerLook>();
 
         middleHit = false;
@@ -191,10 +191,10 @@ public class Climbing : MonoBehaviour
 
     void climbing()
     {
-        if (middleHit && !topHit && !playerMovement.playerOnGround && canClimb && !grapplingGun.isGrappling && !isClimbing)
+        if (middleHit && !topHit && !playerMovement.playerOnGround && canClimb && !grapHook.isGrappling && !isClimbing)
         {
             playerLook.yRotation = 0;
-            playerLook.cameraHolder.transform.rotation = directionParent.transform.rotation;
+            playerLook.camParent.rotation = directionParent.transform.rotation;
             if (standingPoint != Vector3.zero)
             {
                 isClimbing = true;
@@ -231,7 +231,7 @@ public class Climbing : MonoBehaviour
                 isPeaking = false;
                 playerRB.transform.localPosition = Vector3.MoveTowards(this.transform.localPosition, targetHeight, 300f * Time.deltaTime);
             }
-            playerLook.cameraHolder.transform.rotation = directionParent.transform.rotation;
+            playerLook.camParent.rotation = directionParent.transform.rotation;
         }
     }
     IEnumerator justClimbed()

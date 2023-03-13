@@ -196,7 +196,7 @@ public class GrapplingGun : MonoBehaviour
             }
 
         }
-        //yield return new WaitForSeconds(0.2f); // wait some time to simulate "tension" being achieved on the grapple line.
+        yield return new WaitForSeconds(0.2f); // wait some time to simulate "tension" being achieved on the grapple line.
         StartGrapple();
     }
 }

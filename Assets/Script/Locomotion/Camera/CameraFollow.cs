@@ -4,61 +4,46 @@ using UnityEngine;
 
 public class CameraFollow : MonoBehaviour
 {
-    [SerializeField] Transform cameraFollowPos;
-    [SerializeField] Transform actualCamera;
+    [Header("Manually assigned variables")]
+    [SerializeField] private Transform camFollowTrans;
+    [SerializeField] private Transform deathCamPos;
+    [SerializeField] private Transform fpCamTrans;
 
-    [SerializeField] bool enableBob = true;
-    [SerializeField] float bobSize = 0.005f;
-    [SerializeField] float bobSpeed = 15f;
+    [Header("Editable in inspector")]
     [SerializeField] float resetSpeed = 15f;
-    [SerializeField] float multiplier = 100f;
-    //private float velSpeed;
-    //private float frequency;
+    [SerializeField] float multiplier = 10f;
+    [SerializeField] float deathCamSmooth = 0.1f;
 
-    [SerializeField] float toggleSpeed = 0.1f;
     private Vector3 startPos;
-    private Rigidbody playerRB;
-    private PlayerMovement playerMovement;
-    //public PauseMenuController pauseMenuController;
-
-    [SerializeField] bool tpsCamOn;
+    private PlayerHealth playHealth;
 
     // Start is called before the first frame update
     void Start()
     {
-        //tpsCamOn = false;
-        playerMovement = FindObjectOfType<PlayerMovement>();
-        playerRB = FindObjectOfType<PlayerMovement>().GetComponent<Rigidbody>();
+        playHealth = FindObjectOfType<PlayerHealth>();
     }
 
     private void Awake()
     {
-        startPos = actualCamera.localPosition;
+        startPos = fpCamTrans.localPosition;
     }
 
-    // Update is called once per frame
     void Update()
     {
-        transform.position = Vector3.Slerp(transform.position, cameraFollowPos.position, multiplier);
-        restartPos();
-
+        if(!playHealth.isAlive)
+        {           
+            transform.position = Vector3.Slerp(transform.position, deathCamPos.position, deathCamSmooth * Time.deltaTime);
+            Time.timeScale = 0.5f;
+        } else
+        {
+            Time.timeScale = 1f;
+            transform.position = Vector3.Slerp(transform.position, camFollowTrans.position, multiplier);
+            restartPos();
+        }
     }
     private void restartPos()
     {
-        if (actualCamera.localPosition == startPos) return;
-        actualCamera.localPosition = Vector3.Lerp(actualCamera.localPosition, startPos, resetSpeed * Time.deltaTime);
-    }
-
-    private Vector3 footStepMotion()
-    {
-        Vector3 pos = Vector3.zero;
-        pos.y += Mathf.Sin(Time.time * bobSpeed) * bobSize;
-        pos.x += Mathf.Cos(Time.time * bobSpeed / 2) * bobSize;
-        return pos;
-    }
-
-    private void playMotion(Vector3 motion)
-    {
-        actualCamera.localPosition += motion;
+        if (fpCamTrans.localPosition == startPos) return;
+        fpCamTrans.localPosition = Vector3.Lerp(fpCamTrans.localPosition, startPos, resetSpeed * Time.deltaTime);
     }
 }

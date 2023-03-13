@@ -16,6 +16,7 @@ public class PlayerHealth : MonoBehaviour
     [SerializeField] public bool hasTakenFallDamage;
     [SerializeField] public bool takeDamageOnLanding;
     [SerializeField] public bool isBurning;
+    [SerializeField] public bool isAlive;
 
     [SerializeField] public PlayerMovement playerMovement;
     [SerializeField] public int currentLevel;
@@ -28,6 +29,18 @@ public class PlayerHealth : MonoBehaviour
     {
         currentHealth = MaxPlayerHealth;
         playerMovement = FindObjectOfType<PlayerMovement>();
+        isAlive = true;
+    }
+
+    private void Update()
+    {
+        if (currentHealth <= 0)
+        {
+            Debug.Log("player is dead");
+            isAlive = false;
+            currentHealth = 0;
+            StartCoroutine(restartLevel());
+        }
     }
 
 
@@ -56,15 +69,6 @@ public class PlayerHealth : MonoBehaviour
         {
             currentHealth -= hit;
         }
-
-        if (currentHealth <= 0)
-        {
-            Debug.Log("player is dead");
-            currentHealth = 0;
-            StartCoroutine(restartLevel());
-        }
-
-
     }
 
     public void IncreaseHealth(int number)
@@ -106,7 +110,7 @@ public class PlayerHealth : MonoBehaviour
     private void OnCollisionEnter(Collision collision)
     {
         
-        if (/*playerMovement.airTime >= 0.1f &&*/playerMovement.currentVel.y <= -20 && !hasTakenFallDamage)
+        if (playerMovement.currentVel.y <= -20 && !hasTakenFallDamage)
         {
             Debug.Log("Is Colliding!");
             StartCoroutine("damageTakenImmunity");

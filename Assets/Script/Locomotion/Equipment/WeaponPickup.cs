@@ -74,7 +74,7 @@ public class WeaponPickup : MonoBehaviour
         transform.localRotation = Quaternion.Euler(Vector3.zero);
 
         weaponRB.isKinematic = true;
-        weaponScript.guntip = gunTip;
+        weaponScript.gunTip = gunTip;
         weaponScript.muzzleEffect = muzzle;
     }
 
