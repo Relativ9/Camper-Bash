@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class RagdollActivator : MonoBehaviour
@@ -8,7 +6,7 @@ public class RagdollActivator : MonoBehaviour
     public Collider playerCol;
     public GameObject playerRig;
     public GameObject player;
-    public GrapplingGun grapple;
+    public GrappleHook grapple;
     public Animator playerAnim;
 
     public PlayerHealth playerHealth;

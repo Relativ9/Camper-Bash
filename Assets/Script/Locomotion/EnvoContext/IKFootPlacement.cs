@@ -5,23 +5,20 @@ using UnityEngine;
 public class IKFootPlacement : MonoBehaviour
 {
 
-    public Animator anim;
-    public PlayerMovement playerMovement;
 
+    //Assigned in start
+    public PlayerMovement playerMove;
+    public Animator anim;
+
+    [Header("Visible for debugging")]
     [Range(0, 1f)]
     public float groundDist;
     public Vector3 leftFoot;
 
-    // Start is called before the first frame update
     void Start()
     {
-        anim = GetComponent<Animator>();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
+        playerMove = FindObjectOfType<PlayerMovement>();
+        anim = playerMove.gameObject.GetComponent<Animator>();
     }
 
     private void OnAnimatorIK(int layerIndex)
@@ -34,14 +31,13 @@ public class IKFootPlacement : MonoBehaviour
             anim.SetIKPositionWeight(AvatarIKGoal.RightFoot, anim.GetFloat("IKRightFootWeight"));
             anim.SetIKRotationWeight(AvatarIKGoal.RightFoot, anim.GetFloat("IKRightFootWeight"));
 
-
             //LeftFoot Distance and Angle IK Placement on Ground
             RaycastHit hit;
             Ray ray = new Ray(anim.GetIKPosition(AvatarIKGoal.LeftFoot) + Vector3.up, Vector3.down);
 
             if (Physics.Raycast(ray, out hit, groundDist + 2f))
             {
-                if (playerMovement.playerOnGround)
+                if (playerMove.isGrounded)
                 {
                     Vector3 leftFootPos = hit.point;
 
@@ -49,7 +45,6 @@ public class IKFootPlacement : MonoBehaviour
 
                     anim.SetIKPosition(AvatarIKGoal.LeftFoot, leftFootPos);
                     anim.SetIKRotation(AvatarIKGoal.LeftFoot, Quaternion.LookRotation(anim.GetIKRotation(AvatarIKGoal.LeftFoot) * Vector3.forward, hit.normal));
-
                 }
             }
 
@@ -58,7 +53,7 @@ public class IKFootPlacement : MonoBehaviour
 
             if (Physics.Raycast(ray, out hit, groundDist + 2f))
             {
-                if (playerMovement.playerOnGround)
+                if (playerMove.isGrounded)
                 {
                     Vector3 rightFootPos = hit.point;
 

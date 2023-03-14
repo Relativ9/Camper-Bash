@@ -1,114 +1,81 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Climbing : MonoBehaviour
 {
 
-    [SerializeField] private PlayerMovement playerMovement;
+    [Header("Manually assigned variables")]
     [SerializeField] private LayerMask climbableLayer;
-    [SerializeField] private GrappleHook grapHook;
-    [SerializeField] private Transform directionParent;
-    [SerializeField] private Transform actualCam;
-    [SerializeField] private CapsuleCollider playerCol;
+    [SerializeField] private Transform dirParent;
+    [SerializeField] private Transform topOfPlayer;
+    [SerializeField] private Transform ledgeTopRayOrigin;
 
-    public Rigidbody playerRB;
-    public Transform topOfPlayer;
-    public Transform middleOfPlayer;
-    public Transform targetPositionLeft;
-    public Transform player;
-    public Quaternion ledgeCurrentRotation;
-    public Quaternion normalRot;
-    public Vector3 ledgeFace;
-    public Vector3 targetHeight;
-    public GameObject ledgeTopRayOrigin;
-    public Animator freyjaAnimator;
-    public AvatarTarget rootTransform;
-    public MatchTargetWeightMask weightMask;
+    //Assigned in start
+    private PlayerMovement playerMovement;
+    private GrappleHook grapHook;
+    private Transform player;
+    private Rigidbody playerRb;
+    private PlayerLook playerLook;
 
-    public float rotationToLedgeTimeCount;
-    public float releaseCamera = 0.1f;
-    public float ledgeRotationDelay;
+    [Header("Editable in inspector")]
+    [SerializeField] private float peakHeight = 200f;
 
-    public float climbLedgePower = 1100f;
-    public float peakHeight = 200f;
-
+    [Header("Must remain publicly accessible")]
     public bool isClimbing;
+    public bool climbingUp;
+    public Vector3 standingPoint;
+    public RaycastHit hitpointLedge;
     public bool canClimb;
-    public bool middleHit;
-    public bool topHit;
     public bool canVault;
-    public bool hasClimbed;
     public bool isPeaking;
 
-    public bool climbingUp;
-    public bool climbCollider;
+    [Header("Visible for debugging")]
+    [SerializeField] private bool middleHit;
+    [SerializeField] private bool topHit;
 
-    public Vector3 wallNormal;
+    private Vector3 targetHeight;
 
-    public PlayerLook playerLook;
-    public float direcyEuler;
-    public float faceLedgeSpeed;
-    public RaycastHit hitpointLedge;
-
-    public Transform ledgeEdge;
-    public Vector3 standingPoint;
-
-    // Start is called before the first frame update
     void Start()
     {
         playerMovement = FindObjectOfType<PlayerMovement>();
         grapHook = FindObjectOfType<GrappleHook>();
         playerLook = FindObjectOfType<PlayerLook>();
+        playerRb = this.gameObject.GetComponent<Rigidbody>();
+        player = this.gameObject.transform;
 
+        //Setting climbing bools just in case a scene transition happens in the middle of a climb
         middleHit = false;
         topHit = false;
         isClimbing = false;
         canClimb = true;
         canVault = false;
-        hasClimbed = false;
-        faceLedgeSpeed = 0;
     }
 
-    // Update is called once per frame
     void Update()
     {
-
         TopCheck();
         MiddleCheck();
-        hangDist();
-        ledgeCheck();
-        climbing();
-        vaultCheck();
+        HangDist();
+        LedgeCheck();
+        ActivateClimb();
+        VaultCheck();
+        LedgeMovement(); //must be the last method called.
     }
 
-    private void LateUpdate()
-    {
-        ledgeMovement();
-    }
-
-    public void ledgeCheck()
+    public void LedgeCheck() //Check for valid ledge, set target height and standing point transforms so the animations will line up with the ledge.
     {
         RaycastHit ledgeHeightHit;
-        if (Physics.Raycast(ledgeTopRayOrigin.transform.position, -ledgeTopRayOrigin.transform.up, out ledgeHeightHit, 1.5f, climbableLayer))
+        if (Physics.Raycast(ledgeTopRayOrigin.transform.position, -ledgeTopRayOrigin.transform.up, out ledgeHeightHit, 1.5f, climbableLayer)) //ray is cast from a point above and ahead of the player to ensure you can only trigger the climbing mode on ledges you are facing.
         {
             Debug.DrawRay(ledgeTopRayOrigin.transform.position, -ledgeTopRayOrigin.transform.up, Color.cyan);
             var hitHeight = ledgeHeightHit.point;
             hitHeight.y = ledgeHeightHit.point.y - 1f;
-            hitHeight.x = directionParent.position.x;
-            hitHeight.z = directionParent.position.z;
+            hitHeight.x = dirParent.position.x;
+            hitHeight.z = dirParent.position.z;
 
             targetHeight = new Vector3(hitHeight.x, hitHeight.y, hitHeight.z);
 
             standingPoint = ledgeHeightHit.point;
-            if (ledgeHeightHit.collider.transform.Find("LedgeEdge"))
-            {
-                ledgeEdge = ledgeHeightHit.collider.transform.GetChild(0);
-            }
-            else
-            {
-                ledgeEdge = null;
-            }
         }
         else
         {
@@ -116,7 +83,7 @@ public class Climbing : MonoBehaviour
         }
     }
 
-    public void TopCheck()
+    public void TopCheck() //sends a ray out from the top of the player (empty gameobject) in the forward direction, must not hit a collider in 2 units 
     {
         RaycastHit hitTop;
         if (Physics.Raycast(topOfPlayer.position, topOfPlayer.forward, out hitTop, 2f, climbableLayer))
@@ -130,15 +97,14 @@ public class Climbing : MonoBehaviour
         }
     }
 
-    public void MiddleCheck()
+    public void MiddleCheck() // sends out a ray from the middle of the player in the forward direction, a false topHit pluss a positive middle hit should result in engaging climb mode. 
     {
         RaycastHit hitMiddle;
-        if (Physics.Raycast(middleOfPlayer.position, middleOfPlayer.forward, out hitMiddle, 2f, climbableLayer))
+        if (Physics.Raycast(dirParent.position, dirParent.forward, out hitMiddle, 2f, climbableLayer))
         {
-            Debug.DrawRay(middleOfPlayer.position, middleOfPlayer.forward, Color.cyan);
+            Debug.DrawRay(dirParent.position, dirParent.forward, Color.cyan);
             hitpointLedge = hitMiddle;
             middleHit = true;
-            ledgeFace = hitMiddle.normal;
 
             if (isClimbing && !climbingUp)
             {
@@ -151,7 +117,7 @@ public class Climbing : MonoBehaviour
         }
     }
 
-    public void vaultCheck()
+    public void VaultCheck()
     {
         if (topHit)
         {
@@ -162,13 +128,13 @@ public class Climbing : MonoBehaviour
             canVault = false;
         }
 
-        else if (topHit && middleHit && playerMovement.playerOnGround)
+        else if (topHit && middleHit && playerMovement.isGrounded)
         {
             canVault = true;
         }
     }
 
-    public void ledgeMovement()
+    public void LedgeMovement() //input function to climb up or drop off ledges, sideways movement on the ledge with root motion will be added later
     {
         if (isClimbing)
         {
@@ -176,25 +142,25 @@ public class Climbing : MonoBehaviour
             {
                 if (Input.GetKeyDown(KeyCode.Space))
                 {
-                    StartCoroutine("justClimbed");
+                    StartCoroutine("JustClimbed");
                 }
             }
             if (Input.GetKey(KeyCode.W))
             {
                 if (Input.GetKeyDown(KeyCode.Space))
                 {
-                    StartCoroutine("climbUp");
+                    StartCoroutine("ClimbUp");
                 }
             }
         }
     }
 
-    void climbing()
+    void ActivateClimb() //state check of the varius bools to initiate climbing mode
     {
-        if (middleHit && !topHit && !playerMovement.playerOnGround && canClimb && !grapHook.isGrappling && !isClimbing)
+        if (middleHit && !topHit && !playerMovement.isGrounded && canClimb && !grapHook.isGrappling && !isClimbing)
         {
             playerLook.yRotation = 0;
-            playerLook.camParent.rotation = directionParent.transform.rotation;
+            playerLook.camParent.rotation = dirParent.transform.rotation;
             if (standingPoint != Vector3.zero)
             {
                 isClimbing = true;
@@ -203,13 +169,13 @@ public class Climbing : MonoBehaviour
     }
 
 
-    public void hangDist()
+    public void HangDist() //sets the height (y position) of the player as he hangs off the ledge, allowing the player to also peak over the edge on mouse 1, also snaps the camera to face the ledge.
     {
         if (isClimbing)
         {
-            if (Input.GetMouseButton(1) && !playerMovement.playerOnGround)
+            if (Input.GetMouseButton(1) && !playerMovement.isGrounded)
             {
-                if (!isPeaking)
+                if (!isPeaking) // might replace this meathod of peaking with a root motion animation.
                 {
                     isPeaking = true;
                     if (player.transform.position.y <= 0f)
@@ -229,12 +195,12 @@ public class Climbing : MonoBehaviour
             else if (!climbingUp)
             {
                 isPeaking = false;
-                playerRB.transform.localPosition = Vector3.MoveTowards(this.transform.localPosition, targetHeight, 300f * Time.deltaTime);
+                playerRb.transform.localPosition = Vector3.MoveTowards(this.transform.localPosition, targetHeight, 300f * Time.deltaTime);
             }
-            playerLook.camParent.rotation = directionParent.transform.rotation;
+            playerLook.camParent.rotation = dirParent.transform.rotation;
         }
     }
-    IEnumerator justClimbed()
+    IEnumerator JustClimbed() //climbing state change set with a delay to ensure it doesn't bug when falling past multiple edges.
     {
         canClimb = false;
         isClimbing = false;
@@ -242,7 +208,7 @@ public class Climbing : MonoBehaviour
         canClimb = true;
     }
 
-    IEnumerator climbUp()
+    IEnumerator ClimbUp() //same as above
     {
         canClimb = false;
         climbingUp = true;
@@ -250,18 +216,5 @@ public class Climbing : MonoBehaviour
         canClimb = true;
         isClimbing = false;
         climbingUp = false;
-    }
-
-    private void OnCollisionStay(Collision collision)
-    {
-        if (collision.gameObject.layer == 13)
-        {
-            climbCollider = true;
-
-        }
-        else
-        {
-            climbCollider = false;
-        }
     }
 }

@@ -1,51 +1,52 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.VFX;
 
 public class WeaponPickup : MonoBehaviour
 {
+    [Header("Manually assigned variables")]
+    [SerializeField] private Transform Weapons, fpsCamera, gunTip;
+    [SerializeField] private GameObject Player;
+    [SerializeField] private VisualEffect muzzle;
 
-    public Weapon weaponScript;
-    public Rigidbody weaponRB;
+    //Assigned in start
+    public Weapon weapon;
+    public Rigidbody weaponRb;
     public BoxCollider coll;
-    public Transform Weapons, fpsCamera, gunTip;
-    //public ParticleSystem tipMuzzle;
-    public GameObject Player;
-    public VisualEffect muzzle;
 
+    [Header("Editable in inspector")]
     public float throwDistFor, throwDistUp;
     public float maxPickUpDist;
 
+    [Header("Must remain publicly accessible")]
     public bool equipped;
     public bool slotFull;
 
-    // Start is called before the first frame update
     void Start()
     {
+        weapon = FindObjectOfType<Weapon>();
+        weaponRb = this.GetComponent<Rigidbody>();
+        coll = this.GetComponent<BoxCollider>();
+
         if (!equipped)
         {
-            weaponScript.enabled = false;
-            weaponRB.isKinematic = false;
-            //coll.isTrigger = false;
+            weapon.enabled = false;
+            weaponRb.isKinematic = false;
             coll.enabled = true;
         }
 
         if (equipped)
         {
-            weaponScript.enabled = true;
-            weaponRB.isKinematic = true;
-            //coll.isTrigger = true;
+            weapon.enabled = true;
+            weaponRb.isKinematic = true;
             coll.enabled = false;
             slotFull = true;
         }
     }
 
-    // Update is called once per frame
     void Update()
     {
         Vector3 distanceToPlayer = Player.transform.position - transform.position;
-        if (!equipped && distanceToPlayer.magnitude <= maxPickUpDist && Input.GetKeyDown(KeyCode.E) && !weaponScript.slotFull)
+        if (!equipped && distanceToPlayer.magnitude <= maxPickUpDist && Input.GetKeyDown(KeyCode.E) && !weapon.slotFull)
         {
             PickUp();
         }
@@ -57,45 +58,41 @@ public class WeaponPickup : MonoBehaviour
 
     public void PickUp()
     {
-        //coll.isTrigger = true;
         coll.enabled = false;
         Debug.Log("Pickup RAN");
         equipped = true;
 
 
-        weaponScript.slotFull = true;
+        weapon.slotFull = true;
 
-        //slotFull = true;
-        weaponScript.enabled = true;
+        weapon.enabled = true;
 
         transform.SetParent(Weapons);
         transform.localPosition = Vector3.zero;
         transform.localScale = Vector3.one;
         transform.localRotation = Quaternion.Euler(Vector3.zero);
 
-        weaponRB.isKinematic = true;
-        weaponScript.gunTip = gunTip;
-        weaponScript.muzzleEffect = muzzle;
+        weaponRb.isKinematic = true;
+        weapon.gunTip = gunTip;
+        weapon.muzzleEffect = muzzle;
     }
 
     public void Drop()
     {
-        //coll.isTrigger = false;
         coll.enabled = true;
         Debug.Log("Drop RAN");
         equipped = false;
-        //slotFull = false;
-        weaponScript.slotFull = false;
+        weapon.slotFull = false;
 
         transform.SetParent(null);
 
-        weaponRB.isKinematic = false;
+        weaponRb.isKinematic = false;
 
-        weaponRB.velocity = Player.GetComponent<Rigidbody>().velocity;
-        weaponRB.AddForce(fpsCamera.forward * throwDistFor, ForceMode.Impulse);
-        weaponRB.AddForce(fpsCamera.up * throwDistUp, ForceMode.Impulse);
+        weaponRb.velocity = Player.GetComponent<Rigidbody>().velocity;
+        weaponRb.AddForce(fpsCamera.forward * throwDistFor, ForceMode.Impulse);
+        weaponRb.AddForce(fpsCamera.up * throwDistUp, ForceMode.Impulse);
 
         float randomSpin = Random.Range(-1f, 1f);
-        weaponRB.AddTorque(new Vector3(randomSpin, randomSpin, randomSpin) * 10);
+        weaponRb.AddTorque(new Vector3(randomSpin, randomSpin, randomSpin) * 10);
     }
 }

@@ -1,16 +1,22 @@
 using System.Collections;
+using System.Security.Claims;
 using UnityEngine;
 using UnityEngine.Animations.Rigging;
 
-
-public class disableOnClimbAndWallrun : MonoBehaviour
+public class AnimatorStates : MonoBehaviour
 {
+    //Assigned in start
+    private Climbing climb;
+    private WallRun wallRun;
+    private PlayerMovement playerMove;
+    private RigBuilder rigLayers;
+    private Weapon weapon;
+    private Animator anim;
 
-    public Climbing climbing;
-    public WallRun wallrun;
-    public PlayerMovement playerMove;
-    public RigBuilder rigLayers;
-    public Weapon weapon;
+    [Header("Editable in inspector")]
+    public float multiplier = 10;
+
+    [Header("Visible for debugging")]
     public Rig BodyHead;
     public Rig WeaponRest;
     public Rig WeaponAiming;
@@ -18,12 +24,15 @@ public class disableOnClimbAndWallrun : MonoBehaviour
     public Rig WeaponOnBack;
     public Rig GrappleRifleIK;
     public Rig ClimbingIK;
-    public float multiplier = 10;
-
-    public Animator animator;
 
     public void Start()
     {
+        climb = FindObjectOfType<Climbing>();
+        wallRun = FindObjectOfType<WallRun>();
+        playerMove = FindObjectOfType<PlayerMovement>();
+        weapon = FindObjectOfType<Weapon>();
+        anim = this.gameObject.GetComponent<Animator>();
+
         rigLayers = this.gameObject.GetComponent<RigBuilder>();
         BodyHead = rigLayers.layers[0].rig;
         WeaponRest = rigLayers.layers[1].rig;
@@ -36,16 +45,16 @@ public class disableOnClimbAndWallrun : MonoBehaviour
 
     public void Update()
     {
-        if (climbing.isClimbing)
+        if (climb.isClimbing)
         {
-            animator.updateMode = AnimatorUpdateMode.AnimatePhysics;
+            anim.updateMode = AnimatorUpdateMode.AnimatePhysics;
         }
         else
         {
             StartCoroutine(setAnimatorNormal());
         }
 
-        if (climbing.isClimbing)
+        if (climb.isClimbing)
         {
             BodyHead.weight = 0f;
             WeaponRest.weight = 0f * Time.deltaTime * multiplier;
@@ -55,7 +64,8 @@ public class disableOnClimbAndWallrun : MonoBehaviour
             ClimbingIK.weight = 1f;
             GrappleRifleIK.weight = 0f;
 
-        } else if (wallrun.isWallRunning && weapon.slotFull)
+        }
+        else if (wallRun.isWallRunning && weapon.slotFull)
         {
             BodyHead.weight = 1f;
             WeaponRest.weight = 1f * Time.deltaTime * multiplier;
@@ -102,6 +112,6 @@ public class disableOnClimbAndWallrun : MonoBehaviour
     IEnumerator setAnimatorNormal()
     {
         yield return new WaitForSeconds(0.25f);
-        animator.updateMode = AnimatorUpdateMode.Normal;
+        anim.updateMode = AnimatorUpdateMode.Normal;
     }
 }

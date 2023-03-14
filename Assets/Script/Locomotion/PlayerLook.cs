@@ -12,6 +12,7 @@ public class PlayerLook : MonoBehaviour
 
     [Header("Editable in inspector")]
     [SerializeField] public float mouseSens = 100f;
+    [SerializeField] public float snapSpeed = 10f;
 
     [Header("Visible for debugging")]
     [SerializeField] private float mouseX;
@@ -38,15 +39,15 @@ public class PlayerLook : MonoBehaviour
 
     void Update()
     {
-        getInputs();
+        GetInputs();
 
         if (playHealth.isAlive) 
         {
-            if (climbing.isClimbing)
+            if (climbing.isClimbing) // restricts camera moving when in climbing mode and snaps it to face the ledge on climbing entry.
             {
                 var ledgeDir = climbing.hitpointLedge.normal;
                 ledgeDir.y = 0;
-                dirParent.transform.rotation = Quaternion.Slerp(dirParent.transform.rotation, Quaternion.LookRotation(-ledgeDir), Time.deltaTime * 10f);
+                dirParent.transform.rotation = Quaternion.Slerp(dirParent.transform.rotation, Quaternion.LookRotation(-ledgeDir), Time.deltaTime * snapSpeed); //change snapSpeed to adjust smoothness
 
                 fpCamTrans.transform.localRotation = Quaternion.Euler(ClampedxRotation, ClampedyRotation, 0);
             }
@@ -54,22 +55,22 @@ public class PlayerLook : MonoBehaviour
             {
                 Quaternion defaultCameraTilt = Quaternion.Euler(ClampedxRotation, 0, 0);
 
-                if (!wallrun.isRight && !wallrun.isLeft || !wallrun.isWallRunning)
+                if (!wallrun.isRight && !wallrun.isLeft || !wallrun.isWallRunning) 
                 {
                     Vector3 tiltedCamera = fpCamTrans.transform.eulerAngles;
                     tiltedCamera = new Vector3(ClampedxRotation, 0, tiltedCamera.z);
-                    Quaternion tiltedCameraQuat = Quaternion.Euler(tiltedCamera.x, tiltedCamera.y, tiltedCamera.z);
+                    Quaternion tiltedCameraQuat = Quaternion.Euler(tiltedCamera.x, tiltedCamera.y, tiltedCamera.z); //controls the camera tilt when not wallrunning to ensure a horizontal alignment
 
-                    fpCamTrans.transform.localRotation = Quaternion.Slerp(tiltedCameraQuat, defaultCameraTilt, Time.deltaTime * 2f);
+                    fpCamTrans.transform.localRotation = Quaternion.Slerp(tiltedCameraQuat, defaultCameraTilt, Time.deltaTime * 2f); //controls how the player looks up and down on the z-axis.
 
                 }
                 camParent.transform.Rotate(mouseX * Vector3.up, Space.World); // rotate camera left right
-                dirParent.transform.Rotate(Vector3.up * mouseX);
+                dirParent.transform.Rotate(Vector3.up * mouseX); //rotates the character (directionParent) with the camera on the y axis.
             }
         }
     }
 
-    public void getInputs()
+    public void GetInputs() //function tracks the inputs.
     {
         mouseX = Input.GetAxisRaw("Mouse X") * mouseSens * Time.fixedDeltaTime;
         mouseY = Input.GetAxisRaw("Mouse Y") * mouseSens * Time.fixedDeltaTime;

@@ -7,54 +7,47 @@ public class WallRun : MonoBehaviour
     public Transform dirParent;
 
     [Header("Editable in inspector")]
-    [SerializeField] private float upforce = 14f;
-    [SerializeField] private float sideforce = 20f;
+    [SerializeField] private float upForce = 14f;
+    [SerializeField] private float sideForce = 20f;
     [SerializeField] private float wallJumpForce = 120f;
-    [SerializeField] private int maxWallJumps = 2; // This is to allow us do any ONLY two jumps while wall running
-    [SerializeField] private int currentWallJumpNo = 0; // stores number of wall jumps we do
+    [SerializeField] private int maxWallJumps = 2;
+    [SerializeField] private int currentWallJumpNo = 0;
     [SerializeField] private float multiplier = 2f;
-    float timeCount = 0.0f; // For Camera Tilt Slerp
-
+    float timeCount = 0.0f;
 
     [Header("Visible for debugging")]
-    private Quaternion currentCameraAngle;
+    [SerializeField] private Quaternion currentCamAng;
     [SerializeField] public bool isLeft;
     [SerializeField] public bool isRight;
     [SerializeField] public bool isFront;
-    [SerializeField] private float distanceFromLeftWall;
-    [SerializeField] private float distanceFromRightWall;
-    [SerializeField] private float distanceFromFrontWall;
-
 
     public bool isWallRunning = false;
     private bool canWallJump;
+    private bool jumpBoostRight;
+    private bool jumpBoostLeft;
+    private bool jumpBoostBack;
+    private bool rightSideForceAct;
+    private bool leftSideForceAct;
+    private bool frontForceAct;
 
-    private Quaternion rightWallRunCameraAngle = Quaternion.Euler(0f, 0f, 12f);
-    private Quaternion leftWallRunCameraAngle = Quaternion.Euler(0f, 0f, -12f);
-    private Quaternion frontWallRunCameraAngle = Quaternion.Euler(0f, 0f, 0f);
-    private Quaternion defaultCameraAngle = Quaternion.Euler(0f, 0f, 0f);
+    private Quaternion rightWallRunCamAng = Quaternion.Euler(0f, 0f, 12f);
+    private Quaternion leftWallRunCamAng = Quaternion.Euler(0f, 0f, -12f);
+    private Quaternion frontWallRunCamAng = Quaternion.Euler(0f, 0f, 0f);
+    private Quaternion defaultCamAng = Quaternion.Euler(0f, 0f, 0f);
+    private float distLeftWall;
+    private float distRightWall;
+    private float distFrontWall;
 
 
     private Rigidbody playerRigidbody;
     private PlayerMovement playerMovement;
     private Climbing climbing;
-
-    private bool jumpBoostRight;
-    private bool jumpBoostLeft;
-    private bool jumpBoostBack;
-    private bool rightSideForceActive;
-    private bool leftSideForceActive;
-    private bool frontForceActive;
-    private bool hasPressedWallJump;
-
-    private void Awake()
-    {
-        playerRigidbody = GetComponent<Rigidbody>();
-        currentCameraAngle = defaultCameraAngle;
-    }
+    //private bool hasPressedWallJump; //might use for animation state machine integration
 
     void Start()
     {
+        playerRigidbody = GetComponent<Rigidbody>();
+        currentCamAng = defaultCamAng;
         playerMovement = GetComponent<PlayerMovement>();
         climbing = GetComponent<Climbing>();
     }
@@ -82,37 +75,37 @@ public class WallRun : MonoBehaviour
         ActivateSideForces();
     }
 
-    private void ActivateSideForces()
+    private void ActivateSideForces() // Helps the player stick the wall during wallrunning, should be set to be just powerful enough that the player won't accidentally disengage the wallrun state, but not so powerful that they can't leave the mode if they want to.
     {
-        if (rightSideForceActive && !playerMovement.playerOnGround)
+        if (rightSideForceAct && !playerMovement.isGrounded)
         {
-            playerRigidbody.AddRelativeForce(dirParent.right * sideforce * multiplier * Time.fixedDeltaTime); // allows player to stick to wall during wallrun
-            leftSideForceActive = false;
-            frontForceActive = false;
+            playerRigidbody.AddRelativeForce(dirParent.right * sideForce * multiplier * Time.fixedDeltaTime); // allows player to stick to wall during wallrun
+            leftSideForceAct = false;
+            frontForceAct = false;
         }
 
-        if (leftSideForceActive && !playerMovement.playerOnGround)
+        if (leftSideForceAct && !playerMovement.isGrounded)
         {
-            playerRigidbody.AddRelativeForce(-dirParent.right * sideforce * multiplier * Time.fixedDeltaTime); // allows player to stick to wall during wallrun
-            rightSideForceActive = false;
-            frontForceActive = false;
+            playerRigidbody.AddRelativeForce(-dirParent.right * sideForce * multiplier * Time.fixedDeltaTime); // allows player to stick to wall during wallrun
+            rightSideForceAct = false;
+            frontForceAct = false;
         }
 
-        if (frontForceActive && !playerMovement.playerOnGround)
+        if (frontForceAct && !playerMovement.isGrounded)
         {
-            playerRigidbody.AddRelativeForce(dirParent.forward * sideforce * multiplier * Time.fixedDeltaTime); // allows player to stick to wall during wallrun
-            rightSideForceActive = false;
-            leftSideForceActive = false;
+            playerRigidbody.AddRelativeForce(dirParent.forward * sideForce * multiplier * Time.fixedDeltaTime); // allows player to stick to wall during wallrun
+            rightSideForceAct = false;
+            leftSideForceAct = false;
         }
 
 
     }
 
-    private void WallJump()
+    private void WallJump() //jump off the wall during walljump, if statements check which direction the wall is relative to the player.
     {
         if (canWallJump)
         {
-            playerRigidbody.AddRelativeForce(dirParent.up * (upforce * multiplier / 2f), ForceMode.Impulse);
+            playerRigidbody.AddRelativeForce(dirParent.up * (upForce * multiplier / 2f), ForceMode.Impulse);
             currentWallJumpNo++;
             canWallJump = false;
 
@@ -136,7 +129,7 @@ public class WallRun : MonoBehaviour
         }
     }
 
-    private void WallChecker()
+    private void WallChecker() //checks the different possible wall directions for wallrunning, makes sure the player can't wallrun on two seperate directions at once, also makes sure the player stops when hitting a corner (as that would trigger front and right or left at once, canceling eachother out).
     {
         RaycastHit leftWall;
         RaycastHit rightWall;
@@ -147,13 +140,13 @@ public class WallRun : MonoBehaviour
             isLeft = false;
             isRight = false;
         }
-        if (Physics.Raycast(dirParent.position, dirParent.forward, out frontWall, 10f))
+        if (Physics.Raycast(dirParent.position, dirParent.forward, out frontWall, 10f)) //sends out rays to check if there is a wall in front.
         {
 
             if (frontWall.transform.tag == "RunnableWall")
             {
-                distanceFromFrontWall = Vector3.Distance(dirParent.position, frontWall.point);
-                if (distanceFromFrontWall < 0.6f) // (this had an && isWallrunning if included)
+                distFrontWall = Vector3.Distance(dirParent.position, frontWall.point);
+                if (distFrontWall < 0.6f)
                 {
                     isFront = true;
                     isLeft = false;
@@ -161,21 +154,21 @@ public class WallRun : MonoBehaviour
                 }
                 else
                 {
-                    leftSideForceActive = false;
-                    rightSideForceActive = false;
-                    frontForceActive = false;
+                    leftSideForceAct = false;
+                    rightSideForceAct = false;
+                    frontForceAct = false;
                     isFront = false;
                 }
             }
         }
 
-        if (Physics.Raycast(dirParent.position, dirParent.right, out rightWall, 10f))
+        if (Physics.Raycast(dirParent.position, dirParent.right, out rightWall, 10f)) //sends out a ray to check if there is a wall to the right
         {
             if (rightWall.transform.tag == "RunnableWall")
             {
-                distanceFromRightWall = Vector3.Distance(dirParent.position, rightWall.point);
+                distRightWall = Vector3.Distance(dirParent.position, rightWall.point);
 
-                if (distanceFromRightWall < 0.6f) // (this had an && isWallrunning if included)
+                if (distRightWall < 0.6f)
                 {
                     isFront = false;
                     isRight = true;
@@ -184,21 +177,21 @@ public class WallRun : MonoBehaviour
                 }
                 else
                 {
-                    leftSideForceActive = false;
-                    rightSideForceActive = false;
-                    frontForceActive = false;
+                    leftSideForceAct = false;
+                    rightSideForceAct = false;
+                    frontForceAct = false;
                     isRight = false;
                 }
             }
         }
 
-        if (Physics.Raycast(dirParent.position, -dirParent.right, out leftWall, 10f))
+        if (Physics.Raycast(dirParent.position, -dirParent.right, out leftWall, 10f)) //sends out a ray to check if there is a wall to the left
         {
             if (leftWall.transform.tag == "RunnableWall")
             {
-                distanceFromLeftWall = Vector3.Distance(dirParent.position, leftWall.point);
+                distLeftWall = Vector3.Distance(dirParent.position, leftWall.point);
 
-                if (distanceFromLeftWall < 0.6f) // (this had an && isWallrunning if included)
+                if (distLeftWall < 0.6f)
                 {
                     isFront = false;
                     isLeft = true;
@@ -207,15 +200,15 @@ public class WallRun : MonoBehaviour
                 }
                 else
                 {
-                    leftSideForceActive = false;
-                    rightSideForceActive = false;
-                    frontForceActive = false;
+                    leftSideForceAct = false;
+                    rightSideForceAct = false;
+                    frontForceAct = false;
                     isLeft = false;
                 }
             }
         }
 
-        if ((isFront || isLeft || isRight) && !playerMovement.playerOnGround)
+        if ((isFront || isLeft || isRight) && !playerMovement.isGrounded) 
         {
             isWallRunning = true;
             TiltCameraStart();
@@ -224,49 +217,46 @@ public class WallRun : MonoBehaviour
         {
             currentWallJumpNo = 0;
             isWallRunning = false;
-            leftSideForceActive = false;
-            rightSideForceActive = false;
-            frontForceActive = false;
+            leftSideForceAct = false;
+            rightSideForceAct = false;
+            frontForceAct = false;
         }
     }
 
 
-    private void TiltCameraStart()
+    private void TiltCameraStart() //tilts the camera on the x axis to give the impression that the player is leaning away from the wall while wallrunning.
     {
-        if (isRight == true) // this is set in our raycast
+        if (isRight == true)
         {
             timeCount = timeCount + Time.deltaTime * 3;
-            fpCamTrans.localRotation = Quaternion.Slerp(currentCameraAngle, rightWallRunCameraAngle, timeCount);
+            fpCamTrans.localRotation = Quaternion.Slerp(currentCamAng, rightWallRunCamAng, timeCount);
         }
 
-        if (isLeft == true) // this is set in our raycast
+        if (isLeft == true)
         {
             timeCount = timeCount + Time.deltaTime * 3;
-            fpCamTrans.localRotation = Quaternion.Slerp(currentCameraAngle, leftWallRunCameraAngle, timeCount);
+            fpCamTrans.localRotation = Quaternion.Slerp(currentCamAng, leftWallRunCamAng, timeCount);
         }
 
         if (isFront == true)
         {
             timeCount = timeCount + Time.deltaTime * 3;
-            fpCamTrans.localRotation = Quaternion.Slerp(currentCameraAngle, frontWallRunCameraAngle, timeCount);
+            fpCamTrans.localRotation = Quaternion.Slerp(currentCamAng, frontWallRunCamAng, timeCount);
         }
-
-        // camera tilt works in update function because of time.deltatime so you cant put it in OnCollisionExit
     }
 
 
 
-    private void TiltCameraStop()
+    private void TiltCameraStop() //returns the camera tilt in the x-axis to the normal horizontal alignement when not wallrunning.
     {
 
-        if (isRight == false && isFront == false && isLeft == false)
+        if (isRight == false && isFront == false && isLeft == false || playerMovement.isGrounded)
         {
             timeCount = timeCount + Time.deltaTime * 3;
         }
-        // camera tilt works in update function because of time.deltatime so you cant put it in OnCollisionExit
     }
 
-    void WallJumpCheck()
+    void WallJumpCheck() //makes sure you can only jump from the wall in the correct direction depending on wall perpendicular direction
     {
         if (Input.GetKeyDown(KeyCode.Space) && currentWallJumpNo < maxWallJumps && !climbing.isClimbing)
         {

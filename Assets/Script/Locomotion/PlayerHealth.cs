@@ -1,61 +1,64 @@
-using System;
 using System.Collections;
 using UnityEngine.SceneManagement;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerHealth : MonoBehaviour
 {
     //TODO - Add Player Alive checker - freeze all movements + freeze TimeScale. if player is dead . Eg isPlayerAlive then allow for movement and all that put everything in update of playermovement
 
-    [SerializeField] public float MaxPlayerHealth = 50f;
-    [SerializeField] public float currentHealth;
-    [SerializeField] public float currentHealthPercent;
-    [SerializeField] public float fallDamageVal;
+    [Header("Manually assigned variable")]
 
-    [SerializeField] public bool hasTakenFallDamage;
-    [SerializeField] public bool takeDamageOnLanding;
-    [SerializeField] public bool isBurning;
-    [SerializeField] public bool isAlive;
-
-    [SerializeField] public PlayerMovement playerMovement;
-    [SerializeField] public int currentLevel;
-
+    //Assigned in start
+    [SerializeField] public PlayerMovement playerMove;
     [SerializeField] public BreathingCheck holdBreath;
 
+    [Header("Must remain publicly accessible")]
+    public bool isAlive;
+    public float currentHealth;
+
+    [Header("Editable in inspector")]
+    public float MaxPlayerHealth = 50f;
+
+    private float currentHealthPercent;
+    private float fallDamageVal;
+    private bool hasTakenFallDamage;
+    private bool takeDamageOnLanding;
+    private bool isBurning;
+    private int currentLevel;
+
+    [Header("Visible for debugging")]
     public float airTimeOnLanding;
 
     private void Start()
     {
         currentHealth = MaxPlayerHealth;
-        playerMovement = FindObjectOfType<PlayerMovement>();
+        playerMove = FindObjectOfType<PlayerMovement>();
         isAlive = true;
     }
 
     private void Update()
     {
-        if (currentHealth <= 0)
+        if (currentHealth <= 0) //Kills the player once health is below 0
         {
             Debug.Log("player is dead");
             isAlive = false;
             currentHealth = 0;
-            StartCoroutine(restartLevel());
+            StartCoroutine("RestartLevel");
         }
     }
 
 
-    private void FixedUpdate()
+    private void FixedUpdate() 
     {
-        fallDamage();
-        noBreathDamage();
+        FallDamage();
+        NoBreathDamage();
         currentHealthPercent = (currentHealth * 100) / MaxPlayerHealth;
 
         if (currentHealth > MaxPlayerHealth)
         {
             currentHealth = MaxPlayerHealth;
         }
-
-        if (takeDamageOnLanding)
+        if (takeDamageOnLanding) //applies fall damage
         {
             currentHealth = currentHealth - fallDamageVal;
             takeDamageOnLanding = false;
@@ -63,7 +66,7 @@ public class PlayerHealth : MonoBehaviour
         }
     }
 
-    public void playerDamage(float hit)
+    public void PlayerDamage(float hit) //function is used by the bullet prefabs to apply damage to the player
     {
         if (currentHealth > 0)
         {
@@ -71,7 +74,7 @@ public class PlayerHealth : MonoBehaviour
         }
     }
 
-    public void IncreaseHealth(int number)
+    public void IncreaseHealth(int number) //function is used by health pickup prefabs to heal player to max health.
     {
         currentHealth += number;
 
@@ -81,40 +84,40 @@ public class PlayerHealth : MonoBehaviour
         }
     }
 
-    public void fallDamage()
+    public void FallDamage() //sets different fall damage values depending on velocity of player when ground was hit (how high the fall was)
     {
-        if (playerMovement.currentVel.y <= -25f)
+        if (playerMove.currentVel.y <= -25f)
         {
             fallDamageVal = 10f;
         }
 
-        if (playerMovement.currentVel.y <= -30f)
+        if (playerMove.currentVel.y <= -30f)
         {
             fallDamageVal = 15f;
         }
 
-        if (playerMovement.currentVel.y <= -40f)
+        if (playerMove.currentVel.y <= -40f)
         {
             fallDamageVal = 20f;
         }
     }
 
-    public void noBreathDamage()
+    public void NoBreathDamage() //damage tick for underwater damage, only applies once stamina is out
     {
-        if (playerMovement.currentStaminaValue < 1 && !holdBreath.canBreathe || isBurning)
+        if (playerMove.currentStaminaValue < 1 && !holdBreath.canBreathe || isBurning)
         {
-            StartCoroutine("damageTick");
+            StartCoroutine("DamageTick");
         }
     }
 
     private void OnCollisionEnter(Collision collision)
     {
         
-        if (playerMovement.currentVel.y <= -20 && !hasTakenFallDamage)
+        if (playerMove.currentVel.y <= -20 && !hasTakenFallDamage)
         {
             Debug.Log("Is Colliding!");
-            StartCoroutine("damageTakenImmunity");
-            airTimeOnLanding = playerMovement.airTime;
+            StartCoroutine("DamageTakenImmunity");
+            airTimeOnLanding = playerMove.airTime;
         }
     }
 
@@ -134,7 +137,7 @@ public class PlayerHealth : MonoBehaviour
         }
     }
 
-    IEnumerator damageTakenImmunity()
+    IEnumerator DamageTakenImmunity()
     {
         hasTakenFallDamage = true;
         takeDamageOnLanding = true;
@@ -144,14 +147,14 @@ public class PlayerHealth : MonoBehaviour
         takeDamageOnLanding = false;
     }
 
-    IEnumerator restartLevel()
+    IEnumerator RestartLevel()
     {
         yield return new WaitForSeconds(3f);
         currentLevel = SceneManager.GetActiveScene().buildIndex;
         SceneManager.LoadScene(currentLevel);
     }
 
-    IEnumerator damageTick()
+    IEnumerator DamageTick()
     {
         if (!isBurning)
         {

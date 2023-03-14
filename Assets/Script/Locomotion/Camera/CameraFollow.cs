@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class CameraFollow : MonoBehaviour
@@ -32,18 +30,18 @@ public class CameraFollow : MonoBehaviour
     {
         if(!playHealth.isAlive)
         {           
-            transform.position = Vector3.Slerp(transform.position, deathCamPos.position, deathCamSmooth * Time.deltaTime);
+            transform.position = Vector3.Slerp(transform.position, deathCamPos.position, deathCamSmooth * Time.deltaTime); //slowly moves the camera out from the player on death, also slows down time for a cool effect.
             Time.timeScale = 0.5f;
         } else
         {
             Time.timeScale = 1f;
-            transform.position = Vector3.Slerp(transform.position, camFollowTrans.position, multiplier);
-            restartPos();
+            transform.position = Vector3.Slerp(transform.position, camFollowTrans.position, multiplier); //camera smoothly follows the player from set position, usually within childed to the head bone (when in first person).
+            //RestartPos();
         }
     }
-    private void restartPos()
-    {
-        if (fpCamTrans.localPosition == startPos) return;
-        fpCamTrans.localPosition = Vector3.Lerp(fpCamTrans.localPosition, startPos, resetSpeed * Time.deltaTime);
-    }
+    //private void RestartPos()
+    //{
+    //    if (fpCamTrans.localPosition == startPos) return;
+    //    fpCamTrans.localPosition = Vector3.Lerp(fpCamTrans.localPosition, startPos, resetSpeed * Time.deltaTime);
+    //}
 }

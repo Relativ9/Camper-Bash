@@ -4,10 +4,9 @@ using UnityEngine;
 
 public class Bullet : MonoBehaviour
 {
-    //TODO fix crosshair positioning
 
     [SerializeField] private GameObject bulletHitFX;
-    //private EnemyHealth enemyHealth;
+    //private EnemyHealth enemyHealth; //will completely rework the enemy AI for the new design gimmick (Campers only) so disabling everything to do with enemies for now
     //private EnemyMovementScript enemyMovement;
     private PlayerHealth playerHealth;
     public GameObject decalPrefab;
@@ -40,15 +39,15 @@ public class Bullet : MonoBehaviour
         //Destroy(impactFX, 0.5f);
 
 
-        if (collision.gameObject.tag == "Enemy")
-        {
-            //enemyHealth.enemyDamage(1f);
-            //enemyMovement.ChasePlayer();
-        }
+        //if (collision.gameObject.tag == "Enemy")
+        //{
+        //    enemyHealth.enemyDamage(1f);
+        //    enemyMovement.ChasePlayer();
+        //}
 
         if (collision.gameObject.tag == "Player")
         {
-            playerHealth.playerDamage(1f);
+            playerHealth.PlayerDamage(1f);
         }
 
         if(collision.gameObject.tag != "Projectile")
@@ -60,7 +59,7 @@ public class Bullet : MonoBehaviour
 
     }
 
-    void SpawnDecal(ContactPoint hitInfo)
+    void SpawnDecal(ContactPoint hitInfo) //instantiates a bullet hole/or effect on the collision point of the bullet
     {
         var decal = Instantiate(decalPrefab);
         decal.transform.position = hitInfo.point;
@@ -69,7 +68,7 @@ public class Bullet : MonoBehaviour
         Destroy(decal, 5f);
     }
 
-    IEnumerator DestroyBullet()
+    IEnumerator DestroyBullet() //if the bullet doesn't hit anything it is eventually destroyed, in place of a garbage collection/ system (for now).
     {
         yield return new WaitForSeconds(3);
         Destroy(gameObject);

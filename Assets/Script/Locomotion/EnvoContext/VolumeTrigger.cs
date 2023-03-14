@@ -4,14 +4,20 @@ using UnityEngine;
 
 public class VolumeTrigger : MonoBehaviour
 {
-    private bool swimLevelHit;
-    [SerializeField] public bool surfaceSwimming;
-    [SerializeField] public bool underwaterSwimming;
-    [SerializeField] public bool inGas;
+    
 
+    [Header("Must remain publicly accessible")]
+    public bool surfaceSwimming;
+    public bool underwaterSwimming;
+    public bool inGas;
+
+    //Assgined in start
     private PlayerMovement playerMovement;
     private BreathingCheck breathingCheck;
-    // Start is called before the first frame update
+
+    private bool swimLevelHit;
+
+
     void Start()
     {
         playerMovement = FindObjectOfType<PlayerMovement>();
@@ -21,7 +27,7 @@ public class VolumeTrigger : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!breathingCheck.canBreathe)
+        if (!breathingCheck.canBreathe) //gas volume, removes stamina regen and deals damage over time
         {
             inGas = true;
         }
@@ -35,7 +41,7 @@ public class VolumeTrigger : MonoBehaviour
 
     public void Swimming()
     {
-        if (swimLevelHit && !playerMovement.playerOnGround)
+        if (swimLevelHit && !playerMovement.isGrounded)
         {
 
             if (breathingCheck.canBreathe)
@@ -70,7 +76,7 @@ public class VolumeTrigger : MonoBehaviour
         }
     }
 
-    private void OnTriggerEnter(Collider other)
+    private void OnTriggerEnter(Collider other) //checks if player is submerged up to a certain level in a liquid (or fire/lava), move this game object higher to adjust what "swimmable" level should be defined as.
     {
         //Picking up Items for Inventory
 
