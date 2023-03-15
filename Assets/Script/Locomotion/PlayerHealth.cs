@@ -4,13 +4,12 @@ using UnityEngine;
 
 public class PlayerHealth : MonoBehaviour
 {
-    //TODO - Add Player Alive checker - freeze all movements + freeze TimeScale. if player is dead . Eg isPlayerAlive then allow for movement and all that put everything in update of playermovement
 
     [Header("Manually assigned variable")]
 
     //Assigned in start
-    [SerializeField] public PlayerMovement playerMove;
-    [SerializeField] public BreathingCheck holdBreath;
+    private PlayerMovement playerMove;
+    private BreathingCheck holdBreath;
 
     [Header("Must remain publicly accessible")]
     public bool isAlive;
@@ -19,7 +18,7 @@ public class PlayerHealth : MonoBehaviour
     [Header("Editable in inspector")]
     public float MaxPlayerHealth = 50f;
 
-    private float currentHealthPercent;
+
     private float fallDamageVal;
     private bool hasTakenFallDamage;
     private bool takeDamageOnLanding;
@@ -28,11 +27,13 @@ public class PlayerHealth : MonoBehaviour
 
     [Header("Visible for debugging")]
     public float airTimeOnLanding;
+    private float currentHealthPercent;
 
     private void Start()
     {
-        currentHealth = MaxPlayerHealth;
         playerMove = FindObjectOfType<PlayerMovement>();
+        holdBreath = FindObjectOfType<BreathingCheck>();
+        currentHealth = MaxPlayerHealth;
         isAlive = true;
     }
 

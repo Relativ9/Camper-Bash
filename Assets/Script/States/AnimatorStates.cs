@@ -31,9 +31,9 @@ public class AnimatorStates : MonoBehaviour
         wallRun = FindObjectOfType<WallRun>();
         playerMove = FindObjectOfType<PlayerMovement>();
         weapon = FindObjectOfType<Weapon>();
-        anim = this.gameObject.GetComponent<Animator>();
+        anim = GetComponent<Animator>();
 
-        rigLayers = this.gameObject.GetComponent<RigBuilder>();
+        rigLayers = GetComponent<RigBuilder>();
         BodyHead = rigLayers.layers[0].rig;
         WeaponRest = rigLayers.layers[1].rig;
         ShootPose = rigLayers.layers[2].rig;

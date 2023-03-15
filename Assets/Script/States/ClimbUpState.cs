@@ -5,7 +5,7 @@ public class ClimbUpState : StateMachineBehaviour
     //Assigned in start/onStateEnter
     private Climbing climb;
     private PlayerMovement playerMove;
-    private Animator playerAnim;
+    private Animator anim;
     private Rigidbody playerRb;
 
     private Vector3 target;
@@ -15,21 +15,21 @@ public class ClimbUpState : StateMachineBehaviour
     {
         climb = FindObjectOfType<Climbing>();
         playerMove = FindObjectOfType<PlayerMovement>();
-        playerAnim = FindObjectOfType<AnimatorStates>().GetComponent<Animator>();
+        anim = FindObjectOfType<AnimatorStates>().GetComponent<Animator>();
         playerRb = playerMove.gameObject.GetComponent<Rigidbody>();
         target = climb.standingPoint;
-        playerAnim.applyRootMotion = true;
+        anim.applyRootMotion = true;
         climb.climbingUp = true;
 
     }
     override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        playerAnim.MatchTarget(target, climb.transform.rotation, AvatarTarget.Root, new MatchTargetWeightMask(Vector3.one, 0), startTime, endTime);
+        anim.MatchTarget(target, climb.transform.rotation, AvatarTarget.Root, new MatchTargetWeightMask(Vector3.one, 0), startTime, endTime);
         playerRb.position = target + new Vector3(0f, 0.94f, 0f);
 
-        playerAnim.transform.position = climb.transform.position - new Vector3(0f, 0.94f, 0f);
+        anim.transform.position = climb.transform.position - new Vector3(0f, 0.94f, 0f);
         climb.climbingUp = false;
-        playerAnim.applyRootMotion = false;
+        anim.applyRootMotion = false;
         playerMove.GetComponent<CapsuleCollider>().enabled = true;
     }
 }

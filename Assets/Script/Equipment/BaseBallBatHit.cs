@@ -14,7 +14,7 @@ public class BaseBallBatHit : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         objectHit = other.gameObject;
-        if (objectHit.GetComponent<Collider>() != null && objectHit.GetComponent<Rigidbody>() != null && playMelee.hasAttacked) 
+        if (objectHit.GetComponent<Collider>() != null && objectHit.GetComponent<Rigidbody>() != null) 
         {
             validTarget = true;
             Debug.Log("Collider is valid!");

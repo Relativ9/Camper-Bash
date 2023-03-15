@@ -111,6 +111,7 @@ public class PlayerMovement : MonoBehaviour
         climb = FindObjectOfType<Climbing>();
         playerCol = this.GetComponent<CapsuleCollider>();
         breathCheck = FindObjectOfType<BreathingCheck>();
+        anim = FindObjectOfType<AnimatorStates>().GetComponent<Animator>();
 
         this.gameObject.GetComponent<Collider>().material.staticFriction = 100f;
 

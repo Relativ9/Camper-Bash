@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.VFX;
 
@@ -9,7 +7,8 @@ public class Weapon : MonoBehaviour
     [SerializeField] public Transform gunTip;
     [SerializeField] private GameObject projectilePrefab;
     [SerializeField] private Camera fpCam;
-    [SerializeField] public VisualEffect muzzleEffect;
+    [SerializeField] private VisualEffect muzzleEffect;
+
 
     [Header("Editable in inspector")]
     [SerializeField] private int maxAmmo = 20;
@@ -34,7 +33,7 @@ public class Weapon : MonoBehaviour
 
     void Start()
     {
-        muzzleEffect = GetComponentInChildren<VisualEffect>();
+        //muzzleEffect = GetComponentInChildren<VisualEffect>();
         ammoRemaining = maxAmmo;
         playerMovement = FindObjectOfType<PlayerMovement>();
         climbing = FindObjectOfType<Climbing>();

@@ -4,18 +4,24 @@ using UnityEngine.VFX;
 public class WeaponPickup : MonoBehaviour
 {
     [Header("Manually assigned variables")]
-    [SerializeField] private Transform Weapons, fpsCamera, gunTip;
-    [SerializeField] private GameObject Player;
-    [SerializeField] private VisualEffect muzzle;
+    [SerializeField] private Transform weapons;
+    [SerializeField] private Transform fpCamTrans;
+    [SerializeField] private Transform gunTip;
+    [SerializeField] private GameObject player;
+    [SerializeField] private Transform meleeBase;
+
 
     //Assigned in start
-    public Weapon weapon;
-    public Rigidbody weaponRb;
-    public BoxCollider coll;
+    private Weapon weapon;
+    private Rigidbody weaponRb;
+    private Collider coll;
+    private PlayerMelee playMelee;
+    private Transform meleeWeapon;
 
     [Header("Editable in inspector")]
-    public float throwDistFor, throwDistUp;
-    public float maxPickUpDist;
+    [SerializeField] private float throwDistFor = 5f;
+    [SerializeField] private float throwDistUp = 2f;
+    [SerializeField] private float maxPickUpDist = 2f;
 
     [Header("Must remain publicly accessible")]
     public bool equipped;
@@ -25,13 +31,18 @@ public class WeaponPickup : MonoBehaviour
     {
         weapon = FindObjectOfType<Weapon>();
         weaponRb = this.GetComponent<Rigidbody>();
-        coll = this.GetComponent<BoxCollider>();
+
+        coll = this.GetComponent<Collider>();
+        playMelee = FindObjectOfType<PlayerMelee>();
+        meleeWeapon = playMelee.gameObject.transform;
 
         if (!equipped)
         {
             weapon.enabled = false;
             weaponRb.isKinematic = false;
             coll.enabled = true;
+
+
         }
 
         if (equipped)
@@ -45,7 +56,7 @@ public class WeaponPickup : MonoBehaviour
 
     void Update()
     {
-        Vector3 distanceToPlayer = Player.transform.position - transform.position;
+        Vector3 distanceToPlayer = player.transform.position - transform.position;
         if (!equipped && distanceToPlayer.magnitude <= maxPickUpDist && Input.GetKeyDown(KeyCode.E) && !weapon.slotFull)
         {
             PickUp();
@@ -53,6 +64,11 @@ public class WeaponPickup : MonoBehaviour
         if (equipped && Input.GetKeyDown(KeyCode.Q))
         {
             Drop();
+        }
+
+        if(playMelee.weaponThrown && distanceToPlayer.magnitude <= maxPickUpDist && Input.GetKeyDown(KeyCode.U))
+        {
+            //MeleePickup();
         }
     }
 
@@ -67,14 +83,13 @@ public class WeaponPickup : MonoBehaviour
 
         weapon.enabled = true;
 
-        transform.SetParent(Weapons);
+        transform.SetParent(weapons);
         transform.localPosition = Vector3.zero;
         transform.localScale = Vector3.one;
         transform.localRotation = Quaternion.Euler(Vector3.zero);
 
         weaponRb.isKinematic = true;
         weapon.gunTip = gunTip;
-        weapon.muzzleEffect = muzzle;
     }
 
     public void Drop()
@@ -88,11 +103,23 @@ public class WeaponPickup : MonoBehaviour
 
         weaponRb.isKinematic = false;
 
-        weaponRb.velocity = Player.GetComponent<Rigidbody>().velocity;
-        weaponRb.AddForce(fpsCamera.forward * throwDistFor, ForceMode.Impulse);
-        weaponRb.AddForce(fpsCamera.up * throwDistUp, ForceMode.Impulse);
+        weaponRb.velocity = player.GetComponent<Rigidbody>().velocity;
+        weaponRb.AddForce(fpCamTrans.forward * throwDistFor, ForceMode.Impulse);
+        weaponRb.AddForce(fpCamTrans.up * throwDistUp, ForceMode.Impulse);
 
         float randomSpin = Random.Range(-1f, 1f);
         weaponRb.AddTorque(new Vector3(randomSpin, randomSpin, randomSpin) * 10);
     }
+
+    //public void MeleePickup() 
+    //{
+    //    playMelee.weaponThrown = false;
+    //    meleeWeapon.localPosition = Vector3.zero;
+    //    meleeWeapon.localRotation = Quaternion.Euler(Vector3.zero);
+
+    //    meleeWeapon.gameObject.GetComponent<Collider>().enabled = false;
+    //    meleeWeapon.gameObject.transform.SetParent(meleeBase);
+    //    Destroy(meleeBase.gameObject.GetComponent<Rigidbody>());
+
+    //}
 }
