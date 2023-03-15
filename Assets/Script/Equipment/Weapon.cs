@@ -14,12 +14,12 @@ public class Weapon : MonoBehaviour
     [Header("Editable in inspector")]
     [SerializeField] private int maxAmmo = 20;
     [SerializeField] private int pelletCount = 5;
-    [SerializeField] public float bulletspeed = 200f; // TODO: set this based on vector3.disctance .. close = lower value, far higher value
+    [SerializeField] public float bulletspeed = 200f; // TODO: set this based on distance far = lower value, close higher value // would decrease bullet speed for stronger bullet drop effect, can also make it effect damage done. If we want a more realistic bullistics model this is ready
 
     [Header("Visible for debugging")]
     [SerializeField] private int ammoRemaining;
     [SerializeField] public bool slotFull;
-    [SerializeField] private bool isShooting;
+    //[SerializeField] private bool isShooting;  //enable in the future if we need certain actions to be inaccesible while shooting, mostly relevant for fully automatic weapons (which we don't have right now).
     [SerializeField] private bool shotGunEquip;
     [SerializeField] private bool pistolEquip;
     [SerializeField] private bool rifleEquip;
@@ -75,7 +75,7 @@ public class Weapon : MonoBehaviour
                     ammoRemaining -= 1;
 
                 }
-                isShooting = false;
+                //isShooting = false;
             }
             else
             {
@@ -90,7 +90,7 @@ public class Weapon : MonoBehaviour
                     ammoRemaining -= 1;
 
                 }
-                isShooting = false;
+                //isShooting = false;
             }
         }
     }
@@ -105,7 +105,7 @@ public class Weapon : MonoBehaviour
             {
                 if (Input.GetMouseButtonDown(0) && ammoRemaining > 0 && !playerMovement.isRunning)
                 {
-                    isShooting = true;
+                    //isShooting = true;
                     for (var i = 0; i < pelletCount; i++)
                     {
                         Transform forwardLook = fpCam.transform;
@@ -122,13 +122,13 @@ public class Weapon : MonoBehaviour
                     muzzleEffect.Play();
                     Debug.DrawLine(gunTip.transform.position, hit.point, Color.red, 2f);
                 }
-                isShooting = false;
+                //isShooting = false;
             }
             else
             {
                 if (Input.GetMouseButtonDown(0) && ammoRemaining > 0 && !playerMovement.isRunning)
                 {
-                    isShooting = true;
+                    //isShooting = true;
                     for (var i = 0; i < pelletCount; i++)
                     {
                         aimRot = gunTip.eulerAngles + new Vector3(Random.Range(-3f, 3f), Random.Range(-3f, 3f), 0f);

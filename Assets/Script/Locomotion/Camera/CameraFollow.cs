@@ -8,7 +8,7 @@ public class CameraFollow : MonoBehaviour
     [SerializeField] private Transform fpCamTrans;
 
     [Header("Editable in inspector")]
-    [SerializeField] float resetSpeed = 15f;
+    //[SerializeField] float resetSpeed = 15f;
     [SerializeField] float multiplier = 10f;
     [SerializeField] float deathCamSmooth = 0.1f;
 

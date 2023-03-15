@@ -33,18 +33,17 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float swimSpeed = 2f;
     [SerializeField] private float maxStamina = 10f;
     [SerializeField] private float jumpHeight = 3.5f;
-    [SerializeField] private float vaultPower = 200f;
+    //[SerializeField] private float vaultPower = 200f;
     [SerializeField] private float multiplier = 4.5f;
-    [SerializeField] private float jumpMultiplier = 4.5f;
+    //[SerializeField] private float jumpMultiplier = 4.5f;
     [SerializeField] private float maxStepHeight = 0.6f;
-    [SerializeField] private float stepDifference = 0f;
+    //[SerializeField] private float stepDifference = 0f;
     [SerializeField] private float maxSlopeAngle = 45f;
     [SerializeField] private float raycastLength = 3f; // length of raycast to ground (check isGrounded sensitivity)
     [SerializeField] private float normalGravityStrength = -9.8f;
     [SerializeField] private float noGravityStrength = 0f;
     [SerializeField] private float wallRunGravityStrength = -6f;
     [SerializeField] private float grapplingGravityStrength = -30f;
-    [SerializeField] private float ethereumGravityStrength = -50f;
 
     [Header("Visible for debugging")]
     [SerializeField] private float moveSpeed;
