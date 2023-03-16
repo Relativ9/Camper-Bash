@@ -47,7 +47,7 @@ public class AnimatorStates : MonoBehaviour
     {
         if (climb.isClimbing)
         {
-            anim.updateMode = AnimatorUpdateMode.AnimatePhysics;
+            anim.updateMode = AnimatorUpdateMode.Fixed;
         }
         else
         {

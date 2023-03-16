@@ -122,7 +122,8 @@ public class WallRun : MonoBehaviour
             {
                 gravityCompensator = true;
                 playerRigidbody.AddForce(playerRigidbody.transform.up * gravityCompensatorForce);
-            } else
+            }
+            else
             {
                 gravityCompensator = false;
             }
@@ -131,7 +132,10 @@ public class WallRun : MonoBehaviour
             leftSideForceAct = false;
         }
 
-
+        if (!frontForceAct && !leftSideForceAct && !rightSideForceAct || playerMovement.isGrounded)
+        {
+            gravityCompensator = false;
+        }
     }
 
     private void WallJump() //jump off the wall during walljump, if statements check which direction the wall is relative to the player.
@@ -244,7 +248,7 @@ public class WallRun : MonoBehaviour
             }
         }
 
-        if ((isFront || isLeft || isRight) && !playerMovement.isGrounded) 
+        if ((isFront || isLeft || isRight) && !playerMovement.isGrounded)
         {
             isWallRunning = true;
             TiltCameraStart();
@@ -335,5 +339,4 @@ public class WallRun : MonoBehaviour
             }
         }
     }
-
 }

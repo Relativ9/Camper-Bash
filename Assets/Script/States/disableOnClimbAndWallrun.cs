@@ -38,7 +38,7 @@ public class disableOnClimbAndWallrun : MonoBehaviour
     {
         if (climbing.isClimbing)
         {
-            animator.updateMode = AnimatorUpdateMode.AnimatePhysics;
+            animator.updateMode = AnimatorUpdateMode.Fixed;
         }
         else
         {
