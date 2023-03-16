@@ -13,9 +13,9 @@ public class ClimbUpState : StateMachineBehaviour
 
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        climb = FindFirstObjectByType<Climbing>();
-        playerMove = FindFirstObjectByType<PlayerMovement>();
-        anim = FindFirstObjectByType<AnimatorStates>().GetComponent<Animator>();
+        climb = FindAnyObjectByType<Climbing>();
+        playerMove = FindAnyObjectByType<PlayerMovement>();
+        anim = FindAnyObjectByType<AnimatorStates>().GetComponent<Animator>();
         playerRb = playerMove.gameObject.GetComponent<Rigidbody>();
         target = climb.standingPoint;
         anim.applyRootMotion = true;

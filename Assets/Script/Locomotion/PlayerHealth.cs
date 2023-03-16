@@ -31,8 +31,8 @@ public class PlayerHealth : MonoBehaviour
 
     private void Start()
     {
-        playerMove = FindFirstObjectByType<PlayerMovement>();
-        holdBreath = FindFirstObjectByType<BreathingCheck>();
+        playerMove = FindAnyObjectByType<PlayerMovement>();
+        holdBreath = FindAnyObjectByType<BreathingCheck>();
         currentHealth = MaxPlayerHealth;
         isAlive = true;
     }
@@ -150,7 +150,7 @@ public class PlayerHealth : MonoBehaviour
 
     IEnumerator RestartLevel()
     {
-        yield return new WaitForSeconds(3f);
+        yield return new WaitForSeconds(6f);
         currentLevel = SceneManager.GetActiveScene().buildIndex;
         SceneManager.LoadScene(currentLevel);
     }

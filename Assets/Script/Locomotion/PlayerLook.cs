@@ -33,9 +33,9 @@ public class PlayerLook : MonoBehaviour
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-        playHealth = FindFirstObjectByType<PlayerHealth>();
-        climbing = FindFirstObjectByType<Climbing>();
-        wallrun = FindFirstObjectByType<WallRun>();
+        playHealth = FindAnyObjectByType<PlayerHealth>();
+        climbing = FindAnyObjectByType<Climbing>();
+        wallrun = FindAnyObjectByType<WallRun>();
     }
 
     void Update()

@@ -11,6 +11,7 @@ TagManager:
   - GrappleSpot
   - Enemy
   - Projectile
+  - Stairs
   layers:
   - Default
   - TransparentFX

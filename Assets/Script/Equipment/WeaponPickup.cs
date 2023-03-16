@@ -29,11 +29,11 @@ public class WeaponPickup : MonoBehaviour
 
     void Start()
     {
-        weapon = FindFirstObjectByType<Weapon>();
+        weapon = FindAnyObjectByType<Weapon>();
         weaponRb = this.GetComponent<Rigidbody>();
 
         coll = this.GetComponent<Collider>();
-        playMelee = FindFirstObjectByType<PlayerMelee>();
+        playMelee = FindAnyObjectByType<PlayerMelee>();
         meleeWeapon = playMelee.gameObject.transform;
 
         if (!equipped)
@@ -111,15 +111,5 @@ public class WeaponPickup : MonoBehaviour
         weaponRb.AddTorque(new Vector3(randomSpin, randomSpin, randomSpin) * 10);
     }
 
-    //public void MeleePickup() 
-    //{
-    //    playMelee.weaponThrown = false;
-    //    meleeWeapon.localPosition = Vector3.zero;
-    //    meleeWeapon.localRotation = Quaternion.Euler(Vector3.zero);
 
-    //    meleeWeapon.gameObject.GetComponent<Collider>().enabled = false;
-    //    meleeWeapon.gameObject.transform.SetParent(meleeBase);
-    //    Destroy(meleeBase.gameObject.GetComponent<Rigidbody>());
-
-    //}
 }

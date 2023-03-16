@@ -105,13 +105,13 @@ public class PlayerMovement : MonoBehaviour
     void Start()
     {
         playerRb = this.GetComponent<Rigidbody>();
-        grapHook = FindFirstObjectByType<GrappleHook>();
-        volTrig = FindFirstObjectByType<VolumeTrigger>();
-        wallRun = FindFirstObjectByType<WallRun>();
-        climb = FindFirstObjectByType<Climbing>();
+        grapHook = FindAnyObjectByType<GrappleHook>();
+        volTrig = FindAnyObjectByType<VolumeTrigger>();
+        wallRun = FindAnyObjectByType<WallRun>();
+        climb = FindAnyObjectByType<Climbing>();
         playerCol = this.GetComponent<CapsuleCollider>();
-        breathCheck = FindFirstObjectByType<BreathingCheck>();
-        anim = FindFirstObjectByType<AnimatorStates>().GetComponent<Animator>();
+        breathCheck = FindAnyObjectByType<BreathingCheck>();
+        anim = FindAnyObjectByType<AnimatorStates>().GetComponent<Animator>();
 
         this.gameObject.GetComponent<Collider>().material.staticFriction = 100f;
 

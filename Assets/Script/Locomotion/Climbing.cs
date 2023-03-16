@@ -37,9 +37,9 @@ public class Climbing : MonoBehaviour
 
     void Start()
     {
-        playerMovement = FindFirstObjectByType<PlayerMovement>();
-        grapHook = FindFirstObjectByType<GrappleHook>();
-        playerLook = FindFirstObjectByType<PlayerLook>();
+        playerMovement = FindAnyObjectByType<PlayerMovement>();
+        grapHook = FindAnyObjectByType<GrappleHook>();
+        playerLook = FindAnyObjectByType<PlayerLook>();
         playerRb = this.gameObject.GetComponent<Rigidbody>();
         player = this.gameObject.transform;
 

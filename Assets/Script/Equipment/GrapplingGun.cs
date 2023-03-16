@@ -51,15 +51,15 @@ public class GrapplingGun : MonoBehaviour
 
     void Update()
     {
-        RaycastHit returnSpearhit;
-        if (Physics.Raycast(playerCamera.position, playerCamera.forward, out returnSpearhit, maxDistanceRC * 10f) && returnSpearhit.transform.tag == "Spear")
-        {
-            lookingAtSpear = true;
-        }
-        else
-        {
-            lookingAtSpear = false;
-        }
+        //RaycastHit returnSpearhit;
+        //if (Physics.Raycast(playerCamera.position, playerCamera.forward, out returnSpearhit, maxDistanceRC * 10f) && returnSpearhit.transform.tag == "Spear")
+        //{
+        //    lookingAtSpear = true;
+        //}
+        //else
+        //{
+        //    lookingAtSpear = false;
+        //}
 
         if (Input.GetMouseButton(1) && !climbingCheck.isClimbing && hasSpear) // when holding right-click
         {
@@ -79,7 +79,7 @@ public class GrapplingGun : MonoBehaviour
     {
         if (hasThrown)
         {
-            throwSpear(); // Throw spear instantiation in fixedUpdate since we're dealing with RB forces.
+            //throwSpear(); // Throw spear instantiation in fixedUpdate since we're dealing with RB forces.
             hasThrown = false;
         }
     }
@@ -89,27 +89,27 @@ public class GrapplingGun : MonoBehaviour
         DrawRope(); // put the linerenderer into lateUpdate to make sure it definitly happens after the spear is impaled and not before.
     }
 
-    public void throwSpear() // Instantiates a rigidbody spear above the players right shoulder and sends it with an Addforce towards the crosshairs destination. Destroys on impact.
-    {
-        timeToHit = 0f; // resets the time it takes for the spear to reach its destination at the beginning of each throw.
-        RaycastHit aimHit;
-        if (Physics.Raycast(gunTip.transform.position, playerCamera.forward, out aimHit, maxDistanceRC))
-        {
-            throwSpearInstance = Instantiate(spearThrow, gunTip.transform.position, playerCamera.transform.rotation);
-            throwSpearInstance.transform.LookAt(aimHit.point); // makes sure the spear is always pointing towards its target destination.
-            throwSpearInstance.GetComponent<Rigidbody>().AddForce(throwSpearInstance.transform.forward * throwForce * Time.fixedDeltaTime, ForceMode.Impulse);
-            timeToHit = throwSpearInstance.GetComponent<Spear>().timeToHit; // adds the time it takes for the spear to hit each time you throw it, varies on lenght of throw, set by the spear prefab.
-        }
-    }
+    //public void throwSpear() // Instantiates a rigidbody spear above the players right shoulder and sends it with an Addforce towards the crosshairs destination. Destroys on impact.
+    //{
+    //    timeToHit = 0f; // resets the time it takes for the spear to reach its destination at the beginning of each throw.
+    //    RaycastHit aimHit;
+    //    if (Physics.Raycast(gunTip.transform.position, playerCamera.forward, out aimHit, maxDistanceRC))
+    //    {
+    //        throwSpearInstance = Instantiate(spearThrow, gunTip.transform.position, playerCamera.transform.rotation);
+    //        throwSpearInstance.transform.LookAt(aimHit.point); // makes sure the spear is always pointing towards its target destination.
+    //        throwSpearInstance.GetComponent<Rigidbody>().AddForce(throwSpearInstance.transform.forward * throwForce * Time.fixedDeltaTime, ForceMode.Impulse);
+    //        timeToHit = throwSpearInstance.GetComponent<Spear>().timeToHit; // adds the time it takes for the spear to hit each time you throw it, varies on lenght of throw, set by the spear prefab.
+    //    }
+    //}
 
-    private void returnSpear()
-    {
-        returnSpearInstance = Instantiate(spearThrow, grappleSpearInstance.transform.position, grappleSpearInstance.transform.rotation);
-        returnSpearInstance.transform.LookAt(player);
-        returnSpearInstance.GetComponent<Rigidbody>().AddForce(returnSpearInstance.transform.forward * throwForce, ForceMode.Impulse);
-        timeToHit = returnSpearInstance.GetComponent<Spear>().timeToHit;
-        Destroy(returnSpearInstance.gameObject, timeToHit);
-    }
+    //private void returnSpear()
+    //{
+    //    returnSpearInstance = Instantiate(spearThrow, grappleSpearInstance.transform.position, grappleSpearInstance.transform.rotation);
+    //    returnSpearInstance.transform.LookAt(player);
+    //    returnSpearInstance.GetComponent<Rigidbody>().AddForce(returnSpearInstance.transform.forward * throwForce, ForceMode.Impulse);
+    //    timeToHit = returnSpearInstance.GetComponent<Spear>().timeToHit;
+    //    Destroy(returnSpearInstance.gameObject, timeToHit);
+    //}
 
     public void StartGrapple()
     {
@@ -149,9 +149,9 @@ public class GrapplingGun : MonoBehaviour
             lr.positionCount = 0; //Number of vertices for the line (0 - no more line drawn)
             Destroy(joint);
             isGrappling = false;
-            returnSpear();
-            Destroy(grappleSpearInstance.gameObject);
-            hasSpear = true;
+            //returnSpear();
+            //Destroy(grappleSpearInstance.gameObject);
+            //hasSpear = true;
         }
 
     }
@@ -183,7 +183,7 @@ public class GrapplingGun : MonoBehaviour
         if (Physics.Raycast(playerCamera.position, playerCamera.forward, out spearHit, maxDistanceRC)) // After the throwSpear method has finished and hit a collider, this insantiates a spear (without a rigidbody) to be impaled into the rigidbody.
         {
             yield return new WaitForSeconds(timeToHit);
-            grappleSpearInstance = Instantiate(spearImpale, spearHit.point, playerCamera.transform.rotation);
+            //grappleSpearInstance = Instantiate(spearImpale, spearHit.point, playerCamera.transform.rotation);
             grappleSpearInstance.transform.LookAt(playerCamera.transform.position);
             if (spearHit.transform.tag != "GrappleSpot") // if the target hit is an enemy, sets the spear as parent so it follows it (staying impaled)
             {

@@ -6,8 +6,6 @@ public class Bullet : MonoBehaviour
 {
 
     [SerializeField] private GameObject bulletHitFX;
-    //private EnemyHealth enemyHealth; //will completely rework the enemy AI for the new design gimmick (Campers only) so disabling everything to do with enemies for now
-    //private EnemyMovementScript enemyMovement;
     private PlayerHealth playerHealth;
     public GameObject decalPrefab;
     public GameObject colParent;
@@ -16,10 +14,8 @@ public class Bullet : MonoBehaviour
 
     void Start()
     {
-        //enemyHealth = FindObjectOfType<EnemyHealth>();
         colParent = GetComponent<GameObject>();
-        //enemyMovement = FindObjectOfType<EnemyMovementScript>();
-        playerHealth = FindFirstObjectByType<PlayerHealth>();
+        playerHealth = FindAnyObjectByType<PlayerHealth>();
     }
 
     void Update()
@@ -39,11 +35,10 @@ public class Bullet : MonoBehaviour
         //Destroy(impactFX, 0.5f);
 
 
-        //if (collision.gameObject.tag == "Enemy")
-        //{
-        //    enemyHealth.enemyDamage(1f);
-        //    enemyMovement.ChasePlayer();
-        //}
+        if (collision.gameObject.GetComponent<EnemyHealth>() != null)
+        {
+            collision.gameObject.GetComponent<EnemyHealth>().EnemyDamage(3f);
+        }
 
         if (collision.gameObject.tag == "Player")
         {

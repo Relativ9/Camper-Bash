@@ -41,7 +41,7 @@ public class WallRun : MonoBehaviour
     private float distRightWall;
     private float distFrontWall;
 
-
+    //Assigned in start
     private Rigidbody playerRigidbody;
     private PlayerMovement playerMovement;
     private Climbing climbing;

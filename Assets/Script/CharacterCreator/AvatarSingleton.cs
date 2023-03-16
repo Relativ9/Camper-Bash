@@ -5,8 +5,6 @@ public class AvatarSingletons<T> : MonoBehaviour where T : MonoBehaviour
 
     private static T instance;
 
-
-
     public void Awake()
     {
         if (instance == null)

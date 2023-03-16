@@ -4,9 +4,14 @@ using System.Linq;
 
 public class AvatarCustomizer : AvatarSingletons<AvatarCustomizer>
 {
+    [Header("Manually assigned variable")]
     public SkinnedMeshRenderer baseSkinMesh;
+
+    [Header("Editable in inspector")]
     public string suffixMax = "Max";
     public string suffixMin = "Min";
+
+    //Assigned in start
     private Mesh mesh;
 
     public Dictionary<string, Blendshape> blendshapeDatabase = new Dictionary<string, Blendshape>();

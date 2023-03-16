@@ -17,10 +17,11 @@ public class PlayerMelee : MonoBehaviour
 
     [Header("Must remain publicly accessible")]
     public bool weaponThrown;
+    public Collider weaponCol;
 
     [Header("Visible for debugging")]
     [SerializeField] private float weaponLength;
-    [SerializeField] Collider weaponCol;
+    
 
     private Animator anim;
 
@@ -28,7 +29,7 @@ public class PlayerMelee : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        anim = FindFirstObjectByType<AnimatorStates>().GetComponent<Animator>();
+        anim = FindAnyObjectByType<AnimatorStates>().GetComponent<Animator>();
         weaponCol = weaponBase.GetComponentInChildren<CapsuleCollider>();
 
     }
@@ -54,7 +55,7 @@ public class PlayerMelee : MonoBehaviour
     public void AttackForce()
     {
         RaycastHit hit;
-        if (Physics.Raycast(fpCam.transform.position, fpCam.transform.forward, out hit, weaponLength + 1f)) //the lenght of the ray decides the range of melee attacks, it depends on the weapon lenght +1f (to compensate for the offset since ray origin is the camera).
+        if (Physics.Raycast(fpCam.transform.position, fpCam.transform.forward, out hit, weaponLength + 0.75f)) //the lenght of the ray decides the range of melee attacks, it depends on the weapon lenght +0.75f (to compensate for the offset since ray origin is the camera).
         {
             GameObject objectHit = hit.transform.gameObject;
             Vector3 forceDir = objectHit.transform.position - fpCam.transform.position;
@@ -62,6 +63,11 @@ public class PlayerMelee : MonoBehaviour
             {
                 objectHit.GetComponent<Rigidbody>().AddForce(forceDir * hitStrength, ForceMode.Impulse);
                 objectHit.GetComponent<Rigidbody>().AddForceAtPosition(forceDir, hit.point * hitStrength);
+            }
+
+            if(objectHit.GetComponent<EnemyHealth>() != null) //checks if the gameobject has Enemyhealth script on it, if it does apply damage
+            {
+                objectHit.GetComponent<EnemyHealth>().EnemyDamage(5f);
             }
         }
     }
