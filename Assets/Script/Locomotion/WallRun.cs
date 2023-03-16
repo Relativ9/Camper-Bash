@@ -86,12 +86,15 @@ public class WallRun : MonoBehaviour
         if (rightSideForceAct && !playerMovement.isGrounded)
         {
             playerRigidbody.AddRelativeForce(dirParent.right * sideForce * multiplier * Time.fixedDeltaTime); // allows player to stick to wall during wallrun
-            if (velY <= -1f)
+            if (velY < 0f)
             {
                 gravityCompensator = true;
                 playerRigidbody.AddForce(playerRigidbody.transform.up * gravityCompensatorForce);
             }
-            gravityCompensator = false;
+            else
+            {
+                gravityCompensator = false;
+            }
             leftSideForceAct = false;
             frontForceAct = false;
         }
@@ -99,12 +102,15 @@ public class WallRun : MonoBehaviour
         if (leftSideForceAct && !playerMovement.isGrounded)
         {
             playerRigidbody.AddRelativeForce(-dirParent.right * sideForce * multiplier * Time.fixedDeltaTime); // allows player to stick to wall during wallrun
-            if (velY <= -1f)
+            if (velY < 0f)
             {
                 gravityCompensator = true;
                 playerRigidbody.AddForce(playerRigidbody.transform.up * gravityCompensatorForce);
             }
-            gravityCompensator = false;
+            else
+            {
+                gravityCompensator = false;
+            }
             rightSideForceAct = false;
             frontForceAct = false;
         }
@@ -112,12 +118,15 @@ public class WallRun : MonoBehaviour
         if (frontForceAct && !playerMovement.isGrounded)
         {
             playerRigidbody.AddRelativeForce(dirParent.forward * sideForce * multiplier * Time.fixedDeltaTime); // allows player to stick to wall during wallrun
-            if (velY <= -1f)
+            if (velY < 0f)
             {
                 gravityCompensator = true;
                 playerRigidbody.AddForce(playerRigidbody.transform.up * gravityCompensatorForce);
+            } else
+            {
+                gravityCompensator = false;
             }
-            gravityCompensator = false;
+
             rightSideForceAct = false;
             leftSideForceAct = false;
         }
