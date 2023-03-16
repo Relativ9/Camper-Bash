@@ -6525,7 +6525,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   fpCamTrans: {fileID: 963194228}
   dirParent: {fileID: 313479595}
-  upForce: 14
+  jumpUpForce: 14
+  gravityCompensatorForce: 10
   sideForce: 20
   wallJumpForce: 120
   maxWallJumps: 2
@@ -6535,7 +6536,12 @@ MonoBehaviour:
   isLeft: 0
   isRight: 0
   isFront: 0
+  velY: 0
+  gravityCompensator: 0
   isWallRunning: 0
+  rightSideForceAct: 0
+  leftSideForceAct: 0
+  frontForceAct: 0
 --- !u!114 &1922009498
 MonoBehaviour:
   m_ObjectHideFlags: 0

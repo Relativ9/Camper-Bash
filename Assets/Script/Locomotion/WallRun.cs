@@ -7,7 +7,8 @@ public class WallRun : MonoBehaviour
     public Transform dirParent;
 
     [Header("Editable in inspector")]
-    [SerializeField] private float upForce = 14f;
+    [SerializeField] private float jumpUpForce = 14f;
+    [SerializeField] private float gravityCompensatorForce = 5f;
     [SerializeField] private float sideForce = 20f;
     [SerializeField] private float wallJumpForce = 120f;
     [SerializeField] private int maxWallJumps = 2;
@@ -20,15 +21,17 @@ public class WallRun : MonoBehaviour
     [SerializeField] public bool isLeft;
     [SerializeField] public bool isRight;
     [SerializeField] public bool isFront;
+    [SerializeField] public float velY;
+    [SerializeField] public bool gravityCompensator;
 
     public bool isWallRunning = false;
     private bool canWallJump;
     private bool jumpBoostRight;
     private bool jumpBoostLeft;
     private bool jumpBoostBack;
-    private bool rightSideForceAct;
-    private bool leftSideForceAct;
-    private bool frontForceAct;
+    public bool rightSideForceAct;
+    public bool leftSideForceAct;
+    public bool frontForceAct;
 
     private Quaternion rightWallRunCamAng = Quaternion.Euler(0f, 0f, 12f);
     private Quaternion leftWallRunCamAng = Quaternion.Euler(0f, 0f, -12f);
@@ -66,6 +69,7 @@ public class WallRun : MonoBehaviour
             WallJumpCheck();
         }
 
+        velY = playerRigidbody.velocity.y;
     }
 
 
@@ -73,13 +77,21 @@ public class WallRun : MonoBehaviour
     {
         WallJump();
         ActivateSideForces();
+
     }
+
 
     private void ActivateSideForces() // Helps the player stick the wall during wallrunning, should be set to be just powerful enough that the player won't accidentally disengage the wallrun state, but not so powerful that they can't leave the mode if they want to.
     {
         if (rightSideForceAct && !playerMovement.isGrounded)
         {
             playerRigidbody.AddRelativeForce(dirParent.right * sideForce * multiplier * Time.fixedDeltaTime); // allows player to stick to wall during wallrun
+            if (velY <= -1f)
+            {
+                gravityCompensator = true;
+                playerRigidbody.AddForce(playerRigidbody.transform.up * gravityCompensatorForce);
+            }
+            gravityCompensator = false;
             leftSideForceAct = false;
             frontForceAct = false;
         }
@@ -87,6 +99,12 @@ public class WallRun : MonoBehaviour
         if (leftSideForceAct && !playerMovement.isGrounded)
         {
             playerRigidbody.AddRelativeForce(-dirParent.right * sideForce * multiplier * Time.fixedDeltaTime); // allows player to stick to wall during wallrun
+            if (velY <= -1f)
+            {
+                gravityCompensator = true;
+                playerRigidbody.AddForce(playerRigidbody.transform.up * gravityCompensatorForce);
+            }
+            gravityCompensator = false;
             rightSideForceAct = false;
             frontForceAct = false;
         }
@@ -94,6 +112,12 @@ public class WallRun : MonoBehaviour
         if (frontForceAct && !playerMovement.isGrounded)
         {
             playerRigidbody.AddRelativeForce(dirParent.forward * sideForce * multiplier * Time.fixedDeltaTime); // allows player to stick to wall during wallrun
+            if (velY <= -1f)
+            {
+                gravityCompensator = true;
+                playerRigidbody.AddForce(playerRigidbody.transform.up * gravityCompensatorForce);
+            }
+            gravityCompensator = false;
             rightSideForceAct = false;
             leftSideForceAct = false;
         }
@@ -105,7 +129,7 @@ public class WallRun : MonoBehaviour
     {
         if (canWallJump)
         {
-            playerRigidbody.AddRelativeForce(dirParent.up * (upForce * multiplier / 2f), ForceMode.Impulse);
+            playerRigidbody.AddRelativeForce(dirParent.up * (jumpUpForce * multiplier / 2f), ForceMode.Impulse);
             currentWallJumpNo++;
             canWallJump = false;
 
@@ -146,11 +170,12 @@ public class WallRun : MonoBehaviour
             if (frontWall.transform.tag == "RunnableWall")
             {
                 distFrontWall = Vector3.Distance(dirParent.position, frontWall.point);
-                if (distFrontWall < 0.6f)
+                if (distFrontWall < 0.65f)
                 {
                     isFront = true;
                     isLeft = false;
                     isRight = false;
+                    frontForceAct = true;
                 }
                 else
                 {
@@ -168,11 +193,12 @@ public class WallRun : MonoBehaviour
             {
                 distRightWall = Vector3.Distance(dirParent.position, rightWall.point);
 
-                if (distRightWall < 0.6f)
+                if (distRightWall < 0.65f)
                 {
                     isFront = false;
                     isRight = true;
                     isLeft = false;
+                    rightSideForceAct = true;
 
                 }
                 else
@@ -191,11 +217,12 @@ public class WallRun : MonoBehaviour
             {
                 distLeftWall = Vector3.Distance(dirParent.position, leftWall.point);
 
-                if (distLeftWall < 0.6f)
+                if (distLeftWall < 0.65f)
                 {
                     isFront = false;
                     isLeft = true;
                     isRight = false;
+                    leftSideForceAct = true;
 
                 }
                 else
