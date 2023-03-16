@@ -35,8 +35,8 @@ public class Weapon : MonoBehaviour
     {
         //muzzleEffect = GetComponentInChildren<VisualEffect>();
         ammoRemaining = maxAmmo;
-        playerMovement = FindObjectOfType<PlayerMovement>();
-        climbing = FindObjectOfType<Climbing>();
+        playerMovement = FindFirstObjectByType<PlayerMovement>();
+        climbing = FindFirstObjectByType<Climbing>();
 
     }
     void LateUpdate()

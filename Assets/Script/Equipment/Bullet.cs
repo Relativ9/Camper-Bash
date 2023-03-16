@@ -19,7 +19,7 @@ public class Bullet : MonoBehaviour
         //enemyHealth = FindObjectOfType<EnemyHealth>();
         colParent = GetComponent<GameObject>();
         //enemyMovement = FindObjectOfType<EnemyMovementScript>();
-        playerHealth = FindObjectOfType<PlayerHealth>();
+        playerHealth = FindFirstObjectByType<PlayerHealth>();
     }
 
     void Update()

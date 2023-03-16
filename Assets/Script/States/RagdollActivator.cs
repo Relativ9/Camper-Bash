@@ -24,9 +24,9 @@ public class RagdollActivator : MonoBehaviour
     void Start()
     {
         playerAnim = GetComponent<Animator>();
-        grapple = FindObjectOfType<GrappleHook>();
-        playerHealth = FindObjectOfType<PlayerHealth>();
-        playMelee = FindObjectOfType<PlayerMelee>();
+        grapple = FindFirstObjectByType<GrappleHook>();
+        playerHealth = FindFirstObjectByType<PlayerHealth>();
+        playMelee = FindFirstObjectByType<PlayerMelee>();
         playerCol = player.GetComponent<Collider>();
         weaponCol = weaponParent.GetComponentInChildren<Collider>();
 

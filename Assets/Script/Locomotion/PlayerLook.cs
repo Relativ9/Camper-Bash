@@ -9,6 +9,7 @@ public class PlayerLook : MonoBehaviour
     [SerializeField] private Transform fpCamTrans;
     [SerializeField] private Transform camFollowTrans;
     [SerializeField] private Transform dirParent;
+    [SerializeField] private Transform hipBone;
 
     [Header("Editable in inspector")]
     [SerializeField] public float mouseSens = 100f;
@@ -32,9 +33,9 @@ public class PlayerLook : MonoBehaviour
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-        playHealth = FindObjectOfType<PlayerHealth>();
-        climbing = FindObjectOfType<Climbing>();
-        wallrun = FindObjectOfType<WallRun>();
+        playHealth = FindFirstObjectByType<PlayerHealth>();
+        climbing = FindFirstObjectByType<Climbing>();
+        wallrun = FindFirstObjectByType<WallRun>();
     }
 
     void Update()
@@ -67,6 +68,11 @@ public class PlayerLook : MonoBehaviour
                 camParent.transform.Rotate(mouseX * Vector3.up, Space.World); // rotate camera left right
                 dirParent.transform.Rotate(Vector3.up * mouseX); //rotates the character (directionParent) with the camera on the y axis.
             }
+        } else //makes the camera look at the the hip bone (which won't have same transform as parent due to ragdoll displacement on death).
+        {
+            Vector3 deathDir = hipBone.transform.position - fpCamTrans.position;
+            Quaternion deathRot = Quaternion.LookRotation(deathDir);
+            fpCamTrans.rotation = Quaternion.Slerp(fpCamTrans.rotation, deathRot, 0.5f * Time.deltaTime);
         }
     }
 

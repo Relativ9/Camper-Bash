@@ -18,7 +18,7 @@ public class FaceSaveLoadRandomReset : MonoBehaviour
     void Awake()
     {
         slider = GetComponent<Slider>();
-        fPM = FindObjectOfType<FacePresetManager>();
+        fPM = FindFirstObjectByType<FacePresetManager>();
         objectName = gameObject.name;
     }
 

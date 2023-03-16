@@ -29,11 +29,11 @@ public class WeaponPickup : MonoBehaviour
 
     void Start()
     {
-        weapon = FindObjectOfType<Weapon>();
+        weapon = FindFirstObjectByType<Weapon>();
         weaponRb = this.GetComponent<Rigidbody>();
 
         coll = this.GetComponent<Collider>();
-        playMelee = FindObjectOfType<PlayerMelee>();
+        playMelee = FindFirstObjectByType<PlayerMelee>();
         meleeWeapon = playMelee.gameObject.transform;
 
         if (!equipped)

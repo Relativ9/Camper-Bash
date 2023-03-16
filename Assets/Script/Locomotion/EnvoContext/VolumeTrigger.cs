@@ -20,8 +20,8 @@ public class VolumeTrigger : MonoBehaviour
 
     void Start()
     {
-        playerMovement = FindObjectOfType<PlayerMovement>();
-        breathingCheck = FindObjectOfType<BreathingCheck>();
+        playerMovement = FindFirstObjectByType<PlayerMovement>();
+        breathingCheck = FindFirstObjectByType<BreathingCheck>();
     }
 
     // Update is called once per frame

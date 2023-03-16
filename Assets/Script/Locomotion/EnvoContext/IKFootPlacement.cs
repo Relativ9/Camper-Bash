@@ -17,7 +17,7 @@ public class IKFootPlacement : MonoBehaviour
 
     void Start()
     {
-        playerMove = FindObjectOfType<PlayerMovement>();
+        playerMove = FindFirstObjectByType<PlayerMovement>();
         anim = playerMove.gameObject.GetComponent<Animator>();
     }
 

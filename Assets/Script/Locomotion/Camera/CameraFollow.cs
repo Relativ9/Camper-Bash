@@ -12,19 +12,19 @@ public class CameraFollow : MonoBehaviour
     [SerializeField] float multiplier = 10f;
     [SerializeField] float deathCamSmooth = 0.1f;
 
-    private Vector3 startPos;
+    //private Vector3 startPos; //will be needed if we decide to use an optional 3rd person camera
     private PlayerHealth playHealth;
 
     // Start is called before the first frame update
     void Start()
     {
-        playHealth = FindObjectOfType<PlayerHealth>();
+        playHealth = FindFirstObjectByType<PlayerHealth>();
     }
 
-    private void Awake()
-    {
-        startPos = fpCamTrans.localPosition;
-    }
+    //private void Awake()
+    //{
+    //    startPos = fpCamTrans.localPosition;
+    //}
 
     void Update()
     {

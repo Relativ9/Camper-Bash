@@ -86,10 +86,10 @@ public class WallRun : MonoBehaviour
         if (rightSideForceAct && !playerMovement.isGrounded)
         {
             playerRigidbody.AddRelativeForce(dirParent.right * sideForce * multiplier * Time.fixedDeltaTime); // allows player to stick to wall during wallrun
-            if (velY < 0f)
+            if (velY <= 0f)
             {
-                gravityCompensator = true;
-                playerRigidbody.AddForce(playerRigidbody.transform.up * gravityCompensatorForce);
+                gravityCompensator = true; //debugging to make sure the forces are active
+                playerRigidbody.AddForce(playerRigidbody.transform.up * gravityCompensatorForce); //inceasees the time spent at the apex of the wallrun, for longer horizontal distance without increasing vertical distance
             }
             else
             {
@@ -102,7 +102,7 @@ public class WallRun : MonoBehaviour
         if (leftSideForceAct && !playerMovement.isGrounded)
         {
             playerRigidbody.AddRelativeForce(-dirParent.right * sideForce * multiplier * Time.fixedDeltaTime); // allows player to stick to wall during wallrun
-            if (velY < 0f)
+            if (velY <= 0f)
             {
                 gravityCompensator = true;
                 playerRigidbody.AddForce(playerRigidbody.transform.up * gravityCompensatorForce);
@@ -118,7 +118,7 @@ public class WallRun : MonoBehaviour
         if (frontForceAct && !playerMovement.isGrounded)
         {
             playerRigidbody.AddRelativeForce(dirParent.forward * sideForce * multiplier * Time.fixedDeltaTime); // allows player to stick to wall during wallrun
-            if (velY < 0f)
+            if (velY <= 0f)
             {
                 gravityCompensator = true;
                 playerRigidbody.AddForce(playerRigidbody.transform.up * gravityCompensatorForce);
@@ -188,7 +188,7 @@ public class WallRun : MonoBehaviour
                     isFront = true;
                     isLeft = false;
                     isRight = false;
-                    frontForceAct = true;
+                    frontForceAct = true;  //activates side forces to help player stick to the wall
                 }
                 else
                 {

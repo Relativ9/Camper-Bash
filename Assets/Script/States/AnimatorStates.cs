@@ -27,10 +27,10 @@ public class AnimatorStates : MonoBehaviour
 
     public void Start()
     {
-        climb = FindObjectOfType<Climbing>();
-        wallRun = FindObjectOfType<WallRun>();
-        playerMove = FindObjectOfType<PlayerMovement>();
-        weapon = FindObjectOfType<Weapon>();
+        climb = FindFirstObjectByType<Climbing>();
+        wallRun = FindFirstObjectByType<WallRun>();
+        playerMove = FindFirstObjectByType<PlayerMovement>();
+        weapon = FindFirstObjectByType<Weapon>();
         anim = GetComponent<Animator>();
 
         rigLayers = GetComponent<RigBuilder>();

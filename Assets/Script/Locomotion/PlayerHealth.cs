@@ -31,8 +31,8 @@ public class PlayerHealth : MonoBehaviour
 
     private void Start()
     {
-        playerMove = FindObjectOfType<PlayerMovement>();
-        holdBreath = FindObjectOfType<BreathingCheck>();
+        playerMove = FindFirstObjectByType<PlayerMovement>();
+        holdBreath = FindFirstObjectByType<BreathingCheck>();
         currentHealth = MaxPlayerHealth;
         isAlive = true;
     }

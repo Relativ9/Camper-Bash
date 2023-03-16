@@ -28,7 +28,7 @@ public class PlayerMelee : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        anim = FindObjectOfType<AnimatorStates>().GetComponent<Animator>();
+        anim = FindFirstObjectByType<AnimatorStates>().GetComponent<Animator>();
         weaponCol = weaponBase.GetComponentInChildren<CapsuleCollider>();
 
     }

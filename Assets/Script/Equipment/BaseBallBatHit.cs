@@ -8,7 +8,7 @@ public class BaseBallBatHit : MonoBehaviour
 
     private void Start()
     {
-        playMelee = FindObjectOfType<PlayerMelee>();
+        playMelee = FindFirstObjectByType<PlayerMelee>();
     }
 
     private void OnTriggerEnter(Collider other)
