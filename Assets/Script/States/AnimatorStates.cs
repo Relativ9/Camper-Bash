@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Security.Claims;
 using UnityEngine;
 using UnityEngine.Animations.Rigging;
 
@@ -12,18 +11,20 @@ public class AnimatorStates : MonoBehaviour
     private RigBuilder rigLayers;
     private Weapon weapon;
     private Animator anim;
+    private GrappleHook grapple;
 
     [Header("Editable in inspector")]
     public float multiplier = 10;
 
     [Header("Visible for debugging")]
     public Rig BodyHead;
-    public Rig WeaponRest;
+    public Rig WeaponRestPose;
     public Rig WeaponAiming;
     public Rig ShootPose;
     public Rig WeaponOnBack;
     public Rig GrappleRifleIK;
     public Rig ClimbingIK;
+    public Rig GrappleAiming;
 
     public void Start()
     {
@@ -32,15 +33,17 @@ public class AnimatorStates : MonoBehaviour
         playerMove = FindAnyObjectByType<PlayerMovement>();
         weapon = FindAnyObjectByType<Weapon>();
         anim = GetComponent<Animator>();
+        grapple = FindAnyObjectByType<GrappleHook>();
 
         rigLayers = GetComponent<RigBuilder>();
         BodyHead = rigLayers.layers[0].rig;
-        WeaponRest = rigLayers.layers[1].rig;
+        WeaponRestPose = rigLayers.layers[1].rig;
         ShootPose = rigLayers.layers[2].rig;
         WeaponOnBack = rigLayers.layers[3].rig;
         WeaponAiming = rigLayers.layers[4].rig;
         GrappleRifleIK = rigLayers.layers[6].rig;
         ClimbingIK = rigLayers.layers[5].rig;
+        GrappleAiming = rigLayers.layers[7].rig;
     }
 
     public void Update()
@@ -54,59 +57,116 @@ public class AnimatorStates : MonoBehaviour
             StartCoroutine(setAnimatorNormal());
         }
 
-        if (climb.isClimbing)
+        ClimbRig();
+        AimRig();
+        RestRig();
+        GrappleRig();
+        DefaultRig();
+    }
+
+    public void ClimbRig()
+    {
+        if(!climb.isClimbing)
         {
-            BodyHead.weight = 0f;
-            WeaponRest.weight = 0f * Time.deltaTime * multiplier;
-            ShootPose.weight = 0f * Time.deltaTime * multiplier;
-            WeaponOnBack.weight = 1f;
-            WeaponAiming.weight = 0f;
+            return;
+        }
+
+        if(weapon.slotFull)
+        {
             ClimbingIK.weight = 1f;
-            GrappleRifleIK.weight = 0f;
-
-        }
-        else if (wallRun.isWallRunning && weapon.slotFull)
-        {
-            BodyHead.weight = 1f;
-            WeaponRest.weight = 1f * Time.deltaTime * multiplier;
-            ShootPose.weight = 0f * Time.deltaTime * multiplier;
-            WeaponOnBack.weight = 0f;
-            WeaponAiming.weight = 0f;
-            ClimbingIK.weight = 0f;
-            GrappleRifleIK.weight = 1f;
-        }
-        else if (!weapon.slotFull)
-        {
-            BodyHead.weight = 1f;
-            WeaponRest.weight = 0f * Time.deltaTime * multiplier;
-            ShootPose.weight = 0f * Time.deltaTime * multiplier;
             WeaponOnBack.weight = 1f;
+
+            BodyHead.weight = 0f;
+            WeaponRestPose.weight = 0f;
+            ShootPose.weight = 0f;
             WeaponAiming.weight = 0f;
-            ClimbingIK.weight = 0f;
             GrappleRifleIK.weight = 0f;
-
-        }
-        else if (playerMove.isRunning)
+            GrappleAiming.weight = 0f;
+        } else
         {
-            BodyHead.weight = 1f;
-            WeaponRest.weight = 1f * Time.deltaTime * multiplier;
-            ShootPose.weight = 0f * Time.deltaTime * multiplier;
+            ClimbingIK.weight = 1f;
             WeaponOnBack.weight = 0f;
+
+            BodyHead.weight = 0f;
+            WeaponRestPose.weight = 0f;
+            ShootPose.weight = 0f;
             WeaponAiming.weight = 0f;
-            ClimbingIK.weight = 0f;
-            GrappleRifleIK.weight = 1f;
+            GrappleRifleIK.weight = 0f;
+            GrappleAiming.weight = 0f;
+        }
+    }
 
-        }
-        else
+    public void AimRig()
+    {
+        if(!weapon.slotFull || grapple.isGrappling || playerMove.isRunning || climb.isClimbing)
         {
-            BodyHead.weight = 1f;
-            WeaponRest.weight = 0f * Time.deltaTime * multiplier;
-            ShootPose.weight = 1f * Time.deltaTime * multiplier;
-            WeaponOnBack.weight = 0f;
-            WeaponAiming.weight = 1f;
-            ClimbingIK.weight = 0f;
-            GrappleRifleIK.weight = 1f;
+            return;
         }
+
+        WeaponAiming.weight = 1f;
+        GrappleRifleIK.weight = 1f;
+
+        BodyHead.weight = 1f;
+        WeaponRestPose.weight = 0f * Time.deltaTime * multiplier;
+        ShootPose.weight = 1f * Time.deltaTime * multiplier;
+        WeaponOnBack.weight = 0f;
+        GrappleAiming.weight = 0f;
+        ClimbingIK.weight = 0f;
+    }
+
+    public void RestRig()
+    {
+        if(!weapon.slotFull || grapple.isGrappling || !playerMove.isRunning || climb.isClimbing)
+        {
+            return;
+        }
+
+        WeaponRestPose.weight = 1f * Time.deltaTime * multiplier;
+        GrappleRifleIK.weight = 1f;
+
+        BodyHead.weight = 1f;
+        ShootPose.weight = 0f * Time.deltaTime * multiplier;
+        WeaponAiming.weight = 0f; 
+        WeaponOnBack.weight = 0f;
+        GrappleAiming.weight = 0f;
+        ClimbingIK.weight = 0f;
+    }
+
+    public void GrappleRig()
+    {
+        if(!weapon.slotFull || !grapple.isGrappling || climb.isClimbing)
+        {
+            return;
+        }
+        WeaponAiming.weight = 0f;
+        GrappleAiming.weight = 1f;
+        ShootPose.weight = 1f * Time.deltaTime * multiplier;
+        GrappleRifleIK.weight = 1f;
+
+        BodyHead.weight = 0f;
+        WeaponRestPose.weight = 0f;
+        WeaponAiming.weight = 0f;
+        WeaponOnBack.weight = 0f;
+        ClimbingIK.weight = 0f;
+    }
+
+    public void DefaultRig()
+    {
+        if (weapon.slotFull || grapple.isGrappling || climb.isClimbing)
+        {
+            return;
+        }
+
+        BodyHead.weight = 1f;
+        WeaponRestPose.weight = 0f;
+        WeaponAiming.weight = 0f;
+        WeaponOnBack.weight = 0f;
+        ShootPose.weight = 0f;
+        GrappleRifleIK.weight = 0f;
+        ClimbingIK.weight = 0f;
+        GrappleAiming.weight = 0f;
+
+
     }
 
     IEnumerator setAnimatorNormal()

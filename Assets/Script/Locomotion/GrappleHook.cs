@@ -12,6 +12,7 @@ public class GrappleHook : MonoBehaviour
     [SerializeField] private Transform fpCamTrans;
     [SerializeField] private LayerMask grappleLayer;
     [SerializeField] private GameObject hookPrefab;
+    [SerializeField] public Transform hookTrans;
 
     [Header("Editable in inspector")]
     [SerializeField] private float maxGrappleDist = 50f;
@@ -22,6 +23,7 @@ public class GrappleHook : MonoBehaviour
     [SerializeField] private bool hasSpear;
     [SerializeField] private bool hasThrown;
     [SerializeField] public bool isGrappling;
+    [SerializeField] private bool pressedGrapple;
 
     private LineRenderer lineRend;
     private Vector3 grapplePoint;
@@ -39,7 +41,7 @@ public class GrappleHook : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetMouseButtonDown(1) && !climb.isClimbing && !isGrappling)
+        if (Input.GetMouseButtonDown(1) && !climb.isClimbing && !isGrappling)
         {
             StartCoroutine("GrappleDelay");
         } else if (Input.GetKeyDown(KeyCode.E))
@@ -48,8 +50,10 @@ public class GrappleHook : MonoBehaviour
         }
     }
 
+
     private void LateUpdate()
     {
+
         DrawRope();
     }
 
@@ -116,12 +120,13 @@ public class GrappleHook : MonoBehaviour
             yield return new WaitForSeconds(timeToHit);
             hookInstance = Instantiate(hookPrefab, hookHit.point, fpCamTrans.transform.rotation);
             hookInstance.transform.LookAt(fpCamTrans.transform.position);
+            hookTrans.position = hookInstance.transform.position;
             if (hookHit.transform.tag != "GrappleSpot") // Sets the hook's parent as the transform it hits when not hitting a grapple spot, ensures it tracks with moving objects.
             {
                 hookInstance.transform.SetParent(hookHit.transform);
             }
         }
-        yield return new WaitForSeconds(0.2f); // wait some time to simulate "tension" being achieved on the grapple line.
+/*      yield return new WaitForSeconds(0.2f);*/ // wait some time to simulate "tension" being achieved on the grapple line.
         StartGrapple();
     }
 }
