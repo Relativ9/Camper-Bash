@@ -140,7 +140,7 @@ public class AnimatorStates : MonoBehaviour
         }
         WeaponAiming.weight = 0f;
         GrappleAiming.weight = 1f;
-        ShootPose.weight = 1f * Time.deltaTime * multiplier;
+        ShootPose.weight = 1f;
         GrappleRifleIK.weight = 1f;
 
         BodyHead.weight = 0f;
@@ -165,8 +165,6 @@ public class AnimatorStates : MonoBehaviour
         GrappleRifleIK.weight = 0f;
         ClimbingIK.weight = 0f;
         GrappleAiming.weight = 0f;
-
-
     }
 
     IEnumerator setAnimatorNormal()

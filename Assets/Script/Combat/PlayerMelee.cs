@@ -21,8 +21,10 @@ public class PlayerMelee : MonoBehaviour
 
     [Header("Visible for debugging")]
     [SerializeField] private float weaponLength;
-    
 
+
+
+    private Vector3 forceDir;
     private Animator anim;
 
 
@@ -81,11 +83,23 @@ public class PlayerMelee : MonoBehaviour
             weaponCol.gameObject.transform.SetParent(null);
             weaponCol.gameObject.AddComponent<Rigidbody>();
             Rigidbody thrownRb = weaponCol.gameObject.GetComponent<Rigidbody>();
+            thrownRb.angularDrag = 0f;
+            thrownRb.drag = 1f;
+            thrownRb.mass = 1f;
             thrownRb.interpolation = RigidbodyInterpolation.Interpolate;
             thrownRb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
-            Ray ray = fpCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
-            Vector3 forceDir = ray.GetPoint(1000f) - fpCam.transform.position;
-            thrownRb.AddForce(forceDir * throwStrength, ForceMode.Impulse);
+
+            RaycastHit throwHit;
+            if(Physics.Raycast(weaponCol.transform.position, fpCam.transform.forward, out throwHit))
+            {
+                forceDir = throwHit.point - weaponCol.gameObject.transform.position;
+                thrownRb.AddForce(forceDir * throwStrength, ForceMode.Impulse);
+            } else
+            {
+                Ray ray = fpCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+                forceDir = ray.GetPoint(100f) - weaponCol.gameObject.transform.position;
+                thrownRb.AddForce(forceDir * throwStrength, ForceMode.Impulse);
+            }
             thrownRb.AddRelativeTorque(spinStrength * Vector3.right, ForceMode.Impulse);
         }
     }
