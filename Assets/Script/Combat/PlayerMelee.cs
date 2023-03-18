@@ -22,8 +22,6 @@ public class PlayerMelee : MonoBehaviour
     [Header("Visible for debugging")]
     [SerializeField] private float weaponLength;
 
-
-
     private Vector3 forceDir;
     private Animator anim;
 
@@ -32,8 +30,8 @@ public class PlayerMelee : MonoBehaviour
     void Start()
     {
         anim = FindAnyObjectByType<AnimatorStates>().GetComponent<Animator>();
-        weaponCol = weaponBase.GetComponentInChildren<CapsuleCollider>();
-
+        weaponCol = FindAnyObjectByType<MeleeWeapon>().GetComponent<Collider>();
+        weaponThrown = true;
     }
 
     // Update is called once per frame
@@ -43,12 +41,12 @@ public class PlayerMelee : MonoBehaviour
         weaponBase.transform.position = leftHandTarget.position;
         weaponBase.transform.rotation = leftHandTarget.rotation;
 
-        if(Input.GetMouseButtonDown(2))
+        if(Input.GetMouseButtonDown(2) && !weaponThrown)
         {
             anim.SetTrigger("Attack");
         }
 
-        if (Input.GetMouseButtonDown(3))
+        if (Input.GetMouseButtonDown(3) && !weaponThrown)
         {
             anim.SetTrigger("Throw");
         }
@@ -94,12 +92,11 @@ public class PlayerMelee : MonoBehaviour
             {
                 forceDir = throwHit.point - weaponCol.gameObject.transform.position;
                 thrownRb.AddForce(forceDir.normalized * throwStrength, ForceMode.Impulse);
-                //thrownRb.velocity = forceDir * throwStrength;
-            } else
+            } 
+            else
             {
                 Ray ray = fpCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
                 forceDir = ray.GetPoint(10000f) - weaponCol.gameObject.transform.position;
-                //thrownRb.velocity = forceDir * throwStrength;
                 thrownRb.AddForce(forceDir.normalized * throwStrength, ForceMode.Impulse);
             }
             thrownRb.AddRelativeTorque(Vector3.right * spinStrength, ForceMode.Impulse);

@@ -4,11 +4,16 @@ using UnityEngine;
 
 public class Bullet : MonoBehaviour
 {
-
+    [Header("Manually assigned varible")]
     [SerializeField] private GameObject bulletHitFX;
+    [SerializeField] private GameObject decalPrefab;
+
+    //Assigned in start
     private PlayerHealth playerHealth;
-    public GameObject decalPrefab;
-    public GameObject colParent;
+    private GameObject colParent;
+
+    [Header("Editable in inspector")]
+    [SerializeField] private float projectileDmg = 5f;
 
 
 
@@ -42,13 +47,16 @@ public class Bullet : MonoBehaviour
 
         if (collision.gameObject.tag == "Player")
         {
-            playerHealth.PlayerDamage(1f);
+            playerHealth.PlayerDamage(projectileDmg);
         }
 
-        if(collision.gameObject.tag != "Projectile")
+        if(collision.gameObject.tag != "Projectile" && collision.gameObject.tag != "Enemy" && collision.gameObject.tag != "Player")
         {
             Destroy(gameObject);
             SpawnDecal(colcon);
+        } else
+        {
+            Destroy(gameObject);
         }
 
 

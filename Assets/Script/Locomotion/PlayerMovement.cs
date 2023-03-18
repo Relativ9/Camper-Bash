@@ -248,23 +248,24 @@ public class PlayerMovement : MonoBehaviour
         if (!isGrounded && !wallRun.isWallRunning && !grapHook.isGrappling && !climb.isClimbing && !volTrig.surfaceSwimming && !volTrig.underwaterSwimming)
         {
             gravityStrength = normalGravityStrength;
+            // The below code adds directionality to to the downwards force in the opposite direction if only a single side is grounded, helps getting unstuck when only partially grounded (looks and feels like sliding of a ledge).
             if (leftGrounded)
             {
-                currentGravity = new Vector3(5f, gravityStrength * multiplier, 0f);
+                currentGravity = new Vector3(10f, gravityStrength * multiplier, 0f);
                 playerRb.AddForce(currentGravity, ForceMode.Acceleration);
             } else if (rightGrounded)
             {
-                currentGravity = new Vector3(-5f, gravityStrength * multiplier, 0f);
+                currentGravity = new Vector3(-10f, gravityStrength * multiplier, 0f);
                 playerRb.AddForce(currentGravity, ForceMode.Acceleration);
             }
             else if (frontGrounded)
             {
-                currentGravity = new Vector3(0f, gravityStrength * multiplier, -5f);
+                currentGravity = new Vector3(0f, gravityStrength * multiplier, -10f);
                 playerRb.AddForce(currentGravity, ForceMode.Acceleration);
             }
-            else if (frontGrounded)
+            else if (backGrounded)
             {
-                currentGravity = new Vector3(0f, gravityStrength * multiplier, 5f);
+                currentGravity = new Vector3(0f, gravityStrength * multiplier, 10f);
                 playerRb.AddForce(currentGravity, ForceMode.Acceleration);
             } else
             {
