@@ -51,6 +51,10 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private Vector3 currentGravity;
     [SerializeField] private float groundAngle;
     [SerializeField] private float groundSlopeDetected;
+    [SerializeField] private bool leftGrounded;
+    [SerializeField] private bool rightGrounded;
+    [SerializeField] private bool frontGrounded;
+    [SerializeField] private bool backGrounded;
 
     [Header("Must remain publicly accessible")]
     public bool isGrounded;
@@ -82,13 +86,9 @@ public class PlayerMovement : MonoBehaviour
 
     //Ground angle checks
     private float leftFootSlope;
-    private bool leftGrounded;
     private float rightFootSlope;
-    private bool rightGrounded;
     private float frontFootSlope;
-    private bool frontGrounded;
     private float backFootSlope;
-    private bool backGrounded;
     private RaycastHit rightHit;
     private RaycastHit leftHit;
     private RaycastHit groundRay;
@@ -119,8 +119,6 @@ public class PlayerMovement : MonoBehaviour
         isGrounded = false;
         recentlyWallRan = false;
     }
-
-
 
     void Update()
     {
@@ -247,13 +245,32 @@ public class PlayerMovement : MonoBehaviour
     private void ApplyGravity() //Checks the state of the player and applies gravity wuth different modifiers, context senstive.
     {
         playerRb.useGravity = false; //Using my own gravity strenght and gravity force direction. It is not always straight down, instead if is perpendicular to the ground to avoid the player sliding (so long as the slope angle isn't too steep).
-
-
         if (!isGrounded && !wallRun.isWallRunning && !grapHook.isGrappling && !climb.isClimbing && !volTrig.surfaceSwimming && !volTrig.underwaterSwimming)
         {
             gravityStrength = normalGravityStrength;
-            currentGravity = new Vector3(0f, gravityStrength * multiplier, 0f);
-            playerRb.AddForce(currentGravity, ForceMode.Acceleration);
+            if (leftGrounded)
+            {
+                currentGravity = new Vector3(5f, gravityStrength * multiplier, 0f);
+                playerRb.AddForce(currentGravity, ForceMode.Acceleration);
+            } else if (rightGrounded)
+            {
+                currentGravity = new Vector3(-5f, gravityStrength * multiplier, 0f);
+                playerRb.AddForce(currentGravity, ForceMode.Acceleration);
+            }
+            else if (frontGrounded)
+            {
+                currentGravity = new Vector3(0f, gravityStrength * multiplier, -5f);
+                playerRb.AddForce(currentGravity, ForceMode.Acceleration);
+            }
+            else if (frontGrounded)
+            {
+                currentGravity = new Vector3(0f, gravityStrength * multiplier, 5f);
+                playerRb.AddForce(currentGravity, ForceMode.Acceleration);
+            } else
+            {
+                currentGravity = new Vector3(0f, gravityStrength * multiplier, 0f);
+                playerRb.AddForce(currentGravity, ForceMode.Acceleration);
+            }
         }
 
 
@@ -594,6 +611,7 @@ public class PlayerMovement : MonoBehaviour
         Debug.DrawLine(transform.position, transform.position + right * 7f, Color.green);
         Debug.DrawLine(transform.position, transform.position - Vector3.up * 2f, Color.green);
         Debug.DrawLine(rightFoot.transform.position, transform.position - Vector3.up * raycastLength, Color.green);
+        Debug.DrawRay(transform.position, currentGravity, Color.blue, 10f);
     }
 
 
