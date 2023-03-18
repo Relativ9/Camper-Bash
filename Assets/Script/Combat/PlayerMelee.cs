@@ -90,17 +90,19 @@ public class PlayerMelee : MonoBehaviour
             thrownRb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
 
             RaycastHit throwHit;
-            if(Physics.Raycast(weaponCol.transform.position, fpCam.transform.forward, out throwHit))
+            if(Physics.Raycast(fpCam.transform.position, fpCam.transform.forward, out throwHit))
             {
                 forceDir = throwHit.point - weaponCol.gameObject.transform.position;
-                thrownRb.AddForce(forceDir * throwStrength, ForceMode.Impulse);
+                thrownRb.AddForce(forceDir.normalized * throwStrength, ForceMode.Impulse);
+                //thrownRb.velocity = forceDir * throwStrength;
             } else
             {
                 Ray ray = fpCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
-                forceDir = ray.GetPoint(100f) - weaponCol.gameObject.transform.position;
-                thrownRb.AddForce(forceDir * throwStrength, ForceMode.Impulse);
+                forceDir = ray.GetPoint(10000f) - weaponCol.gameObject.transform.position;
+                //thrownRb.velocity = forceDir * throwStrength;
+                thrownRb.AddForce(forceDir.normalized * throwStrength, ForceMode.Impulse);
             }
-            thrownRb.AddRelativeTorque(spinStrength * Vector3.right, ForceMode.Impulse);
+            thrownRb.AddRelativeTorque(Vector3.right * spinStrength, ForceMode.Impulse);
         }
     }
 

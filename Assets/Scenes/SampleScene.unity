@@ -477,7 +477,7 @@ MonoBehaviour:
   muzzleEffect: {fileID: 2093355438}
   maxAmmo: 20
   pelletCount: 5
-  bulletspeed: 100
+  bulletspeed: 1
   ammoRemaining: 0
   slotFull: 0
   shotGunEquip: 0
@@ -4300,7 +4300,7 @@ MonoBehaviour:
   weaponTip: {fileID: 1817866948}
   fpCam: {fileID: 963194227}
   hitStrength: 7.5
-  throwStrength: 0.05
+  throwStrength: 40
   spinStrength: 1000
   weaponThrown: 0
   weaponCol: {fileID: 1538464695}

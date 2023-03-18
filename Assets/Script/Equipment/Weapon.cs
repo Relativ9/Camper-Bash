@@ -108,11 +108,11 @@ public class Weapon : MonoBehaviour
                     for (var i = 0; i < pelletCount; i++)
                     {
                         Transform forwardLook = fpCam.transform;
-                        aimRot = forwardLook.eulerAngles + new Vector3(Random.Range(-3f, 3f), Random.Range(-3f, 3f), 0f);
+                        bulletInstance = Instantiate(projectilePrefab, gunTip.position, Quaternion.Euler(Vector3.zero));
+                        aimRot = hit.point - bulletInstance.gameObject.transform.position + new Vector3(Random.Range(-3f, 3f), Random.Range(-1f, 1f), 0f);
                         var bulletRot = Quaternion.Euler(aimRot);
-
-                        bulletInstance = Instantiate(projectilePrefab, gunTip.position, bulletRot);
-                        bulletInstance.GetComponent<Rigidbody>().velocity = bulletInstance.transform.forward * bulletspeed;
+                        bulletInstance.transform.rotation = bulletRot;
+                        bulletInstance.GetComponent<Rigidbody>().AddForce(aimRot.normalized * bulletspeed, ForceMode.Impulse);
 
                         Debug.Log("FIRE SHOTGUN!");
                     }
@@ -130,11 +130,11 @@ public class Weapon : MonoBehaviour
                     //isShooting = true;
                     for (var i = 0; i < pelletCount; i++)
                     {
-                        aimRot = gunTip.eulerAngles + new Vector3(Random.Range(-3f, 3f), Random.Range(-3f, 3f), 0f);
+                        bulletInstance = Instantiate(projectilePrefab, gunTip.position, Quaternion.Euler(Vector3.zero));
+                        aimRot = ray.GetPoint(10000f) - bulletInstance.gameObject.transform.position + new Vector3(Random.Range(-3f, 3f), Random.Range(-1f, 1f), 0f);
                         var bulletRot = Quaternion.Euler(aimRot);
-
-                        bulletInstance = Instantiate(projectilePrefab, gunTip.position/* + (new Vector3(Random.Range(-0.05f, 0.05f), Random.Range(-0.05f, 0.05f), Random.Range(-0.05f, 0.05f)))*/, bulletRot);
-                        bulletInstance.GetComponent<Rigidbody>().velocity = bulletInstance.transform.forward * bulletspeed;
+                        bulletInstance.transform.rotation = bulletRot;
+                        bulletInstance.GetComponent<Rigidbody>().AddForce(aimRot.normalized * bulletspeed, ForceMode.Impulse);
                         Debug.Log("FIRE SHOTGUN!");
                     }
                     ammoRemaining -= 1;
