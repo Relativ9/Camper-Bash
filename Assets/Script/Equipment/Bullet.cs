@@ -14,6 +14,7 @@ public class Bullet : MonoBehaviour
 
     [Header("Editable in inspector")]
     [SerializeField] private float projectileDmg = 5f;
+    [SerializeField] private float bulletTimeOut = 5f;
 
 
 
@@ -54,9 +55,6 @@ public class Bullet : MonoBehaviour
         {
             Destroy(gameObject);
             SpawnDecal(colcon);
-        } else
-        {
-            Destroy(gameObject);
         }
 
 
@@ -73,7 +71,7 @@ public class Bullet : MonoBehaviour
 
     IEnumerator DestroyBullet() //if the bullet doesn't hit anything it is eventually destroyed, in place of a garbage collection/ system (for now).
     {
-        yield return new WaitForSeconds(3);
+        yield return new WaitForSeconds(bulletTimeOut);
         Destroy(gameObject);
     }
 

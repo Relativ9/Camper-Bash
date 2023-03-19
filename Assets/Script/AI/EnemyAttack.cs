@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class EnemyAttack : MonoBehaviour
@@ -20,8 +19,10 @@ public class EnemyAttack : MonoBehaviour
     private EnemyHealth enemyHealth;
 
     private Vector3 aimRot;
+    private float playerDist;
     private GameObject bulletInstance;
     private bool hasShot;
+    private bool hasThrown;
 
     // Start is called before the first frame update
     void Start()
@@ -37,6 +38,29 @@ public class EnemyAttack : MonoBehaviour
             StartCoroutine("ShootPlayer");
         }
 
+    }
+
+    IEnumerator ThrowGranade()
+    {
+        var shootDir = player.position - this.transform.position;
+        RaycastHit hit;
+        Physics.Raycast(transform.position, shootDir, out hit, maxShootDistance);
+        if (hit.distance <= maxShootDistance)
+        {
+
+            if (hit.collider.tag == "Player")
+            {
+                hasThrown = true;
+                Debug.Log("Shooting Player");
+                bulletInstance = Instantiate(projectilePrefab, gunTip.position, Quaternion.Euler(Vector3.zero));
+                aimRot = hit.point - bulletInstance.gameObject.transform.position;
+                var bulletRot = Quaternion.Euler(aimRot);
+                bulletInstance.transform.rotation = bulletRot;
+                bulletInstance.GetComponent<Rigidbody>().AddForce(aimRot.normalized * bulletspeed, ForceMode.Impulse);
+                yield return new WaitForSeconds(1f);
+                hasThrown = false;
+            }
+        }
     }
 
     IEnumerator ShootPlayer()

@@ -109,10 +109,10 @@ public class Weapon : MonoBehaviour
                     {
                         Transform forwardLook = fpCam.transform;
                         bulletInstance = Instantiate(projectilePrefab, gunTip.position, Quaternion.Euler(Vector3.zero));
-                        aimRot = hit.point - bulletInstance.gameObject.transform.position + new Vector3(Random.Range(-3f, 3f), Random.Range(-1f, 1f), 0f);
+                        aimRot = hit.point - bulletInstance.gameObject.transform.position + new Vector3(Random.Range(-1f, 1f), Random.Range(-1f, 1f), 0f);
                         var bulletRot = Quaternion.Euler(aimRot);
                         bulletInstance.transform.rotation = bulletRot;
-                        bulletInstance.GetComponent<Rigidbody>().AddForce(aimRot.normalized * bulletspeed, ForceMode.Impulse);
+                        bulletInstance.GetComponent<Rigidbody>().AddRelativeForce(aimRot * bulletspeed, ForceMode.Impulse);
 
                         Debug.Log("FIRE SHOTGUN!");
                     }
@@ -131,10 +131,10 @@ public class Weapon : MonoBehaviour
                     for (var i = 0; i < pelletCount; i++)
                     {
                         bulletInstance = Instantiate(projectilePrefab, gunTip.position, Quaternion.Euler(Vector3.zero));
-                        aimRot = ray.GetPoint(10000f) - bulletInstance.gameObject.transform.position + new Vector3(Random.Range(-3f, 3f), Random.Range(-1f, 1f), 0f);
+                        aimRot = ray.GetPoint(10000f) - bulletInstance.gameObject.transform.position + new Vector3(Random.Range(-1f, 1f), Random.Range(-1f, 1f), 0f);
                         var bulletRot = Quaternion.Euler(aimRot);
                         bulletInstance.transform.rotation = bulletRot;
-                        bulletInstance.GetComponent<Rigidbody>().AddForce(aimRot.normalized * bulletspeed, ForceMode.Impulse);
+                        bulletInstance.GetComponent<Rigidbody>().AddRelativeForce(aimRot * bulletspeed, ForceMode.Impulse);
                         Debug.Log("FIRE SHOTGUN!");
                     }
                     ammoRemaining -= 1;

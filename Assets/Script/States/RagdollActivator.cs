@@ -56,12 +56,14 @@ public class RagdollActivator : MonoBehaviour
     {
         playerAnim.enabled = false;
         meleeCol.enabled = true;
-
-        meleeCol.gameObject.AddComponent<Rigidbody>(); //Must add Rigidbody via script rather than enable/disable kinematic to ensure 
-        meleeCol.gameObject.transform.SetParent(null); //makes the player drop the weapon on death
-        meleeCol.gameObject.GetComponent<Rigidbody>().velocity = lastVel; //matches the weapon velocity to the player velocity
-        meleeCol.gameObject.GetComponent<Rigidbody>().interpolation = RigidbodyInterpolation.Interpolate; //will often be high speed collisions, need interpolate and continous dynamic to ensure the weapon doesn't clip through the ground once dropped
-        meleeCol.gameObject.GetComponent<Rigidbody>().collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+        if(meleeCol.gameObject.GetComponent<Rigidbody>() != null) //melee col will already have a rigidbody if it's been thrown so no need to add another one
+        {
+            meleeCol.gameObject.AddComponent<Rigidbody>(); //Must add Rigidbody via script rather than enable/disable kinematic to ensure 
+            meleeCol.gameObject.transform.SetParent(null); //makes the player drop the weapon on death
+            meleeCol.gameObject.GetComponent<Rigidbody>().velocity = lastVel; //matches the weapon velocity to the player velocity
+            meleeCol.gameObject.GetComponent<Rigidbody>().interpolation = RigidbodyInterpolation.Interpolate; //will often be high speed collisions, need interpolate and continous dynamic to ensure the weapon doesn't clip through the ground once dropped
+            meleeCol.gameObject.GetComponent<Rigidbody>().collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+        }
 
         grapple.isGrappling = false;
 

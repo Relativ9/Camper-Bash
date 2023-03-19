@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 724170273440384324}
   - component: {fileID: 7518630442449775342}
   m_Layer: 0
-  m_Name: ShotgunPellet
+  m_Name: Granade
   m_TagString: Projectile
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
