@@ -8,6 +8,7 @@ public class PlayerMelee : MonoBehaviour
     [SerializeField] private Transform leftHandTarget;
     [SerializeField] private Transform weaponBase;
     [SerializeField] private Transform weaponTip;
+    [SerializeField] private Transform aimTrans;
     [SerializeField] private Camera fpCam;
 
     [Header("Editable in inspector")]
@@ -87,16 +88,17 @@ public class PlayerMelee : MonoBehaviour
             thrownRb.interpolation = RigidbodyInterpolation.Interpolate;
             thrownRb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
 
+            Ray ray = fpCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
             RaycastHit throwHit;
             if(Physics.Raycast(fpCam.transform.position, fpCam.transform.forward, out throwHit))
             {
                 forceDir = throwHit.point - weaponCol.gameObject.transform.position;
                 thrownRb.AddForce(forceDir.normalized * throwStrength, ForceMode.Impulse);
-            } 
+            }
+
             else
             {
-                Ray ray = fpCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
-                forceDir = ray.GetPoint(10000f) - weaponCol.gameObject.transform.position;
+                forceDir = aimTrans.position - weaponCol.gameObject.transform.position;
                 thrownRb.AddForce(forceDir.normalized * throwStrength, ForceMode.Impulse);
             }
             thrownRb.AddRelativeTorque(Vector3.right * spinStrength, ForceMode.Impulse);

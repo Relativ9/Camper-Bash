@@ -75,7 +75,7 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 normalScale;
     private Vector3 forward;
     private Vector3 right;
-    private bool onStairs;
+    private bool stepOver;
     private float secondsSinceWallRun;
     private bool recentlyWallRan;
     private bool debug;
@@ -364,7 +364,7 @@ public class PlayerMovement : MonoBehaviour
 
             if (isGrounded)
             {
-                if (!groundSlide && !onStairs)
+                if (!groundSlide && !stepOver)
                 {
                     Vector3 moveLine = Vector3.Lerp(playerRb.velocity, moveDirection * moveSpeed, Time.fixedDeltaTime * 10f);
                     moveLine.y = playerRb.velocity.y;
@@ -373,7 +373,7 @@ public class PlayerMovement : MonoBehaviour
 
                 }
 
-                if (!groundSlide && onStairs)
+                if (!groundSlide && stepOver)
                 {
                     Vector3 moveLine = Vector3.Lerp(playerRb.velocity, moveDirection * moveSpeed, Time.fixedDeltaTime * 10f);
                     moveLine.y = playerRb.velocity.y;
@@ -510,18 +510,18 @@ public class PlayerMovement : MonoBehaviour
         RaycastHit groundRay;
         if (Physics.Raycast(this.transform.position, Vector3.down, out groundRay, 2f))
         {
-            if (groundRay.transform.tag == "Stairs")
+            if (groundRay.transform.tag == "StepOver")
             {
-                onStairs = true;
+                stepOver = true;
             }
             else
             {
-                onStairs = false;
+                stepOver = false;
             }
         }
         else
         {
-            onStairs = false;
+            stepOver = false;
         }
 
         if (rightGrounded && leftGrounded)

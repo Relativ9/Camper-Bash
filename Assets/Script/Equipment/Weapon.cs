@@ -31,6 +31,16 @@ public class Weapon : MonoBehaviour
     private Vector3 aimRot;
 
 
+    private Vector3 bulletCurrentPos;
+    private Vector3 bulletCurrentVel;
+
+
+    // intial position of bullet + velocity of the pulet * time.deltatime + 0.5 * gravity * time * time
+
+    private GameObject bulletObj;
+    public GameObject bulletPrefab;
+
+
     void Start()
     {
         //muzzleEffect = GetComponentInChildren<VisualEffect>();
@@ -45,14 +55,30 @@ public class Weapon : MonoBehaviour
 
         if (pistolEquip)
         {
-            FirePistol();
+            //FirePistol();
         }
 
         if (shotGunEquip)
         {
-            FireShotgun();
+            //FireShotgun();
+        }
+
+        if (rifleEquip)
+        {
+
         }
     }
+
+    //private void FireRifle()
+    //{
+    //    Ray aimRay = fpCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0);
+    //    RaycastHit aimHit;
+    //    Physics.Raycast(fpCam.transform.position, fpCam.transform.forward, out aimHit);
+
+    //    Vector3 startPoint = fpCam.transform.position;
+    //    Vector3 endPoint = aimRay.GetPoint(1f);
+ 
+    //}
 
 
     private void FirePistol()
