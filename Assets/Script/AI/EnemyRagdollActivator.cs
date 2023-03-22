@@ -16,7 +16,7 @@ public class EnemyRagdollActivator : MonoBehaviour
     private Collider[] rigCols;
     private Rigidbody[] rigRbs;
     private Vector3 lastVel;
-    // Start is called before the first frame update
+
     void Start()
     {
         enemyHealth = FindAnyObjectByType<EnemyHealth>();
@@ -27,7 +27,6 @@ public class EnemyRagdollActivator : MonoBehaviour
         RagdollOff();
     }
 
-    // Update is called once per frame
     void Update() 
     {
         if (!enemyHealth.isAlive)
@@ -58,7 +57,6 @@ public class EnemyRagdollActivator : MonoBehaviour
         foreach(Rigidbody rbs in rigRbs)
         {
             rbs.isKinematic = false;
-            //rbs.velocity = lastVel;
             rbs.interpolation = RigidbodyInterpolation.Interpolate;
             rbs.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
         }
@@ -82,6 +80,5 @@ public class EnemyRagdollActivator : MonoBehaviour
         enemyCol.enabled = true;
         enemyParent.GetComponent<Rigidbody>().isKinematic = false;
         enemyAnim.enabled = true;
-        //lastVel = enemyParent.GetComponent<Rigidbody>().velocity;
     }
 }

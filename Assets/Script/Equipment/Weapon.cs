@@ -17,7 +17,6 @@ public class Weapon : MonoBehaviour
 
     [Header("Visible for debugging")]
     [SerializeField] private int ammoRemaining;
-    [SerializeField] public bool slotFull;
     //[SerializeField] private bool isShooting;  //enable in the future if we need certain actions to be inaccesible while shooting, mostly relevant for fully automatic weapons (which we don't have right now).
     [SerializeField] private bool shotGunEquip;
     [SerializeField] private bool pistolEquip;

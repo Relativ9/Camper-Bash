@@ -5,15 +5,31 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
 
+    [Header("Visible for debugging")]
+    public float stepRayLenght;
+    [SerializeField] private float moveSpeed;
+    [SerializeField] private float gravityStrength;
+    [SerializeField] private Vector3 currentGravity;
+    //[SerializeField] private float groundAngle;
+    [SerializeField] private float groundSlopeDetected;
+    public Vector3 groundPoint;
+
+    [Header("Must remain publicly accessible")]
+    public bool isGrounded;
+    public bool isMoving;
+    public bool isRunning;
+    public Vector3 currentVel;
+    public Vector3 stopVel;
+    public float currentStaminaValue;
+    public float airTime;
+
     [Header("Manually assigned variables")]
     [SerializeField] private Camera fpsCam;
     [SerializeField] private Transform camFollowTrans;
     [SerializeField] private Transform dirParent;
     [SerializeField] private Animator anim;
-    [SerializeField] private GameObject leftFoot;
-    [SerializeField] private GameObject rightFoot;
-    [SerializeField] private GameObject frontFoot;
-    [SerializeField] private GameObject backFoot;
+    [SerializeField] private GameObject bottomFoot;
+    [SerializeField] private GameObject topFoot;
 
     //Assigned in start
     private Rigidbody playerRb;
@@ -33,11 +49,9 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float swimSpeed = 2f;
     [SerializeField] private float maxStamina = 10f;
     [SerializeField] private float jumpHeight = 3.5f;
-    //[SerializeField] private float vaultPower = 200f;
     [SerializeField] private float multiplier = 4.5f;
-    //[SerializeField] private float jumpMultiplier = 4.5f;
-    [SerializeField] private float maxStepHeight = 0.6f;
-    //[SerializeField] private float stepDifference = 0f;
+    [SerializeField] private float groundRayLength = 0.6f;
+    [SerializeField] private float smoothStep = 0.1f;
     [SerializeField] private float maxSlopeAngle = 45f;
     [SerializeField] private float raycastLength = 3f; // length of raycast to ground (check isGrounded sensitivity)
     [SerializeField] private float normalGravityStrength = -9.8f;
@@ -45,25 +59,6 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float wallRunGravityStrength = -6f;
     [SerializeField] private float grapplingGravityStrength = -30f;
 
-    [Header("Visible for debugging")]
-    [SerializeField] private float moveSpeed;
-    [SerializeField] private float gravityStrength;
-    [SerializeField] private Vector3 currentGravity;
-    [SerializeField] private float groundAngle;
-    [SerializeField] private float groundSlopeDetected;
-    [SerializeField] private bool leftGrounded;
-    [SerializeField] private bool rightGrounded;
-    [SerializeField] private bool frontGrounded;
-    [SerializeField] private bool backGrounded;
-
-    [Header("Must remain publicly accessible")]
-    public bool isGrounded;
-    public bool isMoving;
-    public bool isRunning;
-    public Vector3 currentVel;
-    public Vector3 stopVel;
-    public float currentStaminaValue;
-    public float airTime;
 
     private bool canJump;
     private bool sliding;
@@ -75,7 +70,6 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 normalScale;
     private Vector3 forward;
     private Vector3 right;
-    private bool stepOver;
     private float secondsSinceWallRun;
     private bool recentlyWallRan;
     private bool debug;
@@ -84,16 +78,8 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] public float horizontal;
     [SerializeField] public float vertical;
 
-    //Ground angle checks
-    private float leftFootSlope;
-    private float rightFootSlope;
-    private float frontFootSlope;
-    private float backFootSlope;
-    private RaycastHit rightHit;
-    private RaycastHit leftHit;
     private RaycastHit groundRay;
-    private RaycastHit frontHit;
-    private RaycastHit backHit;
+
 
     //Various context sensitive velocity directions 
     private Vector3 moveDirection;
@@ -101,6 +87,8 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 moveDirectionSlope;
     private Vector3 moveDirectionSliding;
     private Vector3 moveDirectionSwimming;
+    private Vector3 moveDirectionLeftDiagonal;
+    private Vector3 moveDirectionRightDiagonal;
 
     void Start()
     {
@@ -122,6 +110,7 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
+        climbStep();
         InputMethod();
         CheckJump();
         CheckGround();
@@ -161,8 +150,10 @@ public class PlayerMovement : MonoBehaviour
         moveDirectionSlope = Vector3.ClampMagnitude(dirParent.right * horizontal + dirParent.forward * vertical, 1f);
         moveDirectionFlat = Vector3.ClampMagnitude(dirParent.right * horizontal + dirParent.forward * vertical, 1f);
         moveDirectionSwimming = fpsCam.transform.right * horizontal + fpsCam.transform.forward * vertical;
+        moveDirectionLeftDiagonal = Vector3.ClampMagnitude(-dirParent.right + new Vector3(20f, 0, 0) * horizontal + dirParent.forward * vertical, 1f); //For use in the step climbing code, allows us to check for steps diagonally from the movement direction as well
+        moveDirectionRightDiagonal = Vector3.ClampMagnitude(dirParent.right + new Vector3(20f, 0, 0) * horizontal + dirParent.forward * vertical, 1f); //same as above but to the right
 
-        if (groundAngle >= 105 || groundAngle <= 75 || !isGrounded && !volTrig.surfaceSwimming && !volTrig.underwaterSwimming)
+        if (!isGrounded && !volTrig.surfaceSwimming && !volTrig.underwaterSwimming)
         {
             moveDirection = Vector3.Slerp(moveDirection, moveDirectionFlat, 10f);
         }
@@ -245,35 +236,21 @@ public class PlayerMovement : MonoBehaviour
     private void ApplyGravity() //Checks the state of the player and applies gravity wuth different modifiers, context senstive.
     {
         playerRb.useGravity = false; //Using my own gravity strenght and gravity force direction. It is not always straight down, instead if is perpendicular to the ground to avoid the player sliding (so long as the slope angle isn't too steep).
-        if (!isGrounded && !wallRun.isWallRunning && !grapHook.isGrappling && !climb.isClimbing && !volTrig.surfaceSwimming && !volTrig.underwaterSwimming)
+        if (!isGrounded && !wallRun.isWallRunning && !grapHook.isGrappling && !climb.isClimbing/* && !volTrig.surfaceSwimming && !volTrig.underwaterSwimming*/)
         {
             gravityStrength = normalGravityStrength;
-            // The below code adds directionality to to the downwards force in the opposite direction if only a single side is grounded, helps getting unstuck when only partially grounded (looks and feels like sliding of a ledge).
-            if (leftGrounded)
-            {
-                currentGravity = new Vector3(10f, gravityStrength * multiplier, 0f);
-                playerRb.AddForce(currentGravity, ForceMode.Acceleration);
-            } else if (rightGrounded)
-            {
-                currentGravity = new Vector3(-10f, gravityStrength * multiplier, 0f);
-                playerRb.AddForce(currentGravity, ForceMode.Acceleration);
-            }
-            else if (frontGrounded)
-            {
-                currentGravity = new Vector3(0f, gravityStrength * multiplier, -10f);
-                playerRb.AddForce(currentGravity, ForceMode.Acceleration);
-            }
-            else if (backGrounded)
-            {
-                currentGravity = new Vector3(0f, gravityStrength * multiplier, 10f);
-                playerRb.AddForce(currentGravity, ForceMode.Acceleration);
-            } else
-            {
-                currentGravity = new Vector3(0f, gravityStrength * multiplier, 0f);
-                playerRb.AddForce(currentGravity, ForceMode.Acceleration);
-            }
+            currentGravity = new Vector3(0f, gravityStrength * multiplier, 0f);
+            playerRb.AddForce(currentGravity, ForceMode.Acceleration);
+
         }
 
+        if (isGrounded)
+        {
+            gravityStrength = normalGravityStrength;
+            currentGravity = new Vector3(0f, gravityStrength * multiplier, 0f);
+            Vector3 gravityDirection = Vector3.Slerp(currentGravity, -groundRay.normal, 0.6f);
+            playerRb.AddForce(gravityDirection, ForceMode.Acceleration);
+        }
 
         if (wallRun.isWallRunning)
         {
@@ -301,14 +278,6 @@ public class PlayerMovement : MonoBehaviour
         else
         {
             playerCol.enabled = true;
-        }
-
-        if (isGrounded)
-        {
-            gravityStrength = normalGravityStrength;
-            currentGravity = new Vector3(0f, gravityStrength * multiplier, 0f);
-            Vector3 gravityDirection = Vector3.Slerp(currentGravity, -groundRay.normal, 0.6f);
-            playerRb.AddForce(gravityDirection, ForceMode.Acceleration);
         }
 
         if (volTrig.surfaceSwimming || volTrig.underwaterSwimming)
@@ -362,25 +331,13 @@ public class PlayerMovement : MonoBehaviour
                 playerRb.velocity = currentVel;
             }
 
-            if (isGrounded)
+            if (isGrounded && !groundSlide)
             {
-                if (!groundSlide && !stepOver)
-                {
-                    Vector3 moveLine = Vector3.Lerp(playerRb.velocity, moveDirection * moveSpeed, Time.fixedDeltaTime * 10f);
-                    moveLine.y = playerRb.velocity.y;
-                    currentVel = new Vector3(moveLine.x, moveLine.y, moveLine.z);
-                    playerRb.velocity = currentVel;
+                Vector3 moveLine = Vector3.Lerp(playerRb.velocity, moveDirection * moveSpeed, Time.fixedDeltaTime * 10f);
+                moveLine.y = playerRb.velocity.y;
 
-                }
-
-                if (!groundSlide && stepOver)
-                {
-                    Vector3 moveLine = Vector3.Lerp(playerRb.velocity, moveDirection * moveSpeed, Time.fixedDeltaTime * 10f);
-                    moveLine.y = playerRb.velocity.y;
-
-                    currentVel = new Vector3(moveLine.x, moveLine.y, moveLine.z);
-                    playerRb.velocity = currentVel;
-                }
+                currentVel = new Vector3(moveLine.x, moveLine.y, moveLine.z);
+                playerRb.velocity = currentVel;
             }
         }
 
@@ -431,7 +388,7 @@ public class PlayerMovement : MonoBehaviour
     private void CheckJump() //sets canjump to true if the player has been on the ground long enough, isn't on a "sticky" enviroment, and of course presses jump.
     {
 
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded && groundTime >= 0.1 && !volTrig.inGas)
+        if (Input.GetKeyDown(KeyCode.Space) && isGrounded && groundTime >= 0.1f/* && !volTrig.inGas*/)
         {
             if (climb.canVault == false)
             {
@@ -443,7 +400,6 @@ public class PlayerMovement : MonoBehaviour
             {
                 StartCoroutine("VaultUp");
             }
-
         }
         else if (!isGrounded)
         {
@@ -463,120 +419,36 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    private void CheckGround() //checks for grounded status from 4 different transforms around the player, ensure that the player can not get stuck on extremely uneven geometry, can be replaced by spherecasts but this is more economical.
+    private void CheckGround() //checks if player is grounded and also returns the angle of the ground you are standing on (which must not exceed maxSlopeAngle in order to remain grounded).
     {
-        if (Physics.Raycast(leftFoot.transform.position, Vector3.down, out leftHit, maxStepHeight))
-        {
-            leftGrounded = true;
-            leftFootSlope = Vector3.Angle(leftHit.normal, Vector3.up);
-        }
-        else
-        {
-            leftGrounded = false;
-            leftFootSlope = 0f;
-        }
-        if (Physics.Raycast(rightFoot.transform.position, Vector3.down, out rightHit, maxStepHeight))
-        {
-            rightGrounded = true;
-            rightFootSlope = Vector3.Angle(rightHit.normal, Vector3.up);
-        }
-        else
-        {
-            rightGrounded = false;
-            rightFootSlope = 0f;
-        }
-        if (Physics.Raycast(backFoot.transform.position, Vector3.down, out backHit, maxStepHeight))
-        {
-            backGrounded = true;
-            backFootSlope = Vector3.Angle(backHit.normal, Vector3.up);
-            Debug.DrawLine(backFoot.transform.position, backFoot.transform.position + Vector3.down * 10f, Color.yellow);
-        }
-        else
-        {
-            backGrounded = false;
-            backFootSlope = 0;
-        }
-        if (Physics.Raycast(frontFoot.transform.position, Vector3.down, out frontHit, maxStepHeight))
-        {
-            frontGrounded = true;
-            frontFootSlope = Vector3.Angle(frontHit.normal, Vector3.up);
-            Debug.DrawLine(frontFoot.transform.position, frontFoot.transform.position + Vector3.down * 10f, Color.green);
-        }
-        else
-        {
-            frontGrounded = false;
-            frontFootSlope = 0;
-        }
-        RaycastHit groundRay;
-        if (Physics.Raycast(this.transform.position, Vector3.down, out groundRay, 2f))
-        {
-            if (groundRay.transform.tag == "StepOver")
-            {
-                stepOver = true;
-            }
-            else
-            {
-                stepOver = false;
-            }
-        }
-        else
-        {
-            stepOver = false;
-        }
 
-        if (rightGrounded && leftGrounded)
-        {
-            if (frontGrounded || backGrounded)
-            {
-                groundSlopeDetected = Mathf.Min(rightFootSlope, leftFootSlope);
-            }
-            else
-            {
-                groundSlopeDetected = (rightFootSlope + leftFootSlope) / 2f;
-            }
-        }
-        else if (frontGrounded && backGrounded)
-        {
-            groundSlopeDetected = (frontFootSlope + backFootSlope) / 2f;
-        }
+        float groundColliderOffset = 0.5f;
+        RaycastHit groundHit;
+        Vector3 rayOrigin = transform.position;
+        rayOrigin.y = rayOrigin.y + groundColliderOffset;
 
-        else
+        if(Physics.SphereCast(playerRb.position, playerCol.radius, Vector3.down, out groundHit, groundRayLength) && !groundSlide)
         {
-            groundSlopeDetected = Vector3.Angle(groundRay.normal, Vector3.up);
-        }
-
-        if (groundSlopeDetected > maxSlopeAngle || groundSlopeDetected < -maxSlopeAngle)
-        {
-            groundSlide = true;
+            isGrounded = true;
+            airTime = 0f;
+            groundTime += Time.deltaTime;
+            anim.SetBool("jumpPressed", false);
         }
         else
         {
-            groundSlide = false;
-        }
-
-        if ((rightGrounded && leftGrounded) || (frontGrounded && backGrounded))
-        {
-            if (!groundSlide && !volTrig.surfaceSwimming && !volTrig.underwaterSwimming)
-            {
-                isGrounded = true;
-                airTime = 0f;
-                groundTime += Time.deltaTime;
-                anim.SetBool("jumpPressed", false);
-            }
-            else
-            {
-                isGrounded = false;
-                airTime += Time.deltaTime;
-                groundTime = 0f;
-                currentVel = playerRb.velocity;
-            }
-        }
-        else
-        {
-            isGrounded = false;
+            StartCoroutine("UngroundedDelay");
             airTime += Time.deltaTime;
             groundTime = 0f;
             currentVel = playerRb.velocity;
+        }
+
+        groundSlopeDetected = Vector3.Angle(groundHit.normal, Vector3.up);
+        if(groundSlopeDetected >= maxSlopeAngle)
+        {
+            groundSlide = true;
+        } else
+        {
+            groundSlide = false;
         }
     }
 
@@ -611,7 +483,6 @@ public class PlayerMovement : MonoBehaviour
         Debug.DrawLine(transform.position, transform.position + forward * 7f, Color.blue);
         Debug.DrawLine(transform.position, transform.position + right * 7f, Color.green);
         Debug.DrawLine(transform.position, transform.position - Vector3.up * 2f, Color.green);
-        Debug.DrawLine(rightFoot.transform.position, transform.position - Vector3.up * raycastLength, Color.green);
         Debug.DrawRay(transform.position, currentGravity, Color.blue, 10f);
     }
 
@@ -634,6 +505,56 @@ public class PlayerMovement : MonoBehaviour
         else
         {
             recentlyWallRan = false;
+        }
+    }
+
+    void climbStep() //allows the player to walk up stairs and/or over small obstacles on the ground seemlessly (without needing a tag).
+    {
+        stepRayLenght = playerCol.radius + 0.2f;
+        RaycastHit bottomHit;
+
+        
+        if (Physics.Raycast(bottomFoot.transform.position, moveDirection, out bottomHit, stepRayLenght))
+        {
+            float stepAngle = Vector3.Angle(bottomHit.normal, Vector3.up); //checks if the angle of the obstacle is small enough walk "up" anyway instead of stepping over
+            if (stepAngle >= maxSlopeAngle)
+            {
+                RaycastHit topHit;
+                if (!Physics.Raycast(topFoot.transform.position, moveDirection, out topHit, stepRayLenght + 0.05f))
+                {
+                    Debug.DrawRay(bottomFoot.transform.position, moveDirection, Color.red, 1f);
+                    playerRb.position -= new Vector3(0f, - smoothStep, 0f);
+                }
+            }
+        }
+        RaycastHit bottomLeftHit;
+        if (Physics.Raycast(bottomFoot.transform.position, moveDirectionLeftDiagonal, out bottomLeftHit, stepRayLenght))
+        {
+            float stepAngle = Vector3.Angle(bottomLeftHit.normal, Vector3.up); //checks if the angle of the obstacle is small enough walk "up" anyway instead of stepping over
+            if (stepAngle >= maxSlopeAngle)
+            {
+                RaycastHit topLeftHit;
+                if (!Physics.Raycast(topFoot.transform.position, moveDirectionLeftDiagonal, out topLeftHit, stepRayLenght + 0.05f))
+                {
+                    Debug.DrawRay(topFoot.transform.position, moveDirectionLeftDiagonal, Color.green, 1f);
+                    playerRb.position -= new Vector3(0f, - smoothStep, 0f);
+                }
+            }
+        }
+
+        RaycastHit bottomRightHit;
+        if (Physics.Raycast(bottomFoot.transform.position, moveDirectionRightDiagonal, out bottomRightHit, stepRayLenght))
+        {
+            float stepAngle = Vector3.Angle(bottomRightHit.normal, Vector3.up); //checks if the angle of the obstacle is small enough walk "up" anyway instead of stepping over
+            if (stepAngle >= maxSlopeAngle)
+            {
+                RaycastHit topRightHit;
+                if (!Physics.Raycast(topFoot.transform.position, moveDirectionRightDiagonal, out topRightHit, stepRayLenght + 0.05f))
+                {
+                    Debug.DrawRay(topFoot.transform.position, moveDirectionRightDiagonal, Color.blue, 1f);
+                    playerRb.position -= new Vector3(0f, - smoothStep, 0f);
+                }
+            }
         }
     }
 
@@ -660,11 +581,9 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    //IEnumerator VaultUp() // Code for vaulting, might use again, but looking to use root motion animations instead as I don't like how it feels right now.
-    //{
-
-    //    playerRb.AddRelativeForce(0f, vaultPower * Time.fixedDeltaTime, 0f, ForceMode.Impulse);
-    //    yield return new WaitForSeconds(0.1f);
-    //    playerRb.AddRelativeForce(Vector3.forward * 600f * Time.fixedDeltaTime);
-    //}
+    IEnumerator UngroundedDelay()
+    {
+        yield return new WaitForSeconds(0.2f);
+        isGrounded = false;
+    }
 }

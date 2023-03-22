@@ -9,7 +9,7 @@ public class AnimatorStates : MonoBehaviour
     private WallRun wallRun;
     private PlayerMovement playerMove;
     private RigBuilder rigLayers;
-    private Weapon weapon;
+    private WeaponPickup weaponPickup;
     private Animator anim;
     private GrappleHook grapple;
 
@@ -31,7 +31,7 @@ public class AnimatorStates : MonoBehaviour
         climb = FindAnyObjectByType<Climbing>();
         wallRun = FindAnyObjectByType<WallRun>();
         playerMove = FindAnyObjectByType<PlayerMovement>();
-        weapon = FindAnyObjectByType<Weapon>();
+        weaponPickup = FindAnyObjectByType<WeaponPickup>();
         anim = GetComponent<Animator>();
         grapple = FindAnyObjectByType<GrappleHook>();
 
@@ -71,7 +71,7 @@ public class AnimatorStates : MonoBehaviour
             return;
         }
 
-        if(weapon.slotFull)
+        if(weaponPickup.hasWeapon)
         {
             ClimbingIK.weight = 1f;
             WeaponOnBack.weight = 1f;
@@ -98,7 +98,7 @@ public class AnimatorStates : MonoBehaviour
 
     public void AimRig()
     {
-        if(!weapon.slotFull || grapple.isGrappling || playerMove.isRunning || climb.isClimbing)
+        if(!weaponPickup.hasWeapon || grapple.isGrappling || playerMove.isRunning || climb.isClimbing)
         {
             return;
         }
@@ -116,7 +116,7 @@ public class AnimatorStates : MonoBehaviour
 
     public void RestRig()
     {
-        if(!weapon.slotFull || grapple.isGrappling || !playerMove.isRunning || climb.isClimbing)
+        if(!weaponPickup.hasWeapon || grapple.isGrappling || !playerMove.isRunning || climb.isClimbing)
         {
             return;
         }
@@ -134,7 +134,7 @@ public class AnimatorStates : MonoBehaviour
 
     public void GrappleRig()
     {
-        if(!weapon.slotFull || !grapple.isGrappling || climb.isClimbing)
+        if(!weaponPickup.hasWeapon || !grapple.isGrappling || climb.isClimbing)
         {
             return;
         }
@@ -152,7 +152,7 @@ public class AnimatorStates : MonoBehaviour
 
     public void DefaultRig()
     {
-        if (weapon.slotFull || grapple.isGrappling || climb.isClimbing)
+        if (weaponPickup.hasWeapon || grapple.isGrappling || climb.isClimbing)
         {
             return;
         }

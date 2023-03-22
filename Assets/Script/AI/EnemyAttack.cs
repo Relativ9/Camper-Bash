@@ -51,7 +51,6 @@ public class EnemyAttack : MonoBehaviour
             if (hit.collider.tag == "Player")
             {
                 hasThrown = true;
-                Debug.Log("Shooting Player");
                 bulletInstance = Instantiate(projectilePrefab, gunTip.position, Quaternion.Euler(Vector3.zero));
                 aimRot = hit.point - bulletInstance.gameObject.transform.position;
                 var bulletRot = Quaternion.Euler(aimRot);
@@ -72,7 +71,6 @@ public class EnemyAttack : MonoBehaviour
             if(hit.collider.tag == "Player")
             {
                 hasShot = true;
-                Debug.Log("Shooting Player");
                 bulletInstance = Instantiate(projectilePrefab, gunTip.position, Quaternion.Euler(Vector3.zero));
                 aimRot = hit.point - bulletInstance.gameObject.transform.position;
                 var bulletRot = Quaternion.Euler(aimRot);

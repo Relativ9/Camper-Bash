@@ -12,7 +12,7 @@ public class WeaponPickup : MonoBehaviour
 
 
     //Assigned in start
-    private Weapon weapon;
+    private Projectiles projectileScript;
     private Rigidbody weaponRb;
     private Collider coll;
     private PlayerMelee playMelee;
@@ -24,51 +24,46 @@ public class WeaponPickup : MonoBehaviour
     [SerializeField] private float maxPickUpDist = 2f;
 
     [Header("Must remain publicly accessible")]
-    public bool equipped;
-    public bool slotFull;
+    //public bool equipped;
+    public bool hasWeapon;
 
     void Start()
     {
-        weapon = FindAnyObjectByType<Weapon>();
+        projectileScript = FindAnyObjectByType<Projectiles>();
         weaponRb = this.GetComponent<Rigidbody>();
 
         coll = this.GetComponent<Collider>();
         playMelee = FindAnyObjectByType<PlayerMelee>();
         meleeWeapon = playMelee.gameObject.transform;
 
-        if (!equipped)
+        if (/*!equipped*/ !hasWeapon)
         {
-            weapon.enabled = false;
+            projectileScript.enabled = false;
             weaponRb.isKinematic = false;
             coll.enabled = true;
 
 
         }
 
-        if (equipped)
+        if (/*equipped*/ hasWeapon)
         {
-            weapon.enabled = true;
+            projectileScript.enabled = true;
             weaponRb.isKinematic = true;
             coll.enabled = false;
-            slotFull = true;
+            hasWeapon = true;
         }
     }
 
     void Update()
     {
         Vector3 distanceToPlayer = player.transform.position - transform.position;
-        if (!equipped && distanceToPlayer.magnitude <= maxPickUpDist && Input.GetKeyDown(KeyCode.E) && !weapon.slotFull)
+        if (/*!equipped && */distanceToPlayer.magnitude <= maxPickUpDist && Input.GetKeyDown(KeyCode.E) && !hasWeapon)
         {
             PickUp();
         }
-        if (equipped && Input.GetKeyDown(KeyCode.Q))
+        if (/*equipped && */Input.GetKeyDown(KeyCode.Q) && hasWeapon)
         {
             Drop();
-        }
-
-        if(playMelee.weaponThrown && distanceToPlayer.magnitude <= maxPickUpDist && Input.GetKeyDown(KeyCode.U))
-        {
-            //MeleePickup();
         }
     }
 
@@ -76,12 +71,11 @@ public class WeaponPickup : MonoBehaviour
     {
         coll.enabled = false;
         Debug.Log("Pickup RAN");
-        equipped = true;
+        //equipped = true;
+        hasWeapon = true;
+        projectileScript.currentAmmo = projectileScript.currentAmmo + 5;
 
-
-        weapon.slotFull = true;
-
-        weapon.enabled = true;
+        projectileScript.enabled = true;
 
         transform.SetParent(weapons);
         transform.localPosition = Vector3.zero;
@@ -89,15 +83,15 @@ public class WeaponPickup : MonoBehaviour
         transform.localRotation = Quaternion.Euler(Vector3.zero);
 
         weaponRb.isKinematic = true;
-        weapon.gunTip = gunTip;
+        //projectileScript.gunTip = gunTip;
     }
 
     public void Drop()
     {
         coll.enabled = true;
         Debug.Log("Drop RAN");
-        equipped = false;
-        weapon.slotFull = false;
+        //equipped = false;
+        hasWeapon = false;
 
         transform.SetParent(null);
 
