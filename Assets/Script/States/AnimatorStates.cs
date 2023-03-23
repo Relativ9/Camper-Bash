@@ -64,7 +64,7 @@ public class AnimatorStates : MonoBehaviour
         DefaultRig();
     }
 
-    public void ClimbRig()
+    public void ClimbRig() //This and all methods below set the Rig weight depending on the player state, ensuring that IK targets and rig components blend appropriatly.
     {
         if(!climb.isClimbing)
         {

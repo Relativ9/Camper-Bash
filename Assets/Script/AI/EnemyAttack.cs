@@ -40,7 +40,7 @@ public class EnemyAttack : MonoBehaviour
 
     }
 
-    IEnumerator ThrowGranade()
+    IEnumerator ThrowGranade() //Rigidbody projectile, must be slow moving, can have things like bouncing, a timed fuse, etc.
     {
         var shootDir = player.position - this.transform.position;
         RaycastHit hit;
@@ -62,7 +62,7 @@ public class EnemyAttack : MonoBehaviour
         }
     }
 
-    IEnumerator ShootPlayer()
+    IEnumerator ShootPlayer() //TODO replace with segment raycast projectile system like in the player shooting.
     {
         var shootDir = player.position - this.transform.position;
         RaycastHit hit;

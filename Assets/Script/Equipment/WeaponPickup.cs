@@ -9,7 +9,7 @@ public class WeaponPickup : MonoBehaviour
     [SerializeField] private Transform gunTip;
     [SerializeField] private GameObject player;
     [SerializeField] private Transform meleeBase;
-
+    [SerializeField] private Animator anim;
 
     //Assigned in start
     private Projectiles projectileScript;
@@ -24,8 +24,9 @@ public class WeaponPickup : MonoBehaviour
     [SerializeField] private float maxPickUpDist = 2f;
 
     [Header("Must remain publicly accessible")]
-    //public bool equipped;
     public bool hasWeapon;
+
+    
 
     void Start()
     {
@@ -36,16 +37,14 @@ public class WeaponPickup : MonoBehaviour
         playMelee = FindAnyObjectByType<PlayerMelee>();
         meleeWeapon = playMelee.gameObject.transform;
 
-        if (/*!equipped*/ !hasWeapon)
+        if (!hasWeapon)
         {
             projectileScript.enabled = false;
             weaponRb.isKinematic = false;
             coll.enabled = true;
-
-
         }
 
-        if (/*equipped*/ hasWeapon)
+        if (hasWeapon)
         {
             projectileScript.enabled = true;
             weaponRb.isKinematic = true;
@@ -57,17 +56,19 @@ public class WeaponPickup : MonoBehaviour
     void Update()
     {
         Vector3 distanceToPlayer = player.transform.position - transform.position;
-        if (/*!equipped && */distanceToPlayer.magnitude <= maxPickUpDist && Input.GetKeyDown(KeyCode.E) && !hasWeapon)
+        if (distanceToPlayer.magnitude <= maxPickUpDist && Input.GetKeyDown(KeyCode.E) && !hasWeapon)
         {
             PickUp();
         }
-        if (/*equipped && */Input.GetKeyDown(KeyCode.Q) && hasWeapon)
+        if (Input.GetKeyDown(KeyCode.Q) && hasWeapon)
         {
             Drop();
         }
+
+        anim.SetBool("hasWeapon", hasWeapon);
     }
 
-    public void PickUp()
+    public void PickUp() //Picks up the weapon, but should be changed to be just the "shooting module" with the grapple always equipped.
     {
         coll.enabled = false;
         Debug.Log("Pickup RAN");
@@ -83,14 +84,12 @@ public class WeaponPickup : MonoBehaviour
         transform.localRotation = Quaternion.Euler(Vector3.zero);
 
         weaponRb.isKinematic = true;
-        //projectileScript.gunTip = gunTip;
     }
 
-    public void Drop()
+    public void Drop() //Dropping weapon/grapple, will change in the future to only drop "shooting module" and not the grapple itself, need the modular 3d model first
     {
         coll.enabled = true;
         Debug.Log("Drop RAN");
-        //equipped = false;
         hasWeapon = false;
 
         transform.SetParent(null);

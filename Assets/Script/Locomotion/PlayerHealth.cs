@@ -114,7 +114,7 @@ public class PlayerHealth : MonoBehaviour
     private void OnCollisionEnter(Collision collision)
     {
         
-        if (playerMove.currentVel.y <= -20 && !hasTakenFallDamage && playerMove.airTime >= 1.5f)
+        if (playerMove.currentVel.y <= -30 && !hasTakenFallDamage && playerMove.airTime >= 1.5f)
         {
             Debug.Log("Is Colliding!");
             StartCoroutine("DamageTakenImmunity");

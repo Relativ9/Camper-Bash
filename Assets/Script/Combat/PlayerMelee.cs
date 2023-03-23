@@ -51,6 +51,8 @@ public class PlayerMelee : MonoBehaviour
         {
             anim.SetTrigger("Throw");
         }
+
+        anim.SetBool("hasMelee", !weaponThrown);
     }
 
     public void AttackForce()

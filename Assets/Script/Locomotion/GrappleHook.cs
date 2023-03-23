@@ -5,6 +5,9 @@ using UnityEngine;
 
 public class GrappleHook : MonoBehaviour
 {
+    //TODO change script to be sitting on the actual grapple hook weapon itself instead of always on the character, should only be usable while equipped
+
+
     [Header("Manually assigned variables")]
     [SerializeField] private Transform grappleTip;
     [SerializeField] private Transform dirParent;
@@ -31,14 +34,13 @@ public class GrappleHook : MonoBehaviour
     private Climbing climb;
     private GameObject hookInstance;
 
-    // Start is called before the first frame update
+ 
     void Start()
     {
         climb = playerTrans.gameObject.GetComponent<Climbing>();
         lineRend = this.GetComponent<LineRenderer>();
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (Input.GetMouseButtonDown(1) && !climb.isClimbing && !isGrappling)

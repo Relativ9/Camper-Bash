@@ -11,7 +11,7 @@ public class ClimbUpState : StateMachineBehaviour
     private Vector3 target;
     public float startTime, endTime;
 
-    override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+    override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) //Root motion animation entered
     {
         climb = FindAnyObjectByType<Climbing>();
         playerMove = FindAnyObjectByType<PlayerMovement>();
@@ -22,7 +22,7 @@ public class ClimbUpState : StateMachineBehaviour
         climb.climbingUp = true;
 
     }
-    override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+    override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) //player transform matched to animation clip at the end of the root motion animation clip
     {
         anim.MatchTarget(target, climb.transform.rotation, AvatarTarget.Root, new MatchTargetWeightMask(Vector3.one, 0), startTime, endTime);
         playerRb.position = target + new Vector3(0f, 0.94f, 0f);

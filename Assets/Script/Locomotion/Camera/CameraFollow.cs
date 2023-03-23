@@ -8,11 +8,9 @@ public class CameraFollow : MonoBehaviour
     [SerializeField] private Transform fpCamTrans;
 
     [Header("Editable in inspector")]
-    //[SerializeField] float resetSpeed = 15f;
     [SerializeField] float multiplier = 10f;
     [SerializeField] float deathCamSmooth = 0.1f;
 
-    //private Vector3 startPos; //will be needed if we decide to use an optional 3rd person camera
     private PlayerHealth playHealth;
 
     // Start is called before the first frame update
@@ -20,11 +18,6 @@ public class CameraFollow : MonoBehaviour
     {
         playHealth = FindFirstObjectByType<PlayerHealth>();
     }
-
-    //private void Awake()
-    //{
-    //    startPos = fpCamTrans.localPosition;
-    //}
 
     void Update()
     {
@@ -36,12 +29,6 @@ public class CameraFollow : MonoBehaviour
         {
             Time.timeScale = 1f;
             transform.position = Vector3.Slerp(transform.position, camFollowTrans.position, multiplier); //camera smoothly follows the player from set position, usually within childed to the head bone (when in first person).
-            //RestartPos();
         }
     }
-    //private void RestartPos()
-    //{
-    //    if (fpCamTrans.localPosition == startPos) return;
-    //    fpCamTrans.localPosition = Vector3.Lerp(fpCamTrans.localPosition, startPos, resetSpeed * Time.deltaTime);
-    //}
 }

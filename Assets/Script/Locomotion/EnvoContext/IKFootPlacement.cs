@@ -21,6 +21,8 @@ public class IKFootPlacement : MonoBehaviour
         anim = playerMove.gameObject.GetComponent<Animator>();
     }
 
+
+    // makes feet match curvature of the ground and raise for small steps and ground clutter
     private void OnAnimatorIK(int layerIndex)
     {
         if (anim)
