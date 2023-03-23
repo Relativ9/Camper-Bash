@@ -33,8 +33,10 @@ public class GrappleHook : MonoBehaviour
     private SpringJoint grappleJoint;
     private Climbing climb;
     private GameObject hookInstance;
+    private Vector3 grappleEnd;
 
- 
+
+
     void Start()
     {
         climb = playerTrans.gameObject.GetComponent<Climbing>();
@@ -62,7 +64,7 @@ public class GrappleHook : MonoBehaviour
     public void StartGrapple()
     {
         RaycastHit hit;
-
+        grappleEnd = grappleTip.position;
         if (Physics.Raycast(fpCamTrans.position, fpCamTrans.forward, out hit, maxGrappleDist, grappleLayer) && hookInstance != null)
         {
             grapplePoint = hookInstance.transform.position; //declares the transform to be the same as the instantiated hook.
@@ -102,15 +104,16 @@ public class GrappleHook : MonoBehaviour
     private void DrawRope()
     {
 
+        grappleEnd = Vector3.Lerp(grappleTip.position, grapplePoint, Time.deltaTime);
+
         if (!grappleJoint)        // -- SPRING JOINT-- if we havent grappled, dont draw line.
         {
             return;
         }
-
         else  //sets the positions of start and end point of the line (won't draw without it). 
         {
             lineRend.SetPosition(0, grappleTip.position);
-            lineRend.SetPosition(1, grapplePoint);
+            lineRend.SetPosition(1, grappleEnd);
         }
     }
 

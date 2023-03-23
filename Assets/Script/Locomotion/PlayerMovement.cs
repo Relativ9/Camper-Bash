@@ -390,21 +390,15 @@ public class PlayerMovement : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded && groundTime >= 0.1f/* && !volTrig.inGas*/)
         {
-            if (climb.canVault == false)
-            {
-                isGrounded = false; //needs to be triggered here instantly as well because we have a Ienumerator giving a slight delay when just moving off the ground without jumping (too stop jitter when moving over surfaces with holes in them (plank bridges ect).
-                canJump = true;
-                anim.SetBool("jumpPressed", true);
-            }
-            if (climb.canVault == true)
-            {
-                StartCoroutine("VaultUp");
-            }
+
+            isGrounded = false; //needs to be triggered here instantly as well because we have a Ienumerator giving a slight delay when just moving off the ground without jumping (too stop jitter when moving over surfaces with holes in them (plank bridges ect).
+            canJump = true;
+            anim.SetBool("jumpPressed", true);
         }
         else if (!isGrounded)
         {
             canJump = false;
-
+            anim.SetBool("jumpPressed", false);
         }
 
     }
@@ -436,10 +430,20 @@ public class PlayerMovement : MonoBehaviour
         }
         else
         {
-            StartCoroutine("UngroundedDelay");
-            airTime += Time.deltaTime;
-            groundTime = 0f;
-            currentVel = playerRb.velocity;
+            if (!wallRun.isLeft && !wallRun.isRight && !wallRun.isFront) //the ungrounded delay shouldn't happen if wallrunning is a possibility, then ungrounded should be instant
+            {
+                StartCoroutine("UngroundedDelay");
+                airTime += Time.deltaTime;
+                groundTime = 0f;
+                currentVel = playerRb.velocity;
+            } else
+            {
+                isGrounded = false;
+                airTime += Time.deltaTime;
+                groundTime = 0f;
+                currentVel = playerRb.velocity;
+            }
+
         }
 
         groundSlopeDetected = Vector3.Angle(groundHit.normal, Vector3.up);
@@ -583,7 +587,7 @@ public class PlayerMovement : MonoBehaviour
 
     IEnumerator UngroundedDelay()
     {
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(0.1f);
         isGrounded = false;
     }
 }

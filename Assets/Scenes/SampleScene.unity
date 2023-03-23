@@ -3909,14 +3909,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 705645665}
-  m_LocalRotation: {x: 0.1734325, y: -0.6071005, z: 0.31349397, w: 0.7092756}
-  m_LocalPosition: {x: 0.1365292, y: 1.5010802, z: 0.09382725}
+  m_LocalRotation: {x: -0.57943743, y: 0.0140742045, z: -0.08220469, w: 0.8107383}
+  m_LocalPosition: {x: 0.15297537, y: 3.2067714, z: 0.019295594}
   m_LocalScale: {x: 0.06, y: 0.06000001, z: 0.06}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 682013309}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 22.98, y: -16.923, z: 171.208}
+  m_LocalEulerAnglesHint: {x: -69.592, y: 19.794, z: -25.405}
 --- !u!114 &705645667
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4009,7 +4009,7 @@ MonoBehaviour:
       m_Item7:
         transform: {fileID: 0}
         weight: 0
-    m_Offset: {x: 0.09, y: 0, z: 0.15}
+    m_Offset: {x: 0.09, y: -0.25, z: 0.15}
     m_ConstrainedAxes:
       x: 1
       y: 1
@@ -10847,7 +10847,7 @@ MonoBehaviour:
   jumpHeight: 3.5
   multiplier: 4.5
   groundRayLength: 0.6
-  smoothStep: 0.05
+  smoothStep: 0.02
   maxSlopeAngle: 45
   raycastLength: 3
   normalGravityStrength: -9.8
