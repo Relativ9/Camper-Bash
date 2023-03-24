@@ -1,4 +1,5 @@
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 
 
@@ -13,6 +14,7 @@ public class PlayerMovement : MonoBehaviour
     //[SerializeField] private float groundAngle;
     [SerializeField] private float groundSlopeDetected;
     public Vector3 groundPoint;
+    public float stepAngle;
 
     [Header("Must remain publicly accessible")]
     public bool isGrounded;
@@ -73,6 +75,9 @@ public class PlayerMovement : MonoBehaviour
     private float secondsSinceWallRun;
     private bool recentlyWallRan;
     private bool debug;
+    private bool kneeFront;
+    private bool kneeLeft;
+    private bool kneeRight;
 
     [Header("Input stuff")]
     [SerializeField] public float horizontal;
@@ -104,25 +109,28 @@ public class PlayerMovement : MonoBehaviour
         this.gameObject.GetComponent<Collider>().material.staticFriction = 100f;
 
         currentStaminaValue = 10f;
-        isGrounded = false;
         recentlyWallRan = false;
     }
 
     void Update()
     {
-        climbStep();
         InputMethod();
         CheckJump();
-        CheckGround();
         CalculateForward();
         CalculateRight();
         DrawDebugLines();
         Crouch();
         DidWallRun();
         IsKinematic();
+        CheckGround();
+
+        if (!isGrounded)
+        {
+            Debug.Log("NOT GROUNDED!!!");
+        }
 
         anim.SetBool("animGrounded", isGrounded);
-        anim.SetBool("animFalling", !isGrounded);
+        //anim.SetBool("animFalling", !isGrounded);
         anim.SetBool("animClimbing", climb.isClimbing);
         anim.SetBool("animClimbUp", climb.climbingUp);
         anim.SetBool("canJump", canJump);
@@ -138,6 +146,7 @@ public class PlayerMovement : MonoBehaviour
         Walk();
         ApplyGravity();
         Jump();
+        climbStep();
     }
 
     public void InputMethod() //Input method including context sensitive speed adjustment for different states //TODO clean this method up a bit, could probably be split into 3 or more speerate methods more narrow in focus.
@@ -150,8 +159,8 @@ public class PlayerMovement : MonoBehaviour
         moveDirectionSlope = Vector3.ClampMagnitude(dirParent.right * horizontal + dirParent.forward * vertical, 1f);
         moveDirectionFlat = Vector3.ClampMagnitude(dirParent.right * horizontal + dirParent.forward * vertical, 1f);
         moveDirectionSwimming = fpsCam.transform.right * horizontal + fpsCam.transform.forward * vertical;
-        moveDirectionLeftDiagonal = Vector3.ClampMagnitude(-dirParent.right + new Vector3(20f, 0, 0) * horizontal + dirParent.forward * vertical, 1f); //For use in the step climbing code, allows us to check for steps diagonally from the movement direction as well
-        moveDirectionRightDiagonal = Vector3.ClampMagnitude(dirParent.right + new Vector3(20f, 0, 0) * horizontal + dirParent.forward * vertical, 1f); //same as above but to the right
+        moveDirectionLeftDiagonal = Vector3.ClampMagnitude(-dirParent.right + new Vector3(15f, 0, 0) * horizontal + dirParent.forward * vertical, 1f); //For use in the step climbing code, allows us to check for steps diagonally from the movement direction as well
+        moveDirectionRightDiagonal = Vector3.ClampMagnitude(dirParent.right + new Vector3(15f, 0, 0) * horizontal + dirParent.forward * vertical, 1f); //same as above but to the right
 
         if (!isGrounded && !volTrig.surfaceSwimming && !volTrig.underwaterSwimming)
         {
@@ -331,7 +340,7 @@ public class PlayerMovement : MonoBehaviour
                 playerRb.velocity = currentVel;
             }
 
-            if (isGrounded && !groundSlide)
+            if (isGrounded && !groundSlide  && stepAngle <= maxSlopeAngle)
             {
                 Vector3 moveLine = Vector3.Lerp(playerRb.velocity, moveDirection * moveSpeed, Time.fixedDeltaTime * 10f);
                 moveLine.y = playerRb.velocity.y;
@@ -390,15 +399,15 @@ public class PlayerMovement : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded && groundTime >= 0.1f/* && !volTrig.inGas*/)
         {
-
+            anim.SetTrigger("jumpPressed");
             isGrounded = false; //needs to be triggered here instantly as well because we have a Ienumerator giving a slight delay when just moving off the ground without jumping (too stop jitter when moving over surfaces with holes in them (plank bridges ect).
             canJump = true;
-            anim.SetBool("jumpPressed", true);
+
         }
         else if (!isGrounded)
         {
             canJump = false;
-            anim.SetBool("jumpPressed", false);
+            //anim.SetBool("jumpPressed", false);
         }
 
     }
@@ -426,24 +435,22 @@ public class PlayerMovement : MonoBehaviour
             isGrounded = true;
             airTime = 0f;
             groundTime += Time.deltaTime;
-            anim.SetBool("jumpPressed", false);
-        }
-        else
+            //anim.SetBool("jumpPressed", false);
+        } else
         {
-            if (!wallRun.isLeft && !wallRun.isRight && !wallRun.isFront) //the ungrounded delay shouldn't happen if wallrunning is a possibility, then ungrounded should be instant
-            {
-                StartCoroutine("UngroundedDelay");
-                airTime += Time.deltaTime;
-                groundTime = 0f;
-                currentVel = playerRb.velocity;
-            } else
+            airTime += Time.deltaTime;
+            if (wallRun.isLeft || wallRun.isRight || wallRun.isFront/* || groundSlide*/)
             {
                 isGrounded = false;
-                airTime += Time.deltaTime;
                 groundTime = 0f;
                 currentVel = playerRb.velocity;
             }
-
+            else if (airTime >= 0.3f)
+            {
+                isGrounded = false;
+                groundTime = 0f;
+                currentVel = playerRb.velocity;
+            }
         }
 
         groundSlopeDetected = Vector3.Angle(groundHit.normal, Vector3.up);
@@ -516,49 +523,60 @@ public class PlayerMovement : MonoBehaviour
     {
         stepRayLenght = playerCol.radius + 0.2f;
         RaycastHit bottomHit;
-
-        
-        if (Physics.Raycast(bottomFoot.transform.position, moveDirection, out bottomHit, stepRayLenght))
-        {
-            float stepAngle = Vector3.Angle(bottomHit.normal, Vector3.up); //checks if the angle of the obstacle is small enough walk "up" anyway instead of stepping over
-            if (stepAngle >= maxSlopeAngle)
-            {
-                RaycastHit topHit;
-                if (!Physics.Raycast(topFoot.transform.position, moveDirection, out topHit, stepRayLenght + 0.05f))
-                {
-                    Debug.DrawRay(bottomFoot.transform.position, moveDirection, Color.red, 1f);
-                    playerRb.position -= new Vector3(0f, - smoothStep, 0f);
-                }
-            }
-        }
         RaycastHit bottomLeftHit;
-        if (Physics.Raycast(bottomFoot.transform.position, moveDirectionLeftDiagonal, out bottomLeftHit, stepRayLenght))
+        RaycastHit bottomRightHit;
+
+        //smoothStep = Mathf.Lerp(0, 0.3f, Time.deltaTime * 50f);
+
+        if (Physics.Raycast(bottomFoot.transform.position, moveDirection, out bottomHit, stepRayLenght - 0.1f))
         {
-            float stepAngle = Vector3.Angle(bottomLeftHit.normal, Vector3.up); //checks if the angle of the obstacle is small enough walk "up" anyway instead of stepping over
-            if (stepAngle >= maxSlopeAngle)
+                RaycastHit topHit;
+            if (!Physics.Raycast(topFoot.transform.position, moveDirection, out topHit, stepRayLenght + 0.2f) && !groundSlide)
             {
-                RaycastHit topLeftHit;
-                if (!Physics.Raycast(topFoot.transform.position, moveDirectionLeftDiagonal, out topLeftHit, stepRayLenght + 0.05f))
+                stepAngle = Vector3.Angle(bottomHit.normal, Vector3.up); //checks if the angle of the obstacle is small enough walk "up" anyway instead of stepping over
+
+                if (stepAngle >= maxSlopeAngle)
                 {
-                    Debug.DrawRay(topFoot.transform.position, moveDirectionLeftDiagonal, Color.green, 1f);
-                    playerRb.position -= new Vector3(0f, - smoothStep, 0f);
+                    //playerRb.position -= new Vector3(0f, -smoothStep, 0f);
+                    playerRb.velocity = new Vector3(0, smoothStep, 0);
+                }
+            }
+
+        }
+        else if (Physics.Raycast(bottomFoot.transform.position, moveDirectionLeftDiagonal, out bottomLeftHit, stepRayLenght))
+        {
+            RaycastHit topLeftHit;
+            if (!Physics.Raycast(topFoot.transform.position, moveDirectionLeftDiagonal, out topLeftHit, stepRayLenght) && !groundSlide)
+            {
+                stepAngle = Vector3.Angle(topLeftHit.normal, Vector3.up); //checks if the angle of the obstacle is small enough walk "up" anyway instead of stepping over
+
+                if (stepAngle >= maxSlopeAngle)
+                {
+                    //playerRb.position -= new Vector3(0f, -smoothStep, 0f);
+                    //playerRb.AddRelativeForce(new Vector3(0, smoothStep, 0), ForceMode.VelocityChange);
+                    playerRb.velocity = new Vector3(0, smoothStep, 0);
                 }
             }
         }
-
-        RaycastHit bottomRightHit;
-        if (Physics.Raycast(bottomFoot.transform.position, moveDirectionRightDiagonal, out bottomRightHit, stepRayLenght))
+        else if (Physics.Raycast(bottomFoot.transform.position, moveDirectionRightDiagonal, out bottomRightHit, stepRayLenght))
         {
-            float stepAngle = Vector3.Angle(bottomRightHit.normal, Vector3.up); //checks if the angle of the obstacle is small enough walk "up" anyway instead of stepping over
-            if (stepAngle >= maxSlopeAngle)
+            RaycastHit topRightHit;
+            if (!Physics.Raycast(topFoot.transform.position, moveDirectionRightDiagonal, out topRightHit, stepRayLenght) && !groundSlide)
             {
-                RaycastHit topRightHit;
-                if (!Physics.Raycast(topFoot.transform.position, moveDirectionRightDiagonal, out topRightHit, stepRayLenght + 0.05f))
+                stepAngle = Vector3.Angle(topRightHit.normal, Vector3.up); //checks if the angle of the obstacle is small enough walk "up" anyway instead of stepping over
+
+                if (stepAngle >= maxSlopeAngle)
                 {
-                    Debug.DrawRay(topFoot.transform.position, moveDirectionRightDiagonal, Color.blue, 1f);
-                    playerRb.position -= new Vector3(0f, - smoothStep, 0f);
+                    //playerRb.position -= new Vector3(0f, -smoothStep, 0f);
+                    //playerRb.AddRelativeForce(new Vector3(0, smoothStep, 0), ForceMode.VelocityChange);
+                    playerRb.velocity = new Vector3(0, smoothStep, 0);
                 }
             }
+
+        }
+        else
+        {
+            stepAngle = 0f;
         }
     }
 
@@ -577,17 +595,11 @@ public class PlayerMovement : MonoBehaviour
     IEnumerator SlidingTime() // lets the player slide on the ground for 2f, sliding lowers friction between the player and the ground
     {
         sliding = true;
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(2);
         if (!groundSlide)
         {
             sliding = false;
             moveSpeed = crouchSpeed;
         }
-    }
-
-    IEnumerator UngroundedDelay()
-    {
-        yield return new WaitForSeconds(0.1f);
-        isGrounded = false;
     }
 }
