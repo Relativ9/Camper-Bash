@@ -124,11 +124,6 @@ public class PlayerMovement : MonoBehaviour
         IsKinematic();
         CheckGround();
 
-        if (!isGrounded)
-        {
-            Debug.Log("NOT GROUNDED!!!");
-        }
-
         anim.SetBool("animGrounded", isGrounded);
         //anim.SetBool("animFalling", !isGrounded);
         anim.SetBool("animClimbing", climb.isClimbing);
@@ -526,8 +521,6 @@ public class PlayerMovement : MonoBehaviour
         RaycastHit bottomLeftHit;
         RaycastHit bottomRightHit;
 
-        //smoothStep = Mathf.Lerp(0, 0.3f, Time.deltaTime * 50f);
-
         if (Physics.Raycast(bottomFoot.transform.position, moveDirection, out bottomHit, stepRayLenght - 0.1f))
         {
                 RaycastHit topHit;
@@ -537,7 +530,6 @@ public class PlayerMovement : MonoBehaviour
 
                 if (stepAngle >= maxSlopeAngle)
                 {
-                    //playerRb.position -= new Vector3(0f, -smoothStep, 0f);
                     playerRb.velocity = new Vector3(0, smoothStep, 0);
                 }
             }
@@ -552,8 +544,6 @@ public class PlayerMovement : MonoBehaviour
 
                 if (stepAngle >= maxSlopeAngle)
                 {
-                    //playerRb.position -= new Vector3(0f, -smoothStep, 0f);
-                    //playerRb.AddRelativeForce(new Vector3(0, smoothStep, 0), ForceMode.VelocityChange);
                     playerRb.velocity = new Vector3(0, smoothStep, 0);
                 }
             }
@@ -567,8 +557,6 @@ public class PlayerMovement : MonoBehaviour
 
                 if (stepAngle >= maxSlopeAngle)
                 {
-                    //playerRb.position -= new Vector3(0f, -smoothStep, 0f);
-                    //playerRb.AddRelativeForce(new Vector3(0, smoothStep, 0), ForceMode.VelocityChange);
                     playerRb.velocity = new Vector3(0, smoothStep, 0);
                 }
             }

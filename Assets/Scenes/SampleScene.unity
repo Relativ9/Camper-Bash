@@ -734,6 +734,7 @@ MonoBehaviour:
   hasThrown: 0
   isGrappling: 0
   pressedGrapple: 0
+  grappleEnd: {x: 0, y: 0, z: 0}
 --- !u!1 &180434973
 GameObject:
   m_ObjectHideFlags: 0
@@ -11010,15 +11011,15 @@ MonoBehaviour:
   wallRunSpeed: 1
   swimSpeed: 2
   maxStamina: 10
-  jumpHeight: 3.5
+  jumpHeight: 3
   multiplier: 4.5
   groundRayLength: 0.6
-  smoothStep: 6
+  smoothStep: 3
   maxSlopeAngle: 45
   raycastLength: 3
   normalGravityStrength: -9.8
   noGravityStrength: 0
-  wallRunGravityStrength: -6
+  wallRunGravityStrength: -4
   grapplingGravityStrength: -30
   horizontal: 0
   vertical: 0
@@ -11112,7 +11113,7 @@ MonoBehaviour:
   fpCamTrans: {fileID: 963194228}
   dirParent: {fileID: 313479595}
   jumpUpForce: 14
-  gravityCompensatorForce: 20
+  gravityCompensatorForce: 12
   sideForce: 20
   wallJumpForce: 120
   maxWallJumps: 2

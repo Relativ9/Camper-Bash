@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class GrappleHook : MonoBehaviour
 {
@@ -33,9 +34,9 @@ public class GrappleHook : MonoBehaviour
     private SpringJoint grappleJoint;
     private Climbing climb;
     private GameObject hookInstance;
-    private Vector3 grappleEnd;
+    public Vector3 grappleEnd;
 
-
+    private int points;
 
     void Start()
     {
@@ -52,12 +53,12 @@ public class GrappleHook : MonoBehaviour
         {
             StopGrapple();
         }
+
     }
 
 
     private void LateUpdate()
     {
-
         DrawRope();
     }
 
@@ -65,9 +66,13 @@ public class GrappleHook : MonoBehaviour
     {
         RaycastHit hit;
         grappleEnd = grappleTip.position;
+        lineRend.positionCount = 2; // Number of vertices for the line (2 - one for grapple tip (origin point) and one for the grapple point (end point)) // TODO - Consider building a system for mid-line collision of the grapple line (swing around horizontal poles etc, add 1 or more points and set the new joint position to that depending on collision).
+
         if (Physics.Raycast(fpCamTrans.position, fpCamTrans.forward, out hit, maxGrappleDist, grappleLayer) && hookInstance != null)
         {
-            grapplePoint = hookInstance.transform.position; //declares the transform to be the same as the instantiated hook.
+            //grapplePoint = hookInstance.transform.position; //declares the transform to be the same as the instantiated hook.
+            grapplePoint = hit.point;
+            //grapplePoint = Vector3.Lerp(grappleTip.position, hit.point, Time.deltaTime * 100f);
 
             grappleJoint = playerTrans.gameObject.AddComponent<SpringJoint>(); // adds a spring joint to the player (what actually makes the grapple function work in the physics)
             grappleJoint.autoConfigureConnectedAnchor = false; // remove preconfigured connected anchor.
@@ -84,7 +89,6 @@ public class GrappleHook : MonoBehaviour
             grappleJoint.damper = 200f;
             grappleJoint.massScale = 4.5f;
 
-            lineRend.positionCount = 2; // Number of vertices for the line (2 - one for grapple tip (origin point) and one for the grapple point (end point)) // TODO - Consider building a system for mid-line collision of the grapple line (swing around horizontal poles etc, add 1 or more points and set the new joint position to that depending on collision).
             isGrappling = true;
         }
     }
@@ -103,8 +107,9 @@ public class GrappleHook : MonoBehaviour
 
     private void DrawRope()
     {
+        Vector3 currentGrapPoint = grappleTip.transform.position;
+        //grappleEnd = Vector3.Lerp(currentGrapPoint, grapplePoint, Time.deltaTime * distFromGrapplePoint * );
 
-        grappleEnd = Vector3.Lerp(grappleTip.position, grapplePoint, Time.deltaTime);
 
         if (!grappleJoint)        // -- SPRING JOINT-- if we havent grappled, dont draw line.
         {
@@ -113,7 +118,7 @@ public class GrappleHook : MonoBehaviour
         else  //sets the positions of start and end point of the line (won't draw without it). 
         {
             lineRend.SetPosition(0, grappleTip.position);
-            lineRend.SetPosition(1, grappleEnd);
+            lineRend.SetPosition(1, grapplePoint);
         }
     }
 
@@ -122,7 +127,7 @@ public class GrappleHook : MonoBehaviour
         RaycastHit hookHit;
         if (Physics.Raycast(fpCamTrans.position, fpCamTrans.forward, out hookHit, maxGrappleDist))
         {
-            yield return new WaitForSeconds(timeToHit);
+            //yield return new WaitForSeconds(timeToHit);
             hookInstance = Instantiate(hookPrefab, hookHit.point, fpCamTrans.transform.rotation);
             hookInstance.transform.LookAt(fpCamTrans.transform.position);
             hookTrans.position = hookInstance.transform.position;
@@ -131,7 +136,9 @@ public class GrappleHook : MonoBehaviour
                 hookInstance.transform.SetParent(hookHit.transform);
             }
         }
-/*      yield return new WaitForSeconds(0.2f);*/ // wait some time to simulate "tension" being achieved on the grapple line.
+        /*      yield return new WaitForSeconds(0.2f);*/ // wait some time to simulate "tension" being achieved on the grapple line.
+
         StartGrapple();
+        yield return null;
     }
 }
