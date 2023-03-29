@@ -45,7 +45,7 @@ public class Projectiles : MonoBehaviour
     //Assigned in start
     private WeaponPickup weaponPickup;
 
-    List<Projectile> projectiles = new List<Projectile>();
+    List<Projectile> projectilesList = new List<Projectile>();
 
     Ray ray;
     RaycastHit hitInfo;
@@ -98,7 +98,7 @@ public class Projectiles : MonoBehaviour
 
     public void ProjectileSimulation(float deltaTime)
     {
-        projectiles.ForEach(projectile =>
+        projectilesList.ForEach(projectile =>
         {
             Vector3 currentPos = GetPos(projectile);
             projectile.time += deltaTime;
@@ -107,7 +107,7 @@ public class Projectiles : MonoBehaviour
         });
     }
 
-    void RaycastStep(Vector3 start, Vector3 end, Projectile projectiles)
+    void RaycastStep(Vector3 start, Vector3 end, Projectile projectilesList)
     {
         Vector3 direction = end - start;
         float distance = direction.magnitude;
@@ -122,8 +122,8 @@ public class Projectiles : MonoBehaviour
             hitEffect.Emit(1);
 
 
-            projectiles.tail.transform.position = hitInfo.point;
-            projectiles.time = maxLifeTime;
+            projectilesList.tail.transform.position = hitInfo.point;
+            projectilesList.time = maxLifeTime;
 
             if(hitInfo.collider.gameObject.GetComponent<Rigidbody>() != null) 
             {
@@ -146,13 +146,13 @@ public class Projectiles : MonoBehaviour
 
         } else
         {
-            projectiles.tail.transform.position = end;
+            projectilesList.tail.transform.position = end;
         }
     }
 
     void DestroyProjectiles()
     {
-        projectiles.RemoveAll(projectile => projectile.time >= maxLifeTime);
+        projectilesList.RemoveAll(projectile => projectile.time >= maxLifeTime);
     }
     public void Fire()
     {
@@ -164,7 +164,7 @@ public class Projectiles : MonoBehaviour
 
         Vector3 velocity = (aimTrans.position - gunTip.position).normalized * projectileSpeed;
         var projectile = CreateProjectile(gunTip.position, velocity);
-        projectiles.Add(projectile);
+        projectilesList.Add(projectile);
 
     }
 

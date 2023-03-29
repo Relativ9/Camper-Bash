@@ -7,7 +7,13 @@ using UnityEngine.UIElements;
 public class GrappleHook : MonoBehaviour
 {
     //TODO change script to be sitting on the actual grapple hook weapon itself instead of always on the character, should only be usable while equipped
-
+    class hookPro
+    {
+        public float time;
+        public Vector3 initPos;
+        public Vector3 initVel;
+        public TrailRenderer tail;
+    }
 
     [Header("Manually assigned variables")]
     [SerializeField] private Transform grappleTip;
@@ -33,54 +39,142 @@ public class GrappleHook : MonoBehaviour
     private Vector3 grapplePoint;
     private SpringJoint grappleJoint;
     private Climbing climb;
-    private GameObject hookInstance;
     public Vector3 grappleEnd;
 
-    private int points;
+    public bool gamePaused;
+
+    public bool hasFired;
+
+
+    Ray ray;
+    RaycastHit grappleHit;
+
+
+    List<hookPro> hookList = new List<hookPro>();
+
+    public ParticleSystem hitEffect;
+    public TrailRenderer tracerEffect;
+
+    public Transform aimTrans;
+    public float maxLifeTime = 2f;
+
+    public float hookSpeed = 100f;
+    public float hookDrop = 9.81f;
+    public GameObject hookObject;
+
 
     void Start()
     {
         climb = playerTrans.gameObject.GetComponent<Climbing>();
         lineRend = this.GetComponent<LineRenderer>();
+        gamePaused = false;
     }
 
     void Update()
     {
-        if (Input.GetMouseButtonDown(1) && !climb.isClimbing && !isGrappling)
+        if (Input.GetMouseButtonDown(1) && !climb.isClimbing && !isGrappling && !hasFired)
         {
-            StartCoroutine("GrappleDelay");
-        } else if (Input.GetKeyDown(KeyCode.E))
+            hookObject = Instantiate(hookPrefab, grappleTip.position, fpCamTrans.transform.rotation);
+            hookObject.transform.LookAt(fpCamTrans.transform.position);
+            lineRend.positionCount = 2;
+            hasFired = true;
+            FireGrapple();
+        }
+        else if (Input.GetKeyDown(KeyCode.E) && hasFired)
         {
             StopGrapple();
+            hasFired = false;
         }
 
-    }
-
-
-    private void LateUpdate()
-    {
-        DrawRope();
-    }
-
-    public void StartGrapple()
-    {
-        RaycastHit hit;
-        grappleEnd = grappleTip.position;
-        lineRend.positionCount = 2; // Number of vertices for the line (2 - one for grapple tip (origin point) and one for the grapple point (end point)) // TODO - Consider building a system for mid-line collision of the grapple line (swing around horizontal poles etc, add 1 or more points and set the new joint position to that depending on collision).
-
-        if (Physics.Raycast(fpCamTrans.position, fpCamTrans.forward, out hit, maxGrappleDist, grappleLayer) && hookInstance != null)
+        if (Input.GetKeyDown(KeyCode.Y) && !gamePaused)
         {
-            //grapplePoint = hookInstance.transform.position; //declares the transform to be the same as the instantiated hook.
-            grapplePoint = hit.point;
-            //grapplePoint = Vector3.Lerp(grappleTip.position, hit.point, Time.deltaTime * 100f);
+            gamePaused = true;
+            Time.timeScale = 0f;
+        }
+        if(Input.GetKeyDown(KeyCode.P) && gamePaused)
+        {
+            Time.timeScale = 1f;
+            gamePaused = false;
+        }
+
+        UpdateAirTime(Time.deltaTime);
+
+        if(lineRend.positionCount == 2)
+        {
+            lineRend.SetPosition(0, grappleTip.position);
+            lineRend.SetPosition(1, hookObject.transform.position);
+        }
+    }
+
+    Vector3 GetPos(hookPro hook)
+    {
+        Vector3 gravity = Vector3.down * hookDrop;
+        return hook.initPos + hook.initVel * hook.time + 0.5f * gravity * hook.time * hook.time;
+    }
+
+    hookPro CreateHook(Vector3 pos, Vector3 vel)
+    {
+        hookPro hook = new hookPro();
+        hook.initPos = pos;
+        hook.initVel = vel;
+        hook.time = 0f;
+        hook.tail = Instantiate(tracerEffect, pos, Quaternion.identity);
+        hook.tail.AddPosition(pos);
+        return hook;
+    }
+
+    public void UpdateAirTime(float deltaTime)
+    {
+        hookFlySim(deltaTime);
+        DestroyHook();
+    }
+
+    public void hookFlySim(float deltaTime)
+    {
+        hookList.ForEach (hook =>
+        {
+            Vector3 currentPos = GetPos(hook);
+            hook.time += deltaTime;
+            Vector3 nextPos = GetPos(hook);
+            RaycastStep(currentPos, nextPos, hook);
+            if(!isGrappling && hookObject != null)
+            {
+                hookObject.transform.position = Vector3.Lerp(currentPos, nextPos, hook.time);
+            }
+        });
+    }
+
+    void RaycastStep (Vector3 start, Vector3 end, hookPro hookList)
+    {
+        Vector3 direction = end - start;
+        float distance = direction.magnitude;
+        ray.origin = start;
+        ray.direction = direction;
+
+        if (Physics.Raycast(ray, out grappleHit, distance, grappleLayer) && !isGrappling)
+        {
+            hitEffect.transform.parent = grappleHit.transform;
+            hitEffect.transform.position = grappleHit.point;
+            hitEffect.transform.forward = grappleHit.normal;
+            hitEffect.Emit(1);
+
+            hookList.tail.transform.position += grappleHit.point;
+            hookList.time = maxLifeTime;
+
+            hookTrans.transform.position = hookList.tail.transform.position;
+
+            if (grappleHit.transform.tag != "GrappleSpot") // Sets the hook's parent as the transform it hits when not hitting a grapple spot, ensures it tracks with moving objects.
+            {
+                hookObject.transform.SetParent(grappleHit.transform);
+            }
 
             grappleJoint = playerTrans.gameObject.AddComponent<SpringJoint>(); // adds a spring joint to the player (what actually makes the grapple function work in the physics)
             grappleJoint.autoConfigureConnectedAnchor = false; // remove preconfigured connected anchor.
-            grappleJoint.connectedAnchor = grapplePoint; // sets the new connected anchor to be the grapple point
+            grappleJoint.connectedAnchor = hookObject.transform.position; // sets the new connected anchor to be the grapple point
 
             // Distance between the grapple point and the player below
 
-            distFromGrapplePoint = Vector3.Distance(playerTrans.position, grapplePoint);
+            distFromGrapplePoint = Vector3.Distance(playerTrans.position, hookObject.transform.position);
 
             grappleJoint.maxDistance = distFromGrapplePoint * 0.65f;
             grappleJoint.minDistance = distFromGrapplePoint * 0.40f;
@@ -90,55 +184,35 @@ public class GrappleHook : MonoBehaviour
             grappleJoint.massScale = 4.5f;
 
             isGrappling = true;
+            hookObject.transform.position = grappleHit.point;
+        }
+        else
+        {
+            hookList.tail.transform.position = end;
         }
     }
+    void DestroyHook()
+    {
+        hookList.RemoveAll(hookPro => hookPro.time >= maxLifeTime);
+    }
 
+    public void FireGrapple()
+    {
+        Vector3 velocity = (aimTrans.position - grappleTip.position).normalized * hookSpeed;
+        var hook = CreateHook(grappleTip.position, velocity);
+        hookList.Add(hook);
+    }
     public void StopGrapple()
     {
-        if (isGrappling && grappleJoint != null && hookInstance != null)
+        if (isGrappling && grappleJoint != null)
         {
             lineRend.positionCount = 0; //Removes the line from the world (by setting it's positions to 0)
             Destroy(grappleJoint);
+            Destroy(hookObject);
             isGrappling = false;
-            Destroy(hookInstance.gameObject);
+            //hookTrans.transform.position = Vector3.zero;
         }
 
     }
 
-    private void DrawRope()
-    {
-        Vector3 currentGrapPoint = grappleTip.transform.position;
-        //grappleEnd = Vector3.Lerp(currentGrapPoint, grapplePoint, Time.deltaTime * distFromGrapplePoint * );
-
-
-        if (!grappleJoint)        // -- SPRING JOINT-- if we havent grappled, dont draw line.
-        {
-            return;
-        }
-        else  //sets the positions of start and end point of the line (won't draw without it). 
-        {
-            lineRend.SetPosition(0, grappleTip.position);
-            lineRend.SetPosition(1, grapplePoint);
-        }
-    }
-
-    IEnumerator GrappleDelay()
-    {
-        RaycastHit hookHit;
-        if (Physics.Raycast(fpCamTrans.position, fpCamTrans.forward, out hookHit, maxGrappleDist))
-        {
-            //yield return new WaitForSeconds(timeToHit);
-            hookInstance = Instantiate(hookPrefab, hookHit.point, fpCamTrans.transform.rotation);
-            hookInstance.transform.LookAt(fpCamTrans.transform.position);
-            hookTrans.position = hookInstance.transform.position;
-            if (hookHit.transform.tag != "GrappleSpot") // Sets the hook's parent as the transform it hits when not hitting a grapple spot, ensures it tracks with moving objects.
-            {
-                hookInstance.transform.SetParent(hookHit.transform);
-            }
-        }
-        /*      yield return new WaitForSeconds(0.2f);*/ // wait some time to simulate "tension" being achieved on the grapple line.
-
-        StartGrapple();
-        yield return null;
-    }
 }

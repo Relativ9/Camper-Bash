@@ -24,10 +24,10 @@ public class CameraFollow : MonoBehaviour
         if(!playHealth.isAlive)
         {           
             transform.position = Vector3.Slerp(transform.position, deathCamPos.position, deathCamSmooth * Time.deltaTime); //slowly moves the camera out from the player on death, also slows down time for a cool effect.
-            Time.timeScale = 0.5f;
+            //Time.timeScale = 0.5f;
         } else
         {
-            Time.timeScale = 1f;
+            //Time.timeScale = 1f;
             transform.position = Vector3.Slerp(transform.position, camFollowTrans.position, multiplier); //camera smoothly follows the player from set position, usually within childed to the head bone (when in first person).
         }
     }
