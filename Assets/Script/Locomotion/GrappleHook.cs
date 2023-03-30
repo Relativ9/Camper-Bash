@@ -12,7 +12,7 @@ public class GrappleHook : MonoBehaviour
         public float time;
         public Vector3 initPos;
         public Vector3 initVel;
-        public TrailRenderer tail;
+        //public TrailRenderer tail;
     }
 
     [Header("Manually assigned variables")]
@@ -29,22 +29,18 @@ public class GrappleHook : MonoBehaviour
 
     [Header("Visible for debugging")]
     [SerializeField] private float distFromGrapplePoint;
-    [SerializeField] private float timeToHit;
     [SerializeField] private bool hasSpear;
     [SerializeField] private bool hasThrown;
     [SerializeField] public bool isGrappling;
     [SerializeField] private bool pressedGrapple;
 
     private LineRenderer lineRend;
-    private Vector3 grapplePoint;
     private SpringJoint grappleJoint;
     private Climbing climb;
     public Vector3 grappleEnd;
 
     public bool gamePaused;
-
     public bool hasFired;
-
 
     Ray ray;
     RaycastHit grappleHit;
@@ -72,18 +68,22 @@ public class GrappleHook : MonoBehaviour
 
     void Update()
     {
+
         if (Input.GetMouseButtonDown(1) && !climb.isClimbing && !isGrappling && !hasFired)
         {
+            hasFired = true;
             hookObject = Instantiate(hookPrefab, grappleTip.position, fpCamTrans.transform.rotation);
             hookObject.transform.LookAt(fpCamTrans.transform.position);
             lineRend.positionCount = 2;
-            hasFired = true;
             FireGrapple();
         }
         else if (Input.GetKeyDown(KeyCode.E) && hasFired)
         {
-            StopGrapple();
-            hasFired = false;
+            if (isGrappling && grappleJoint != null)
+            {
+                StopGrapple();
+                hasFired = false;
+            }
         }
 
         if (Input.GetKeyDown(KeyCode.Y) && !gamePaused)
@@ -104,6 +104,12 @@ public class GrappleHook : MonoBehaviour
             lineRend.SetPosition(0, grappleTip.position);
             lineRend.SetPosition(1, hookObject.transform.position);
         }
+
+        if (!isGrappling && hasFired && hookObject != null && distFromGrapplePoint >= maxGrappleDist)
+        {
+            StopGrapple();
+            Debug.Log("Grapple stopped attempt");
+        }
     }
 
     Vector3 GetPos(hookPro hook)
@@ -118,8 +124,6 @@ public class GrappleHook : MonoBehaviour
         hook.initPos = pos;
         hook.initVel = vel;
         hook.time = 0f;
-        hook.tail = Instantiate(tracerEffect, pos, Quaternion.identity);
-        hook.tail.AddPosition(pos);
         return hook;
     }
 
@@ -140,6 +144,7 @@ public class GrappleHook : MonoBehaviour
             if(!isGrappling && hookObject != null)
             {
                 hookObject.transform.position = Vector3.Lerp(currentPos, nextPos, hook.time);
+                distFromGrapplePoint = Vector3.Distance(playerTrans.position, hookObject.transform.position);
             }
         });
     }
@@ -153,15 +158,9 @@ public class GrappleHook : MonoBehaviour
 
         if (Physics.Raycast(ray, out grappleHit, distance, grappleLayer) && !isGrappling)
         {
-            hitEffect.transform.parent = grappleHit.transform;
-            hitEffect.transform.position = grappleHit.point;
-            hitEffect.transform.forward = grappleHit.normal;
-            hitEffect.Emit(1);
-
-            hookList.tail.transform.position += grappleHit.point;
             hookList.time = maxLifeTime;
-
-            hookTrans.transform.position = hookList.tail.transform.position;
+            distFromGrapplePoint = Vector3.Distance(playerTrans.position, hookObject.transform.position);
+            hookTrans.transform.position += grappleHit.point;
 
             if (grappleHit.transform.tag != "GrappleSpot") // Sets the hook's parent as the transform it hits when not hitting a grapple spot, ensures it tracks with moving objects.
             {
@@ -174,8 +173,6 @@ public class GrappleHook : MonoBehaviour
 
             // Distance between the grapple point and the player below
 
-            distFromGrapplePoint = Vector3.Distance(playerTrans.position, hookObject.transform.position);
-
             grappleJoint.maxDistance = distFromGrapplePoint * 0.65f;
             grappleJoint.minDistance = distFromGrapplePoint * 0.40f;
 
@@ -186,9 +183,10 @@ public class GrappleHook : MonoBehaviour
             isGrappling = true;
             hookObject.transform.position = grappleHit.point;
         }
-        else
+        else 
         {
-            hookList.tail.transform.position = end;
+            isGrappling = false;
+            //hookList.time = maxLifeTime;
         }
     }
     void DestroyHook()
@@ -204,15 +202,12 @@ public class GrappleHook : MonoBehaviour
     }
     public void StopGrapple()
     {
-        if (isGrappling && grappleJoint != null)
-        {
-            lineRend.positionCount = 0; //Removes the line from the world (by setting it's positions to 0)
-            Destroy(grappleJoint);
-            Destroy(hookObject);
-            isGrappling = false;
-            //hookTrans.transform.position = Vector3.zero;
-        }
-
+        lineRend.positionCount = 0; //Removes the line from the world (by setting it's positions to 0)
+        Destroy(grappleJoint);
+        Destroy(hookObject);
+        isGrappling = false;
+        hasFired = false;
+        distFromGrapplePoint = 0f;
     }
 
 }

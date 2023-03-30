@@ -729,18 +729,22 @@ MonoBehaviour:
   hookTrans: {fileID: 2115245476}
   maxGrappleDist: 50
   distFromGrapplePoint: 0
-  timeToHit: 0
+  timeInAir: 0
   hasSpear: 0
   hasThrown: 0
   isGrappling: 0
   pressedGrapple: 0
   grappleEnd: {x: 0, y: 0, z: 0}
+  gamePaused: 0
+  hasFired: 0
+  fireTime: 0
   hitEffect: {fileID: 5332635249447738620}
   tracerEffect: {fileID: 3164247873246940756, guid: 518b7a74c901df543ba94c86a28c6b00, type: 3}
   aimTrans: {fileID: 980370866}
-  maxLifeTime: 20
+  maxLifeTime: 2
   hookSpeed: 50
   hookDrop: 9.81
+  hookObject: {fileID: 0}
 --- !u!1 &180434973
 GameObject:
   m_ObjectHideFlags: 0
