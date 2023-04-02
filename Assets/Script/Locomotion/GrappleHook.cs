@@ -1,8 +1,5 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class GrappleHook : MonoBehaviour
 {
@@ -12,7 +9,6 @@ public class GrappleHook : MonoBehaviour
         public float time;
         public Vector3 initPos;
         public Vector3 initVel;
-        //public TrailRenderer tail;
     }
 
     [Header("Manually assigned variables")]
@@ -25,7 +21,14 @@ public class GrappleHook : MonoBehaviour
     [SerializeField] public Transform hookTrans;
 
     [Header("Editable in inspector")]
-    [SerializeField] private float maxGrappleDist = 50f;
+    [SerializeField] private float maxGrappleDist = 25f;
+    [SerializeField] private float minGrappleDist = 2f;
+    [SerializeField] private float retractSpeed = 25f;
+    [SerializeField] private float maxLifeTime = 2f;
+    [SerializeField] private float hookSpeed = 100f;
+    [SerializeField] private float hookDrop = 9.81f;
+    [SerializeField] private float lineCurveStrength = 1f;
+    [SerializeField] private int lineSegmentCount = 20;
 
     [Header("Visible for debugging")]
     [SerializeField] private float distFromGrapplePoint;
@@ -33,14 +36,16 @@ public class GrappleHook : MonoBehaviour
     [SerializeField] private bool hasThrown;
     [SerializeField] public bool isGrappling;
     [SerializeField] private bool pressedGrapple;
+    [SerializeField] private bool gamePaused;
+    [SerializeField] private bool hasFired;
+    [SerializeField] private bool isRetracting;
 
+    [Header("Must remain publicly accessible")]
     private LineRenderer lineRend;
     private SpringJoint grappleJoint;
     private Climbing climb;
-    public Vector3 grappleEnd;
 
-    public bool gamePaused;
-    public bool hasFired;
+
 
     Ray ray;
     RaycastHit grappleHit;
@@ -52,10 +57,7 @@ public class GrappleHook : MonoBehaviour
     public TrailRenderer tracerEffect;
 
     public Transform aimTrans;
-    public float maxLifeTime = 2f;
 
-    public float hookSpeed = 100f;
-    public float hookDrop = 9.81f;
     public GameObject hookObject;
 
 
@@ -69,6 +71,7 @@ public class GrappleHook : MonoBehaviour
     void Update()
     {
 
+
         if (Input.GetMouseButtonDown(1) && !climb.isClimbing && !isGrappling && !hasFired)
         {
             hasFired = true;
@@ -76,6 +79,8 @@ public class GrappleHook : MonoBehaviour
             hookObject.transform.LookAt(fpCamTrans.transform.position);
             lineRend.positionCount = 2;
             FireGrapple();
+            Debug.Log("GrappleTip position (Update): " + grappleTip.position);
+            Debug.Log("HookObject position (Update): " + hookObject.transform.position);
         }
         else if (Input.GetKeyDown(KeyCode.E) && hasFired)
         {
@@ -86,29 +91,35 @@ public class GrappleHook : MonoBehaviour
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.Y) && !gamePaused)
-        {
-            gamePaused = true;
-            Time.timeScale = 0f;
-        }
-        if(Input.GetKeyDown(KeyCode.P) && gamePaused)
-        {
-            Time.timeScale = 1f;
-            gamePaused = false;
-        }
-
         UpdateAirTime(Time.deltaTime);
 
-        if(lineRend.positionCount == 2)
-        {
-            lineRend.SetPosition(0, grappleTip.position);
-            lineRend.SetPosition(1, hookObject.transform.position);
-        }
+
 
         if (!isGrappling && hasFired && hookObject != null && distFromGrapplePoint >= maxGrappleDist)
         {
-            StopGrapple();
-            Debug.Log("Grapple stopped attempt");
+            isRetracting = true;
+        }
+
+        if(isRetracting)
+        {
+
+            hookObject.transform.position = Vector3.Lerp(hookObject.transform.position, grappleTip.position, Time.deltaTime * retractSpeed);
+            if(distFromGrapplePoint <= minGrappleDist)
+            {
+                StopGrapple();
+                Debug.Log("Grapple stopped attempt");
+            }
+        }
+        if (hookObject != null)
+        {
+            distFromGrapplePoint = Vector3.Distance(playerTrans.position, hookObject.transform.position);
+        }
+
+        if (lineRend.positionCount >= 2)
+        {
+            //DrawCurvedLine();
+            DrawLine();
+            //lineRend.SetPositions(new Vector3[] { grappleTip.position, hookObject.transform.position });
         }
     }
 
@@ -135,18 +146,24 @@ public class GrappleHook : MonoBehaviour
 
     public void hookFlySim(float deltaTime)
     {
+        Vector3 newPosition = Vector3.zero;
+
         hookList.ForEach (hook =>
         {
             Vector3 currentPos = GetPos(hook);
             hook.time += deltaTime;
             Vector3 nextPos = GetPos(hook);
             RaycastStep(currentPos, nextPos, hook);
-            if(!isGrappling && hookObject != null)
+            if(!isGrappling && hookObject != null && !isRetracting)
             {
-                hookObject.transform.position = Vector3.Lerp(currentPos, nextPos, hook.time);
-                distFromGrapplePoint = Vector3.Distance(playerTrans.position, hookObject.transform.position);
+                newPosition = Vector3.Lerp(currentPos, nextPos, hook.time); 
             }
         });
+
+        if(newPosition != Vector3.zero)
+        {
+            hookObject.transform.position = newPosition;
+        }
     }
 
     void RaycastStep (Vector3 start, Vector3 end, hookPro hookList)
@@ -156,15 +173,20 @@ public class GrappleHook : MonoBehaviour
         ray.origin = start;
         ray.direction = direction;
 
-        if (Physics.Raycast(ray, out grappleHit, distance, grappleLayer) && !isGrappling)
+        Vector3 newPosition = grappleHit.point;
+
+        if (Physics.Raycast(ray, out grappleHit, distance) && !isGrappling)
         {
             hookList.time = maxLifeTime;
             distFromGrapplePoint = Vector3.Distance(playerTrans.position, hookObject.transform.position);
-            hookTrans.transform.position += grappleHit.point;
 
-            if (grappleHit.transform.tag != "GrappleSpot") // Sets the hook's parent as the transform it hits when not hitting a grapple spot, ensures it tracks with moving objects.
+            newPosition = grappleHit.point;
+
+            if (grappleHit.transform.gameObject.layer != LayerMask.NameToLayer("Grap Objects")) //Ensures that if we hit a collider but it isn't in the grap-objects layer the hook retracts as if we didn't hit anything.
             {
-                hookObject.transform.SetParent(grappleHit.transform);
+                isRetracting = true;
+                Debug.Log("Has hit the correct object!");
+                return;
             }
 
             grappleJoint = playerTrans.gameObject.AddComponent<SpringJoint>(); // adds a spring joint to the player (what actually makes the grapple function work in the physics)
@@ -180,13 +202,18 @@ public class GrappleHook : MonoBehaviour
             grappleJoint.damper = 200f;
             grappleJoint.massScale = 4.5f;
 
+            hookTrans.transform.position = grappleHit.point; 
             isGrappling = true;
-            hookObject.transform.position = grappleHit.point;
+            //return;
         }
         else 
         {
             isGrappling = false;
-            //hookList.time = maxLifeTime;
+        }
+
+        if (newPosition != Vector3.zero)
+        {
+            hookObject.transform.position = newPosition;
         }
     }
     void DestroyHook()
@@ -196,7 +223,7 @@ public class GrappleHook : MonoBehaviour
 
     public void FireGrapple()
     {
-        Vector3 velocity = (aimTrans.position - grappleTip.position).normalized * hookSpeed;
+        Vector3 velocity = fpCamTrans.forward * hookSpeed;
         var hook = CreateHook(grappleTip.position, velocity);
         hookList.Add(hook);
     }
@@ -207,7 +234,91 @@ public class GrappleHook : MonoBehaviour
         Destroy(hookObject);
         isGrappling = false;
         hasFired = false;
+        isRetracting = false;
         distFromGrapplePoint = 0f;
     }
 
+    private void DrawLine()
+    {
+        Vector3 midPoint = Vector3.Lerp(grappleTip.transform.position, hookObject.transform.position, 0.5f);
+        midPoint = midPoint + Vector3.up * lineCurveStrength;
+
+        lineRend.SetPosition(0, grappleTip.position);
+        lineRend.SetPosition(1, hookObject.transform.position);
+        //lineRend.SetPosition(2, hookObject.transform.position);
+    }
+
+    //private void DrawCurvedLine()
+    //{
+    //    Vector3 a = grappleTip.position;
+    //    Vector3 c = hookObject.transform.position;
+    //    Vector3 midPoint = (a + c) / 2;
+
+    //    // Adjust the height of the control point based on the curve strength
+    //    Vector3 b = midPoint + Vector3.up * lineCurveStrength;
+
+    //    lineRend.positionCount = lineSegmentCount + 1;
+
+    //    for (int i = 0; i <= lineSegmentCount; i++)
+    //    {
+    //        float t = (float)i / lineSegmentCount;
+    //        Vector3 point = QuadraticBezier(a, b, c, t);
+    //        lineRend.SetPosition(i, point);
+    //    }
+
+    //    Debug.Log("GrappleTip position: " + grappleTip.position);
+    //    Debug.Log("HookObject position: " + hookObject.transform.position);
+    //}
+
+    //void DrawCurvedLine()
+    //{
+    //    Vector3 p0 = grappleTip.position;
+    //    Vector3 p1 = hookObject.transform.position;
+
+    //    Vector3 midPoint = (p0 + p1) / 2;
+    //    midPoint.y += p0.y < p1.y ? -lineCurveStrength : lineCurveStrength;
+
+    //    lineRend.positionCount = lineSegmentCount + 1;
+
+    //    for (int i = 0; i <= lineSegmentCount; i++)
+    //    {
+    //        float t = i / (float)lineSegmentCount;
+    //        Vector3 position = QuadraticBezier(p0, midPoint, p1, t);
+    //        Debug.Log($"Position {i}: {position}");
+    //        lineRend.SetPosition(i, position);
+    //    }
+    //}
+
+    //Vector3 QuadraticBezier(Vector3 a, Vector3 b, Vector3 c, float t)
+    //{
+    //    Vector3 p0 = Vector3.Lerp(a, b, t);
+    //    Vector3 p1 = Vector3.Lerp(b, c, t);
+    //    Vector3 result = Vector3.Lerp(p0, p1, t);
+    //    Debug.Log($"QuadraticBezier: a={a}, b={b}, c={c}, t={t}, result={result}");
+    //    return result;
+    //}
+    //void DrawCurvedLine()
+    //{
+
+    //    Vector3 p0 = grappleTip.position;
+    //    Vector3 p1 = hookObject.transform.position;
+
+    //    Vector3 midPoint = (p0 + p1) / 2;
+    //    midPoint.y += p0.y < p1.y ? -lineCurveStrength : lineCurveStrength;
+
+    //    lineRend.positionCount = lineSegmentCount + 1;
+
+    //    for (int i = 0; i <= lineSegmentCount; i++)
+    //    {
+    //        float t = i / (float)lineSegmentCount;
+    //        lineRend.SetPosition(i, QuadraticBezier(p0, midPoint, p1, t));
+    //    }
+    //}
+
+    //Vector3 QuadraticBezier(Vector3 a, Vector3 b, Vector3 c, float t)
+    //{
+    //    Vector3 p0 = Vector3.Lerp(a, b, t);
+    //    Vector3 p1 = Vector3.Lerp(b, c, t);
+    //    return Vector3.Lerp(p0, p1, t);
+    //}
 }
