@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.VFX;
+using UnityEngine.VFX.Utility;
 
 public class GrappleHook : MonoBehaviour
 {
@@ -46,7 +48,8 @@ public class GrappleHook : MonoBehaviour
     private Climbing climb;
 
 
-
+    public VisualEffect vfxGraph;
+    public MyVFXPropertyBinder vfxBinder;
     Ray ray;
     RaycastHit grappleHit;
 
@@ -60,12 +63,19 @@ public class GrappleHook : MonoBehaviour
 
     public GameObject hookObject;
 
+    public float straightenTime = 2f;
+    private float elapsedTime = 0f;
+    private bool isStraightening = false;
+    public float curveStrength = 1.0f;
+
+
 
     void Start()
     {
         climb = playerTrans.gameObject.GetComponent<Climbing>();
         lineRend = this.GetComponent<LineRenderer>();
         gamePaused = false;
+        vfxBinder = vfxGraph.GetComponent<MyVFXPropertyBinder>();
     }
 
     void Update()
@@ -79,8 +89,6 @@ public class GrappleHook : MonoBehaviour
             hookObject.transform.LookAt(fpCamTrans.transform.position);
             lineRend.positionCount = 2;
             FireGrapple();
-            Debug.Log("GrappleTip position (Update): " + grappleTip.position);
-            Debug.Log("HookObject position (Update): " + hookObject.transform.position);
         }
         else if (Input.GetKeyDown(KeyCode.E) && hasFired)
         {
@@ -92,7 +100,6 @@ public class GrappleHook : MonoBehaviour
         }
 
         UpdateAirTime(Time.deltaTime);
-
 
 
         if (!isGrappling && hasFired && hookObject != null && distFromGrapplePoint >= maxGrappleDist)
@@ -115,12 +122,13 @@ public class GrappleHook : MonoBehaviour
             distFromGrapplePoint = Vector3.Distance(playerTrans.position, hookObject.transform.position);
         }
 
-        if (lineRend.positionCount >= 2)
-        {
-            //DrawCurvedLine();
-            DrawLine();
-            //lineRend.SetPositions(new Vector3[] { grappleTip.position, hookObject.transform.position });
-        }
+        vfxTargets();
+    }
+
+    public void lineTension()
+    {
+        isStraightening = true;
+        elapsedTime = 0f;
     }
 
     Vector3 GetPos(hookPro hook)
@@ -128,6 +136,45 @@ public class GrappleHook : MonoBehaviour
         Vector3 gravity = Vector3.down * hookDrop;
         return hook.initPos + hook.initVel * hook.time + 0.5f * gravity * hook.time * hook.time;
     }
+
+    public void vfxTargets()
+    {
+        if (hookObject == null) return;
+
+        Vector3 origin = grappleTip.transform.position;
+        Vector3 target = hookObject.transform.position;
+
+        Vector3 direction = (target - origin).normalized;
+        Vector3 upDirection = Vector3.Cross(direction, Vector3.Cross(Vector3.up, direction)).normalized;
+
+        Vector3 curve1 = Vector3.Lerp(origin + Vector3.right * 1f, target, 0.25f) + upDirection * curveStrength;
+        Vector3 curve2 = Vector3.Lerp(origin, target + Vector3.right * -1f, 0.5f) + upDirection * curveStrength;
+
+        if (isStraightening)
+        {
+            elapsedTime += Time.deltaTime;
+
+            float t = Mathf.Clamp01(elapsedTime / straightenTime);
+            curve1 = Vector3.Lerp(curve1, Vector3.Lerp(origin + Vector3.right * 1f, target, 0.25f), t);
+            curve2 = Vector3.Lerp(curve2, Vector3.Lerp(origin, target + Vector3.right * -1f, 0.5f), t);
+
+            if (t == 1f)
+            {
+                isStraightening = false;
+            }
+        }
+        else if (elapsedTime >= straightenTime)
+        {
+            curve1 = Vector3.Lerp(origin, target, 0.25f);
+            curve2 = Vector3.Lerp(origin, target, 0.5f);
+        }
+
+        vfxGraph.SetVector3("Origin", origin);
+        vfxGraph.SetVector3("Curve1", curve1);
+        vfxGraph.SetVector3("Curve2", curve2);
+        vfxGraph.SetVector3("Target", target);
+    }
+
 
     hookPro CreateHook(Vector3 pos, Vector3 vel)
     {
@@ -156,7 +203,7 @@ public class GrappleHook : MonoBehaviour
             RaycastStep(currentPos, nextPos, hook);
             if(!isGrappling && hookObject != null && !isRetracting)
             {
-                newPosition = Vector3.Lerp(currentPos, nextPos, hook.time); 
+                newPosition = Vector3.Lerp(currentPos, nextPos, hook.time);
             }
         });
 
@@ -204,13 +251,14 @@ public class GrappleHook : MonoBehaviour
 
             hookTrans.transform.position = grappleHit.point; 
             isGrappling = true;
-            //return;
+            lineTension();
         }
         else 
         {
             isGrappling = false;
+            //isStraightening = false;
+            elapsedTime = 0f;
         }
-
         if (newPosition != Vector3.zero)
         {
             hookObject.transform.position = newPosition;
@@ -226,6 +274,7 @@ public class GrappleHook : MonoBehaviour
         Vector3 velocity = fpCamTrans.forward * hookSpeed;
         var hook = CreateHook(grappleTip.position, velocity);
         hookList.Add(hook);
+        vfxGraph.Play();
     }
     public void StopGrapple()
     {
@@ -236,6 +285,7 @@ public class GrappleHook : MonoBehaviour
         hasFired = false;
         isRetracting = false;
         distFromGrapplePoint = 0f;
+        vfxGraph.Stop();
     }
 
     private void DrawLine()
@@ -245,80 +295,6 @@ public class GrappleHook : MonoBehaviour
 
         lineRend.SetPosition(0, grappleTip.position);
         lineRend.SetPosition(1, hookObject.transform.position);
-        //lineRend.SetPosition(2, hookObject.transform.position);
+        lineRend.SetPosition(2, hookObject.transform.position);
     }
-
-    //private void DrawCurvedLine()
-    //{
-    //    Vector3 a = grappleTip.position;
-    //    Vector3 c = hookObject.transform.position;
-    //    Vector3 midPoint = (a + c) / 2;
-
-    //    // Adjust the height of the control point based on the curve strength
-    //    Vector3 b = midPoint + Vector3.up * lineCurveStrength;
-
-    //    lineRend.positionCount = lineSegmentCount + 1;
-
-    //    for (int i = 0; i <= lineSegmentCount; i++)
-    //    {
-    //        float t = (float)i / lineSegmentCount;
-    //        Vector3 point = QuadraticBezier(a, b, c, t);
-    //        lineRend.SetPosition(i, point);
-    //    }
-
-    //    Debug.Log("GrappleTip position: " + grappleTip.position);
-    //    Debug.Log("HookObject position: " + hookObject.transform.position);
-    //}
-
-    //void DrawCurvedLine()
-    //{
-    //    Vector3 p0 = grappleTip.position;
-    //    Vector3 p1 = hookObject.transform.position;
-
-    //    Vector3 midPoint = (p0 + p1) / 2;
-    //    midPoint.y += p0.y < p1.y ? -lineCurveStrength : lineCurveStrength;
-
-    //    lineRend.positionCount = lineSegmentCount + 1;
-
-    //    for (int i = 0; i <= lineSegmentCount; i++)
-    //    {
-    //        float t = i / (float)lineSegmentCount;
-    //        Vector3 position = QuadraticBezier(p0, midPoint, p1, t);
-    //        Debug.Log($"Position {i}: {position}");
-    //        lineRend.SetPosition(i, position);
-    //    }
-    //}
-
-    //Vector3 QuadraticBezier(Vector3 a, Vector3 b, Vector3 c, float t)
-    //{
-    //    Vector3 p0 = Vector3.Lerp(a, b, t);
-    //    Vector3 p1 = Vector3.Lerp(b, c, t);
-    //    Vector3 result = Vector3.Lerp(p0, p1, t);
-    //    Debug.Log($"QuadraticBezier: a={a}, b={b}, c={c}, t={t}, result={result}");
-    //    return result;
-    //}
-    //void DrawCurvedLine()
-    //{
-
-    //    Vector3 p0 = grappleTip.position;
-    //    Vector3 p1 = hookObject.transform.position;
-
-    //    Vector3 midPoint = (p0 + p1) / 2;
-    //    midPoint.y += p0.y < p1.y ? -lineCurveStrength : lineCurveStrength;
-
-    //    lineRend.positionCount = lineSegmentCount + 1;
-
-    //    for (int i = 0; i <= lineSegmentCount; i++)
-    //    {
-    //        float t = i / (float)lineSegmentCount;
-    //        lineRend.SetPosition(i, QuadraticBezier(p0, midPoint, p1, t));
-    //    }
-    //}
-
-    //Vector3 QuadraticBezier(Vector3 a, Vector3 b, Vector3 c, float t)
-    //{
-    //    Vector3 p0 = Vector3.Lerp(a, b, t);
-    //    Vector3 p1 = Vector3.Lerp(b, c, t);
-    //    return Vector3.Lerp(p0, p1, t);
-    //}
 }
