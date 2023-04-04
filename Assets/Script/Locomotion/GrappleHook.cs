@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.VFX;
 using UnityEngine.VFX.Utility;
@@ -15,22 +16,23 @@ public class GrappleHook : MonoBehaviour
 
     [Header("Manually assigned variables")]
     [SerializeField] private Transform grappleTip;
-    [SerializeField] private Transform dirParent;
     [SerializeField] private Transform playerTrans;
     [SerializeField] private Transform fpCamTrans;
     [SerializeField] private LayerMask grappleLayer;
     [SerializeField] private GameObject hookPrefab;
     [SerializeField] public Transform hookTrans;
+    [SerializeField] private VisualEffect vfxGraph;
 
     [Header("Editable in inspector")]
     [SerializeField] private float maxGrappleDist = 25f;
     [SerializeField] private float minGrappleDist = 2f;
     [SerializeField] private float retractSpeed = 25f;
     [SerializeField] private float maxLifeTime = 2f;
-    [SerializeField] private float hookSpeed = 100f;
+    [SerializeField] private float hookSpeed = 50f;
     [SerializeField] private float hookDrop = 9.81f;
-    [SerializeField] private float lineCurveStrength = 1f;
-    [SerializeField] private int lineSegmentCount = 20;
+    [SerializeField] private float straightenTime = 2f;
+    [SerializeField] private float curveStrength = 0.1f;
+    [SerializeField] private float defaultNoicePower = 0.2f;
 
     [Header("Visible for debugging")]
     [SerializeField] private float distFromGrapplePoint;
@@ -38,50 +40,29 @@ public class GrappleHook : MonoBehaviour
     [SerializeField] private bool hasThrown;
     [SerializeField] public bool isGrappling;
     [SerializeField] private bool pressedGrapple;
-    [SerializeField] private bool gamePaused;
     [SerializeField] private bool hasFired;
     [SerializeField] private bool isRetracting;
+    [SerializeField] private float elapsedTime = 0f;
+    [SerializeField] private bool isStraightening = false;
+    [SerializeField] public GameObject hookObject;
 
-    [Header("Must remain publicly accessible")]
+
     private LineRenderer lineRend;
     private SpringJoint grappleJoint;
     private Climbing climb;
 
-
-    public VisualEffect vfxGraph;
-    public MyVFXPropertyBinder vfxBinder;
     Ray ray;
     RaycastHit grappleHit;
-
-
     List<hookPro> hookList = new List<hookPro>();
-
-    public ParticleSystem hitEffect;
-    public TrailRenderer tracerEffect;
-
-    public Transform aimTrans;
-
-    public GameObject hookObject;
-
-    public float straightenTime = 2f;
-    private float elapsedTime = 0f;
-    private bool isStraightening = false;
-    public float curveStrength = 1.0f;
-
-
 
     void Start()
     {
         climb = playerTrans.gameObject.GetComponent<Climbing>();
         lineRend = this.GetComponent<LineRenderer>();
-        gamePaused = false;
-        vfxBinder = vfxGraph.GetComponent<MyVFXPropertyBinder>();
     }
 
     void Update()
     {
-
-
         if (Input.GetMouseButtonDown(1) && !climb.isClimbing && !isGrappling && !hasFired)
         {
             hasFired = true;
@@ -109,6 +90,7 @@ public class GrappleHook : MonoBehaviour
 
         if(isRetracting)
         {
+            vfxGraph.SetFloat("Noice Power", 0f);
 
             hookObject.transform.position = Vector3.Lerp(hookObject.transform.position, grappleTip.position, Time.deltaTime * retractSpeed);
             if(distFromGrapplePoint <= minGrappleDist)
@@ -129,6 +111,7 @@ public class GrappleHook : MonoBehaviour
     {
         isStraightening = true;
         elapsedTime = 0f;
+        vfxGraph.SetFloat("Noice Power", 0f);
     }
 
     Vector3 GetPos(hookPro hook)
@@ -150,7 +133,7 @@ public class GrappleHook : MonoBehaviour
         Vector3 curve1 = Vector3.Lerp(origin + Vector3.right * 1f, target, 0.25f) + upDirection * curveStrength;
         Vector3 curve2 = Vector3.Lerp(origin, target + Vector3.right * -1f, 0.5f) + upDirection * curveStrength;
 
-        if (isStraightening)
+        if (isStraightening || isRetracting)
         {
             elapsedTime += Time.deltaTime;
 
@@ -187,8 +170,8 @@ public class GrappleHook : MonoBehaviour
 
     public void UpdateAirTime(float deltaTime)
     {
-        hookFlySim(deltaTime);
-        DestroyHook();
+            hookFlySim(deltaTime);
+            DestroyHook();
     }
 
     public void hookFlySim(float deltaTime)
@@ -271,6 +254,8 @@ public class GrappleHook : MonoBehaviour
 
     public void FireGrapple()
     {
+        vfxGraph.SetFloat("Noice Power", 0.2f);
+        vfxGraph.SetFloat("KillParticles", 10000f);
         Vector3 velocity = fpCamTrans.forward * hookSpeed;
         var hook = CreateHook(grappleTip.position, velocity);
         hookList.Add(hook);
@@ -278,6 +263,7 @@ public class GrappleHook : MonoBehaviour
     }
     public void StopGrapple()
     {
+        vfxGraph.SetFloat("KillParticles", 0f);
         lineRend.positionCount = 0; //Removes the line from the world (by setting it's positions to 0)
         Destroy(grappleJoint);
         Destroy(hookObject);
@@ -286,15 +272,5 @@ public class GrappleHook : MonoBehaviour
         isRetracting = false;
         distFromGrapplePoint = 0f;
         vfxGraph.Stop();
-    }
-
-    private void DrawLine()
-    {
-        Vector3 midPoint = Vector3.Lerp(grappleTip.transform.position, hookObject.transform.position, 0.5f);
-        midPoint = midPoint + Vector3.up * lineCurveStrength;
-
-        lineRend.SetPosition(0, grappleTip.position);
-        lineRend.SetPosition(1, hookObject.transform.position);
-        lineRend.SetPosition(2, hookObject.transform.position);
     }
 }

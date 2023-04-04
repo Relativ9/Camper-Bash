@@ -768,7 +768,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   grappleTip: {fileID: 6786078849138973143}
-  dirParent: {fileID: 313479595}
   playerTrans: {fileID: 1922009495}
   fpCamTrans: {fileID: 963194228}
   grappleLayer:
@@ -776,30 +775,26 @@ MonoBehaviour:
     m_Bits: 64
   hookPrefab: {fileID: 8958374703977672843, guid: 6e9e27dda56e31e4dada0188cbf592be, type: 3}
   hookTrans: {fileID: 2115245476}
-  maxGrappleDist: 25
+  vfxGraph: {fileID: 921585161}
+  maxGrappleDist: 50
   minGrappleDist: 2
   retractSpeed: 25
   maxLifeTime: 2
   hookSpeed: 50
   hookDrop: 9.81
-  lineCurveStrength: 3
-  lineSegmentCount: 50
+  straightenTime: 0.1
+  curveStrength: 0.2
+  defaultNoicePower: 0
   distFromGrapplePoint: 0
   hasSpear: 0
   hasThrown: 0
   isGrappling: 0
   pressedGrapple: 0
-  gamePaused: 0
   hasFired: 0
   isRetracting: 0
-  vfxGraph: {fileID: 921585161}
-  vfxBinder: {fileID: 0}
-  hitEffect: {fileID: 5332635249447738620}
-  tracerEffect: {fileID: 3164247873246940756, guid: 518b7a74c901df543ba94c86a28c6b00, type: 3}
-  aimTrans: {fileID: 980370866}
+  elapsedTime: 0
+  isStraightening: 0
   hookObject: {fileID: 0}
-  straightenTime: 0.1
-  curveStrength: 0.2
 --- !u!1 &180434973
 GameObject:
   m_ObjectHideFlags: 0
@@ -5482,8 +5477,20 @@ VisualEffect:
   m_PropertySheet:
     m_Float:
       m_Array:
-      - m_Value: 0.2
+      - m_Value: 0.02
         m_Name: BeamThickness
+        m_Overridden: 1
+      - m_Value: 1
+        m_Name: Noice Speed
+        m_Overridden: 1
+      - m_Value: 0.2
+        m_Name: Noice Power
+        m_Overridden: 1
+      - m_Value: 3
+        m_Name: Noice Frequency
+        m_Overridden: 1
+      - m_Value: 10
+        m_Name: Lifetime
         m_Overridden: 1
     m_Vector2f:
       m_Array: []
@@ -10182,7 +10189,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh31484
+  m_Name: pb_Mesh31498
   serializedVersion: 11
   m_SubMeshes:
   - serializedVersion: 2
