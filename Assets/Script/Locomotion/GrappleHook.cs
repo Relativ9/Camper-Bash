@@ -90,7 +90,6 @@ public class GrappleHook : MonoBehaviour
 
         if(isRetracting)
         {
-            vfxGraph.SetFloat("Noice Power", 0f);
 
             hookObject.transform.position = Vector3.Lerp(hookObject.transform.position, grappleTip.position, Time.deltaTime * retractSpeed);
             if(distFromGrapplePoint <= minGrappleDist)
@@ -239,7 +238,6 @@ public class GrappleHook : MonoBehaviour
         else 
         {
             isGrappling = false;
-            //isStraightening = false;
             elapsedTime = 0f;
         }
         if (newPosition != Vector3.zero)

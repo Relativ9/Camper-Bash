@@ -11,7 +11,6 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float moveSpeed;
     [SerializeField] private float gravityStrength;
     [SerializeField] private Vector3 currentGravity;
-    //[SerializeField] private float groundAngle;
     [SerializeField] private float groundSlopeDetected;
     public Vector3 groundPoint;
     public float stepAngle;
@@ -75,9 +74,7 @@ public class PlayerMovement : MonoBehaviour
     private float secondsSinceWallRun;
     private bool recentlyWallRan;
     private bool debug;
-    private bool kneeFront;
-    private bool kneeLeft;
-    private bool kneeRight;
+
 
     [Header("Input stuff")]
     [SerializeField] public float horizontal;
@@ -431,7 +428,7 @@ public class PlayerMovement : MonoBehaviour
             airTime = 0f;
             groundTime += Time.deltaTime;
             //anim.SetBool("jumpPressed", false);
-        } else
+        } else if (!grapHook.isGrappling && !climb.isClimbing) 
         {
             airTime += Time.deltaTime;
             if (wallRun.isLeft || wallRun.isRight || wallRun.isFront/* || groundSlide*/)
@@ -446,6 +443,9 @@ public class PlayerMovement : MonoBehaviour
                 groundTime = 0f;
                 currentVel = playerRb.velocity;
             }
+        } else
+        {
+            airTime = 0f;
         }
 
         groundSlopeDetected = Vector3.Angle(groundHit.normal, Vector3.up);

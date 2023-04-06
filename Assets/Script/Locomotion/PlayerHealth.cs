@@ -59,7 +59,7 @@ public class PlayerHealth : MonoBehaviour
         {
             currentHealth = MaxPlayerHealth;
         }
-        if (takeDamageOnLanding) //applies fall damage
+        if (takeDamageOnLanding && playerMove.airTime >= 0.5f) //applies fall damage
         {
             currentHealth = currentHealth - fallDamageVal;
             takeDamageOnLanding = false;
@@ -114,7 +114,7 @@ public class PlayerHealth : MonoBehaviour
     private void OnCollisionEnter(Collision collision)
     {
         
-        if (playerMove.currentVel.y <= -30 && !hasTakenFallDamage && playerMove.airTime >= 1.5f)
+        if (playerMove.currentVel.y <= -20 && !hasTakenFallDamage && playerMove.airTime >= 1.5f)
         {
             Debug.Log("Is Colliding!");
             StartCoroutine("DamageTakenImmunity");
