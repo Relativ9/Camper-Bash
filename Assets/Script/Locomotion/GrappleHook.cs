@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -21,7 +22,9 @@ public class GrappleHook : MonoBehaviour
     [SerializeField] private LayerMask grappleLayer;
     [SerializeField] private GameObject hookPrefab;
     [SerializeField] public Transform hookTrans;
-    [SerializeField] private VisualEffect vfxGraph;
+    [SerializeField] private VisualEffect vfxGraphVert;
+    [SerializeField] private VisualEffect vfxGraphHorz;
+
 
     [Header("Editable in inspector")]
     [SerializeField] private float maxGrappleDist = 25f;
@@ -33,6 +36,9 @@ public class GrappleHook : MonoBehaviour
     [SerializeField] private float straightenTime = 2f;
     [SerializeField] private float curveStrength = 0.1f;
     [SerializeField] private float defaultNoicePower = 0.2f;
+    [SerializeField] private float JointSpringValue = 200f;
+    [SerializeField] private float JointDamperVaule = 200f;
+    [SerializeField] private float JointMassScale = 4.5f;
 
     [Header("Visible for debugging")]
     [SerializeField] private float distFromGrapplePoint;
@@ -47,9 +53,10 @@ public class GrappleHook : MonoBehaviour
     [SerializeField] public GameObject hookObject;
 
 
-    private LineRenderer lineRend;
+    //private LineRenderer lineRend;
     private SpringJoint grappleJoint;
     private Climbing climb;
+    [SerializeField] private AudioSource grappleAirSound;
 
     Ray ray;
     RaycastHit grappleHit;
@@ -58,17 +65,23 @@ public class GrappleHook : MonoBehaviour
     void Start()
     {
         climb = playerTrans.gameObject.GetComponent<Climbing>();
-        lineRend = this.GetComponent<LineRenderer>();
+        grappleAirSound = this.GetComponent<AudioSource>();
     }
 
     void Update()
     {
+
+        if (hookObject != null)
+        {
+            distFromGrapplePoint = Vector3.Distance(playerTrans.position, hookObject.transform.position);
+        }
+
         if (Input.GetMouseButtonDown(1) && !climb.isClimbing && !isGrappling && !hasFired)
         {
             hasFired = true;
             hookObject = Instantiate(hookPrefab, grappleTip.position, fpCamTrans.transform.rotation);
             hookObject.transform.LookAt(fpCamTrans.transform.position);
-            lineRend.positionCount = 2;
+            //lineRend.positionCount = 2;
             FireGrapple();
         }
         else if (Input.GetKeyDown(KeyCode.E) && hasFired)
@@ -98,11 +111,6 @@ public class GrappleHook : MonoBehaviour
                 Debug.Log("Grapple stopped attempt");
             }
         }
-        if (hookObject != null)
-        {
-            distFromGrapplePoint = Vector3.Distance(playerTrans.position, hookObject.transform.position);
-        }
-
         vfxTargets();
     }
 
@@ -110,7 +118,8 @@ public class GrappleHook : MonoBehaviour
     {
         isStraightening = true;
         elapsedTime = 0f;
-        vfxGraph.SetFloat("Noice Power", 0f);
+        vfxGraphVert.SetFloat("Noice Power", 0f);
+        vfxGraphHorz.SetFloat("Noice Power", 0f);
     }
 
     Vector3 GetPos(hookPro hook)
@@ -151,10 +160,15 @@ public class GrappleHook : MonoBehaviour
             curve2 = Vector3.Lerp(origin, target, 0.5f);
         }
 
-        vfxGraph.SetVector3("Origin", origin);
-        vfxGraph.SetVector3("Curve1", curve1);
-        vfxGraph.SetVector3("Curve2", curve2);
-        vfxGraph.SetVector3("Target", target);
+        vfxGraphVert.SetVector3("Origin", origin);
+        vfxGraphVert.SetVector3("Curve1", curve1);
+        vfxGraphVert.SetVector3("Curve2", curve2);
+        vfxGraphVert.SetVector3("Target", target);
+
+        vfxGraphHorz.SetVector3("Origin", origin);
+        vfxGraphHorz.SetVector3("Curve1", curve1);
+        vfxGraphHorz.SetVector3("Curve2", curve2);
+        vfxGraphHorz.SetVector3("Target", target);
     }
 
 
@@ -227,9 +241,9 @@ public class GrappleHook : MonoBehaviour
             grappleJoint.maxDistance = distFromGrapplePoint * 0.65f;
             grappleJoint.minDistance = distFromGrapplePoint * 0.40f;
 
-            grappleJoint.spring = 150f;
-            grappleJoint.damper = 200f;
-            grappleJoint.massScale = 4.5f;
+            grappleJoint.spring = JointSpringValue;
+            grappleJoint.damper = JointDamperVaule;
+            grappleJoint.massScale = JointMassScale;
 
             hookTrans.transform.position = grappleHit.point; 
             isGrappling = true;
@@ -252,23 +266,30 @@ public class GrappleHook : MonoBehaviour
 
     public void FireGrapple()
     {
-        vfxGraph.SetFloat("Noice Power", 0.2f);
-        vfxGraph.SetFloat("KillParticles", 10000f);
+        vfxGraphVert.SetFloat("Noice Power", 0.2f);
+        vfxGraphVert.SetFloat("KillParticles", 10000f);
+        vfxGraphHorz.SetFloat("Noice Power", 0.2f);
+        vfxGraphHorz.SetFloat("KillParticles", 10000f);
         Vector3 velocity = fpCamTrans.forward * hookSpeed;
         var hook = CreateHook(grappleTip.position, velocity);
         hookList.Add(hook);
-        vfxGraph.Play();
+        vfxGraphVert.Play();
+        vfxGraphHorz.Play();
+        grappleAirSound.Play();
     }
     public void StopGrapple()
     {
-        vfxGraph.SetFloat("KillParticles", 0f);
-        lineRend.positionCount = 0; //Removes the line from the world (by setting it's positions to 0)
+        vfxGraphVert.SetFloat("KillParticles", 0f);
+        vfxGraphHorz.SetFloat("KillParticles", 0f);
+        //lineRend.positionCount = 0; //Removes the line from the world (by setting it's positions to 0)
         Destroy(grappleJoint);
         Destroy(hookObject);
         isGrappling = false;
         hasFired = false;
         isRetracting = false;
         distFromGrapplePoint = 0f;
-        vfxGraph.Stop();
+        vfxGraphVert.Stop();
+        vfxGraphHorz.Stop();
+        grappleAirSound.Stop();
     }
 }

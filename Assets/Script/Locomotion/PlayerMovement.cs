@@ -428,7 +428,7 @@ public class PlayerMovement : MonoBehaviour
             airTime = 0f;
             groundTime += Time.deltaTime;
             //anim.SetBool("jumpPressed", false);
-        } else if (!grapHook.isGrappling && !climb.isClimbing) 
+        } else
         {
             airTime += Time.deltaTime;
             if (wallRun.isLeft || wallRun.isRight || wallRun.isFront/* || groundSlide*/)
@@ -443,10 +443,11 @@ public class PlayerMovement : MonoBehaviour
                 groundTime = 0f;
                 currentVel = playerRb.velocity;
             }
-        } else
-        {
-            airTime = 0f;
-        }
+        } 
+        //else if ()
+        //{
+        //    airTime = 0f;
+        //}
 
         groundSlopeDetected = Vector3.Angle(groundHit.normal, Vector3.up);
         if(groundSlopeDetected >= maxSlopeAngle)
