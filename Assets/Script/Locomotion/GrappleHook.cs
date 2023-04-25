@@ -80,7 +80,7 @@ public class GrappleHook : MonoBehaviour
         {
             hasFired = true;
             hookObject = Instantiate(hookPrefab, grappleTip.position, fpCamTrans.transform.rotation);
-            hookObject.transform.LookAt(fpCamTrans.transform.position);
+            hookObject.transform.LookAt(fpCamTrans.transform.forward);
             //lineRend.positionCount = 2;
             FireGrapple();
         }

@@ -23,19 +23,19 @@
                 "Bent Normal": {
                     "bent_normal_diffuse_amount": 1,
                     "bent_normal_specular_amount": 1,
-                    "use_bent_normal": false
+                    "use_bent_normal": true
                 },
                 "Common Parameters": {
                     "ao_intensity": 0.75,
-                    "emissive_intensity": 1,
-                    "horizonFade": 1.2999999523162842,
+                    "emissive_intensity": 1.9700000286102295,
+                    "horizonFade": 1.2200000286102295,
                     "nbSamples": 16
                 },
                 "Parallax Occlusion Mapping": {
-                    "maxPOMSamples": 16,
-                    "minPOMSamples": 4,
-                    "pomStrength": 1,
-                    "usePOM": false
+                    "maxPOMSamples": 20,
+                    "minPOMSamples": 5,
+                    "pomStrength": 1.850000023841858,
+                    "usePOM": true
                 }
             },
             "shader": "pbr-metal-rough-with-alpha-blending",
