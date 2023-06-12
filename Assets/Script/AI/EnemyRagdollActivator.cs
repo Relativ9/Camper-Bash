@@ -13,8 +13,8 @@ public class EnemyRagdollActivator : MonoBehaviour
     private Collider enemyCol;
     private Animator enemyAnim;
 
-    private Collider[] rigCols;
-    private Rigidbody[] rigRbs;
+    public Collider[] rigCols;
+    public Rigidbody[] rigRbs;
     private Vector3 lastVel;
 
     void Start()
