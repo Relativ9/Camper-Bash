@@ -60,7 +60,7 @@ public class RagdollActivator : MonoBehaviour
         {
             meleeCol.gameObject.AddComponent<Rigidbody>(); //Must add Rigidbody via script rather than enable/disable kinematic to ensure 
             meleeCol.gameObject.transform.SetParent(null); //makes the player drop the weapon on death
-            meleeCol.gameObject.GetComponent<Rigidbody>().velocity = lastVel; //matches the weapon velocity to the player velocity
+            meleeCol.gameObject.GetComponent<Rigidbody>().linearVelocity = lastVel; //matches the weapon velocity to the player velocity
             meleeCol.gameObject.GetComponent<Rigidbody>().interpolation = RigidbodyInterpolation.Interpolate; //will often be high speed collisions, need interpolate and continous dynamic to ensure the weapon doesn't clip through the ground once dropped
             meleeCol.gameObject.GetComponent<Rigidbody>().collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
         }
@@ -75,7 +75,7 @@ public class RagdollActivator : MonoBehaviour
         foreach (Rigidbody rbs in rigRbs)
         {
             rbs.isKinematic = false;
-            rbs.velocity = lastVel;
+            rbs.linearVelocity = lastVel;
             rbs.interpolation = RigidbodyInterpolation.Interpolate;
             rbs.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
         }
@@ -105,6 +105,6 @@ public class RagdollActivator : MonoBehaviour
         playerCol.enabled = true;
         player.GetComponent<Rigidbody>().isKinematic = false;
         playerAnim.enabled = true;
-        lastVel = player.GetComponent<Rigidbody>().velocity; //saves the last velocity of the player before death (before hitting the ground in a fall). 
+        lastVel = player.GetComponent<Rigidbody>().linearVelocity; //saves the last velocity of the player before death (before hitting the ground in a fall). 
     }
 }

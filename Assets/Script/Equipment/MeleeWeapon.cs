@@ -35,7 +35,7 @@ public class MeleeWeapon : MonoBehaviour
 
         if (gameObject.GetComponent<Rigidbody>() != null)
         {
-            weapVel = gameObject.GetComponent<Rigidbody>().velocity.magnitude;
+            weapVel = gameObject.GetComponent<Rigidbody>().linearVelocity.magnitude;
             damageVal = weapVel / 2;
         }
 

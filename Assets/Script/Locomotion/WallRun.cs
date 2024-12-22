@@ -69,7 +69,7 @@ public class WallRun : MonoBehaviour
             WallJumpCheck();
         }
 
-        velY = playerRigidbody.velocity.y;
+        velY = playerRigidbody.linearVelocity.y;
     }
 
 

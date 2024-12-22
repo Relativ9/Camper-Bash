@@ -96,7 +96,7 @@ public class WeaponPickup : MonoBehaviour
 
         weaponRb.isKinematic = false;
 
-        weaponRb.velocity = player.GetComponent<Rigidbody>().velocity;
+        weaponRb.linearVelocity = player.GetComponent<Rigidbody>().linearVelocity;
         weaponRb.AddForce(fpCamTrans.forward * throwDistFor, ForceMode.Impulse);
         weaponRb.AddForce(fpCamTrans.up * throwDistUp, ForceMode.Impulse);
 

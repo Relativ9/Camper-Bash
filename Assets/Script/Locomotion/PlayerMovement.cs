@@ -285,20 +285,20 @@ public class PlayerMovement : MonoBehaviour
         {
             gravityStrength = noGravityStrength;
             currentGravity = new Vector3(0f, gravityStrength * multiplier, 0f);
-            playerRb.drag = 1f;
+            playerRb.linearDamping = 1f;
         }
         else if (!climb.isClimbing)
         {
-            playerRb.drag = 0.25f;
+            playerRb.linearDamping = 0.25f;
         }
 
         if (volTrig.inGas)
         {
-            playerRb.drag = 10f;
+            playerRb.linearDamping = 10f;
         }
         else
         {
-            playerRb.drag = 0.25f;
+            playerRb.linearDamping = 0.25f;
         }
 
     }
@@ -327,18 +327,18 @@ public class PlayerMovement : MonoBehaviour
 
             if (volTrig.surfaceSwimming || volTrig.underwaterSwimming)
             {
-                Vector3 swimLine = Vector3.Lerp(playerRb.velocity, moveDirection * moveSpeed, Time.fixedDeltaTime * 10f);
+                Vector3 swimLine = Vector3.Lerp(playerRb.linearVelocity, moveDirection * moveSpeed, Time.fixedDeltaTime * 10f);
                 currentVel = swimLine;
-                playerRb.velocity = currentVel;
+                playerRb.linearVelocity = currentVel;
             }
 
             if (isGrounded && !groundSlide  && stepAngle <= maxSlopeAngle)
             {
-                Vector3 moveLine = Vector3.Lerp(playerRb.velocity, moveDirection * moveSpeed, Time.fixedDeltaTime * 10f);
-                moveLine.y = playerRb.velocity.y;
+                Vector3 moveLine = Vector3.Lerp(playerRb.linearVelocity, moveDirection * moveSpeed, Time.fixedDeltaTime * 10f);
+                moveLine.y = playerRb.linearVelocity.y;
 
                 currentVel = new Vector3(moveLine.x, moveLine.y, moveLine.z);
-                playerRb.velocity = currentVel;
+                playerRb.linearVelocity = currentVel;
             }
         }
 
@@ -353,8 +353,8 @@ public class PlayerMovement : MonoBehaviour
 
         if (!isMoving && isGrounded)
         {
-            stopVel = new Vector3(0, playerRb.velocity.y, 0);
-            playerRb.velocity = stopVel;
+            stopVel = new Vector3(0, playerRb.linearVelocity.y, 0);
+            playerRb.linearVelocity = stopVel;
             this.gameObject.GetComponent<Collider>().material.staticFriction = 100f;
         }
         else
@@ -362,7 +362,7 @@ public class PlayerMovement : MonoBehaviour
             this.gameObject.GetComponent<Collider>().material.staticFriction = 0.1f;
         }
 
-        var vel = playerRb.velocity;
+        var vel = playerRb.linearVelocity;
 
         var localVel = dirParent.transform.InverseTransformDirection(vel);
 
@@ -408,7 +408,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (canJump)
         {
-            playerRb.velocity = new Vector3(playerRb.velocity.x, 0, playerRb.velocity.z);
+            playerRb.linearVelocity = new Vector3(playerRb.linearVelocity.x, 0, playerRb.linearVelocity.z);
             playerRb.AddRelativeForce(Vector3.up * jumpHeight * multiplier, ForceMode.Impulse);
             canJump = false;
         }
@@ -435,13 +435,13 @@ public class PlayerMovement : MonoBehaviour
             {
                 isGrounded = false;
                 groundTime = 0f;
-                currentVel = playerRb.velocity;
+                currentVel = playerRb.linearVelocity;
             }
             else if (airTime >= 0.3f)
             {
                 isGrounded = false;
                 groundTime = 0f;
-                currentVel = playerRb.velocity;
+                currentVel = playerRb.linearVelocity;
             }
         } 
         //else if ()
@@ -531,7 +531,7 @@ public class PlayerMovement : MonoBehaviour
 
                 if (stepAngle >= maxSlopeAngle)
                 {
-                    playerRb.velocity = new Vector3(0, smoothStep, 0);
+                    playerRb.linearVelocity = new Vector3(0, smoothStep, 0);
                 }
             }
 
@@ -545,7 +545,7 @@ public class PlayerMovement : MonoBehaviour
 
                 if (stepAngle >= maxSlopeAngle)
                 {
-                    playerRb.velocity = new Vector3(0, smoothStep, 0);
+                    playerRb.linearVelocity = new Vector3(0, smoothStep, 0);
                 }
             }
         }
@@ -558,7 +558,7 @@ public class PlayerMovement : MonoBehaviour
 
                 if (stepAngle >= maxSlopeAngle)
                 {
-                    playerRb.velocity = new Vector3(0, smoothStep, 0);
+                    playerRb.linearVelocity = new Vector3(0, smoothStep, 0);
                 }
             }
 

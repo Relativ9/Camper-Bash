@@ -84,8 +84,8 @@ public class PlayerMelee : MonoBehaviour
             weaponCol.gameObject.transform.SetParent(null);
             weaponCol.gameObject.AddComponent<Rigidbody>();
             Rigidbody thrownRb = weaponCol.gameObject.GetComponent<Rigidbody>();
-            thrownRb.angularDrag = 0f;
-            thrownRb.drag = 1f;
+            thrownRb.angularDamping = 0f;
+            thrownRb.linearDamping = 1f;
             thrownRb.mass = 1f;
             thrownRb.interpolation = RigidbodyInterpolation.Interpolate;
             thrownRb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
